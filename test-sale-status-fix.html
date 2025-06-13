@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إصلاح حالة البيع</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            direction: rtl;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(255,255,255,0.2);
+        }
+        .header h1 {
+            color: white;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        .improvement-section {
+            margin: 30px 0;
+            padding: 25px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .improvement-section h3 {
+            color: #ffd700;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .comparison-item {
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .before {
+            background: rgba(220,53,69,0.2);
+            border: 2px solid #dc3545;
+        }
+        .after {
+            background: rgba(40,167,69,0.2);
+            border: 2px solid #28a745;
+        }
+        .demo-badge {
+            padding: 5px 12px;
+            border-radius: 18px;
+            font-weight: 600;
+            margin: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            min-width: 75px;
+            justify-content: center;
+            line-height: 1.3;
+        }
+        .badge-sold {
+            color: #28a745;
+            background: rgba(40, 167, 69, 0.08);
+            border: 1px solid rgba(40, 167, 69, 0.25);
+        }
+        .badge-not-sold-old {
+            color: #6c757d;
+            background: rgba(108, 117, 125, 0.08);
+            border: 1px solid rgba(108, 117, 125, 0.25);
+            text-decoration: line-through;
+            position: relative;
+            flex-direction: column;
+            height: auto;
+            padding: 8px 12px;
+        }
+        .badge-not-sold-old::before {
+            content: "❌";
+            font-size: 11px;
+            margin-bottom: 2px;
+        }
+        .badge-not-sold-new {
+            color: #6c757d;
+            background: rgba(108, 117, 125, 0.08);
+            border: 1px solid rgba(108, 117, 125, 0.25);
+            text-decoration: line-through;
+            white-space: nowrap;
+        }
+        .demo-table {
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 15px 0;
+            color: #333;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .demo-table th {
+            background: linear-gradient(135deg, #343a40 0%, #495057 100%);
+            color: white;
+            padding: 12px 8px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .demo-table td {
+            padding: 10px 8px;
+            text-align: center;
+            border-bottom: 1px solid #f1f3f4;
+            font-size: 13px;
+        }
+        .demo-table tr:hover {
+            background: rgba(0,123,255,0.05);
+        }
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        .feature-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+        }
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+        .check-icon {
+            color: #00ff88;
+            margin-left: 15px;
+            font-size: 1.2rem;
+        }
+        .x-icon {
+            color: #ff4757;
+            margin-left: 15px;
+            font-size: 1.2rem;
+        }
+        .test-button {
+            width: 100%;
+            padding: 15px;
+            margin: 20px 0;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            color: white;
+            transition: all 0.3s;
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            box-shadow: 0 4px 15px rgba(0,123,255,0.3);
+        }
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,123,255,0.4);
+        }
+        .code-block {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            font-size: 13px;
+            border-left: 4px solid #ffd700;
+            color: #f8f9fa;
+        }
+        @media (max-width: 768px) {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 إصلاح حالة البيع</h1>
+            <p>حل مشكلة ظهور "غير مباع" في سطرين</p>
+        </div>
+        
+        <div class="improvement-section">
+            <h3>🐛 المشكلة التي تم حلها</h3>
+            <ul class="feature-list">
+                <li><span class="x-icon">❌</span> النص "غير مباع" كان يظهر في سطرين</li>
+                <li><span class="x-icon">❌</span> الأيقونة ::before تسبب كسر السطر</li>
+                <li><span class="x-icon">❌</span> عدم تناسق مع شارة "مباع"</li>
+                <li><span class="check-icon">✅</span> تم إصلاح العرض ليكون في سطر واحد</li>
+                <li><span class="check-icon">✅</span> إضافة white-space: nowrap</li>
+                <li><span class="check-icon">✅</span> دمج الأيقونة مع النص مباشرة</li>
+            </ul>
+        </div>
+
+        <div class="improvement-section">
+            <h3>📊 مقارنة العرض</h3>
+            <div class="comparison-grid">
+                <div class="comparison-item before">
+                    <h4>❌ قبل الإصلاح</h4>
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+                        <span class="demo-badge badge-sold">
+                            <i class="fas fa-check-circle"></i> مباع
+                        </span>
+                        <span class="demo-badge badge-not-sold-old">
+                            غير مباع
+                        </span>
+                    </div>
+                    <p style="font-size: 12px; opacity: 0.8; margin-top: 15px;">
+                        "غير مباع" في سطرين مع الأيقونة
+                    </p>
+                </div>
+                
+                <div class="comparison-item after">
+                    <h4>✅ بعد الإصلاح</h4>
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+                        <span class="demo-badge badge-sold">
+                            <i class="fas fa-check-circle"></i> مباع
+                        </span>
+                        <span class="demo-badge badge-not-sold-new">
+                            ❌ غير مباع
+                        </span>
+                    </div>
+                    <p style="font-size: 12px; opacity: 0.8; margin-top: 15px;">
+                        كلاهما في سطر واحد ومتناسق
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="improvement-section">
+            <h3>🔧 الحلول المطبقة</h3>
+            
+            <h4 style="color: #ffd700; margin: 20px 0 10px 0;">1. إزالة ::before وإضافة white-space:</h4>
+            <div class="code-block">
+.card-status-not-sold {
+    /* إزالة position: relative */
+    white-space: nowrap;  /* منع كسر السطر */
+    gap: 4px;            /* تقليل المسافة */
+}
+
+/* حذف ::before تماماً */
+</div>
+
+            <h4 style="color: #ffd700; margin: 20px 0 10px 0;">2. دمج الأيقونة مع النص:</h4>
+            <div class="code-block">
+// OLD
+const saleStatusText = isSold ? 'مباع' : 'غير مباع';
+
+// NEW  
+const saleStatusText = isSold ? 'مباع' : '❌ غير مباع';
+</div>
+
+            <h4 style="color: #ffd700; margin: 20px 0 10px 0;">3. تحسين عرض الشارة:</h4>
+            <div class="code-block">
+&lt;span class="${saleStatusClass}"&gt;
+    ${isSold ? '&lt;i class="fas fa-check-circle"&gt;&lt;/i&gt;' : ''} ${saleStatusText}
+&lt;/span&gt;
+</div>
+        </div>
+
+        <div class="improvement-section">
+            <h3>📋 مقارنة في الجدول</h3>
+            <table class="demo-table">
+                <thead>
+                    <tr>
+                        <th>الحالة</th>
+                        <th>قبل الإصلاح</th>
+                        <th>بعد الإصلاح</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>مباع</strong></td>
+                        <td><span class="demo-badge badge-sold"><i class="fas fa-check-circle"></i> مباع</span></td>
+                        <td><span class="demo-badge badge-sold"><i class="fas fa-check-circle"></i> مباع</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>غير مباع</strong></td>
+                        <td><span class="demo-badge badge-not-sold-old">غير مباع</span></td>
+                        <td><span class="demo-badge badge-not-sold-new">❌ غير مباع</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="improvement-section">
+            <h3>✨ المزايا المحققة</h3>
+            <ul class="feature-list">
+                <li><span class="check-icon">✅</span> عرض متناسق في سطر واحد</li>
+                <li><span class="check-icon">✅</span> تناسق بصري مع شارة "مباع"</li>
+                <li><span class="check-icon">✅</span> استغلال أفضل للمساحة</li>
+                <li><span class="check-icon">✅</span> مظهر أكثر احترافية</li>
+                <li><span class="check-icon">✅</span> سهولة القراءة والفهم</li>
+                <li><span class="check-icon">✅</span> كود أنظف وأبسط</li>
+            </ul>
+        </div>
+
+        <button class="test-button" onclick="openPrepaidCardsPage()">
+            🚀 اختبار الإصلاح
+        </button>
+
+        <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.2);">
+            <p style="opacity: 0.8;">
+                <strong>تم الإصلاح بنجاح!</strong> الآن جميع شارات حالة البيع تظهر في سطر واحد
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function openPrepaidCardsPage() {
+            const testWindow = window.open('/admin/prepaid-cards.html', '_blank');
+            
+            if (!testWindow) {
+                alert('تم حظر النافذة المنبثقة. يرجى السماح بالنوافذ المنبثقة وإعادة المحاولة.');
+                return;
+            }
+            
+            setTimeout(() => {
+                alert('🎉 تم فتح الصفحة المحسنة!\n\n' +
+                      '👀 لاحظ الإصلاح:\n' +
+                      '• "مباع" و "غير مباع" كلاهما في سطر واحد\n' +
+                      '• تناسق بصري مثالي\n' +
+                      '• مظهر احترافي ومنظم\n' +
+                      '• استغلال أمثل للمساحة\n' +
+                      '• سهولة القراءة والفهم');
+            }, 1000);
+        }
+
+        // Add animation effects
+        document.addEventListener('DOMContentLoaded', function() {
+            const sections = document.querySelectorAll('.improvement-section');
+            
+            sections.forEach((section, index) => {
+                section.style.opacity = '0';
+                section.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    section.style.transition = 'all 0.6s ease';
+                    section.style.opacity = '1';
+                    section.style.transform = 'translateY(0)';
+                }, index * 200);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تسجيل المواد - جامعة الحاضرة</title>
+    <title>تنزيل المواد - جامعة الحاضرة</title>
     <link rel="stylesheet" href="../css/styles.css">
     <!-- Bootstrap RTL CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
@@ -33,7 +33,7 @@
                         <li class="nav-item">
                             <a class="nav-link active" href="courses.html">
                                 <i class="fas fa-book"></i>
-                                تسجيل المواد
+                                تنزيل المواد
                             </a>
                         </li>
                         <li class="nav-item mt-5">
@@ -49,7 +49,7 @@
             <!-- Main content -->
             <div class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="h2">تسجيل المواد</h1>
+                    <h1 class="h2">تنزيل المواد</h1>
                     <div class="btn-toolbar mb-2 mb-md-0">
                         <div class="dropdown">
                             <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
@@ -63,21 +63,131 @@
                     </div>
                 </div>
 
+                <!-- Important Notice Alert -->
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <div class="alert alert-warning alert-dismissible fade show border-start border-warning border-4" role="alert">
+                            <div class="d-flex align-items-center">
+                                <div class="me-3">
+                                    <i class="fas fa-exclamation-triangle fa-2x text-warning"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h5 class="alert-heading mb-2">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        تنبيه مهم - التنزيل المبدئي
+                                    </h5>
+                                    <p class="mb-2">
+                                        <strong>هذا التنزيل مبدئي ولا يعتبر نهائياً إلا بعد إتمام عملية الدفع.</strong>
+                                    </p>
+                                    <ul class="mb-2 ps-3">
+                                        <li>يجب دفع رسوم كل مادة منزلة لتأكيد التنزيل</li>
+                                        <li>المواد غير المدفوعة قد يتم إلغاؤها تلقائياً</li>
+                                        <li>تواصل مع الإدارة المالية لإتمام عملية الدفع</li>
+                                    </ul>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-coins text-warning me-2"></i>
+                                        <small class="text-muted">
+                                            <strong>ملاحظة:</strong> الأسعار المعروضة بالدينار الليبي
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="إغلاق"></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Student Info Card -->
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-user-graduate me-2"></i>
+                                    معلومات الطالب والتنزيل
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6 class="text-muted mb-3">
+                                            <i class="fas fa-id-card me-2"></i>
+                                            البيانات الشخصية
+                                        </h6>
+                                        <p class="mb-2"><strong>الاسم:</strong> <span id="student-name" class="text-primary">جاري التحميل...</span></p>
+                                        <p class="mb-2"><strong>رقم القيد:</strong> <span id="student-id" class="text-primary">جاري التحميل...</span></p>
+                                        <p class="mb-2"><strong>التخصص:</strong> <span id="student-department" class="text-primary">جاري التحميل...</span></p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6 class="text-muted mb-3">
+                                            <i class="fas fa-chart-bar me-2"></i>
+                                            إحصائيات التنزيل
+                                        </h6>
+                                        <p class="mb-2"><strong>المواد المنزلة:</strong>
+                                            <span id="current-courses-count" class="badge bg-primary">0</span> من
+                                            <span id="max-courses-limit" class="badge bg-secondary">-</span>
+                                        </p>
+                                        <div class="progress mb-3" style="height: 20px;">
+                                            <div class="progress-bar bg-success" role="progressbar" style="width: 0%" id="enrollment-progress">
+                                                <span class="fw-bold">0%</span>
+                                            </div>
+                                        </div>
+                                        <div class="financial-summary">
+                                            <div class="row g-2">
+                                                <div class="col-12">
+                                                    <p class="mb-2">
+                                                        <strong>إجمالي الرسوم:</strong>
+                                                        <span id="total-fees" class="text-primary fw-bold fs-6">
+                                                            <i class="fas fa-coins me-1"></i>
+                                                            0 دينار
+                                                        </span>
+                                                    </p>
+                                                </div>
+                                                <div class="col-12">
+                                                    <p class="mb-2">
+                                                        <strong>المدفوع:</strong>
+                                                        <span id="paid-fees" class="text-success fw-bold fs-6">
+                                                            <i class="fas fa-check-circle me-1"></i>
+                                                            0 دينار
+                                                        </span>
+                                                    </p>
+                                                </div>
+                                                <div class="col-12">
+                                                    <p class="mb-0">
+                                                        <strong>المتبقي:</strong>
+                                                        <span id="remaining-fees" class="text-danger fw-bold fs-6">
+                                                            <i class="fas fa-exclamation-circle me-1"></i>
+                                                            0 دينار
+                                                        </span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="row mb-4">
                     <div class="col-md-12">
                         <div class="card">
                             <div class="card-header bg-info text-white">
-                                <h5 class="card-title mb-0">معلومات هامة</h5>
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    معلومات هامة
+                                </h5>
                             </div>
                             <div class="card-body">
                                 <div class="alert alert-info">
                                     <h5><i class="fas fa-info-circle"></i> ملاحظات هامة:</h5>
                                     <ul>
-                                        <li>لا يمكنك التسجيل في مادة إلا بعد إنجاز المواد المتطلبة لها.</li>
-                                        <li>لا يمكنك التسجيل في مادة إذا كان العدد المسموح به من الطلبة مكتمل.</li>
-                                        <li>المواد المنجزة لا يمكن التسجيل فيها مرة أخرى.</li>
-                                        <li>لا يمكنك تجاوز الحد الأقصى المسموح به من المواد (<span id="max-courses-limit">6</span> مواد).</li>
-                                        <li>عدد المواد المسجلة حالياً: <span id="current-courses-count" class="badge bg-primary">0</span> من أصل <span id="max-courses-badge" class="badge bg-primary">6</span> مواد.</li>
+                                        <li>لا يمكنك تنزيل مادة إلا بعد إنجاز المواد المتطلبة لها.</li>
+                                        <li>لا يمكنك تنزيل مادة إذا كان العدد المسموح به من الطلبة مكتمل.</li>
+                                        <li>المواد المنجزة لا يمكن تنزيلها مرة أخرى.</li>
+                                        <li>لا يمكنك تجاوز الحد الأقصى المسموح به من المواد.</li>
+                                        <li>عدد المواد المنزلة حالياً: <span id="current-courses-count-notes" class="badge bg-primary">0</span> من أصل <span id="max-courses-badge" class="badge bg-primary">-</span> مواد.</li>
                                     </ul>
                                 </div>
                                 <div class="row">
@@ -88,12 +198,12 @@
                                                 <span>المواد التي تم إنجازها</span>
                                             </div>
                                             <div>
-                                                <span class="badge bg-enrolled me-2">مسجل</span>
-                                                <span>المواد المسجل فيها حالياً</span>
+                                                <span class="badge bg-enrolled me-2">منزل</span>
+                                                <span>المواد المنزلة حالياً</span>
                                             </div>
                                             <div>
                                                 <span class="badge bg-available me-2">متاحة</span>
-                                                <span>المواد المتاحة للتسجيل</span>
+                                                <span>المواد المتاحة للتنزيل</span>
                                             </div>
                                             <div>
                                                 <span class="badge bg-no-groups me-2">بانتظار</span>
@@ -119,7 +229,7 @@
                     <div class="col-md-12">
                         <div class="card">
                             <div class="card-header bg-primary text-white">
-                                <h5 class="card-title mb-0">المواد المتاحة للتسجيل</h5>
+                                <h5 class="card-title mb-0">المواد المتاحة للتنزيل</h5>
                             </div>
                             <div class="card-body">
                                 <div id="available-courses">
@@ -138,6 +248,9 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- QR Scanner Library - Alternative -->
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
     <!-- Responsive JS -->
     <script src="../js/responsive.js"></script>
     <!-- Modal Fixes JS -->
@@ -145,5 +258,139 @@
     <script src="../js/main.js"></script>
     <!-- Auto Logout JS -->
     <script src="../js/auto-logout.js"></script>
+
+    <script>
+        // Load student info and available courses when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Page loaded, loading student info and courses...');
+
+            // Load student info first
+            if (typeof loadStudentInfoForCoursesPage === 'function') {
+                loadStudentInfoForCoursesPage();
+            } else {
+                console.error('loadStudentInfoForCoursesPage function not found');
+                console.log('Attempting to fetch student info directly...');
+                // Fallback: load student info directly
+                fetch('/api/student/info')
+                    .then(response => response.json())
+                    .then(data => {
+                        const student = data.student;
+
+                        // Update student name
+                        const studentNameElement = document.getElementById('student-name');
+                        if (studentNameElement) {
+                            studentNameElement.textContent = student.name || 'غير محدد';
+                            studentNameElement.className = 'text-primary';
+                        }
+
+                        // Update student ID
+                        const studentIdElement = document.getElementById('student-id');
+                        if (studentIdElement) {
+                            studentIdElement.textContent = student.student_id || 'غير محدد';
+                            studentIdElement.className = 'text-primary';
+                        }
+
+                        // Update department
+                        const studentDepartmentElement = document.getElementById('student-department');
+                        if (studentDepartmentElement) {
+                            studentDepartmentElement.textContent = student.department_name || 'غير محدد';
+                            studentDepartmentElement.className = 'text-primary';
+                        }
+
+                        console.log('Student info loaded successfully:', student);
+                    })
+                    .catch(error => {
+                        console.error('Error loading student info:', error);
+
+                        // Update with error message
+                        const studentNameElement = document.getElementById('student-name');
+                        const studentIdElement = document.getElementById('student-id');
+                        const studentDepartmentElement = document.getElementById('student-department');
+
+                        if (studentNameElement) {
+                            studentNameElement.textContent = 'خطأ في التحميل';
+                            studentNameElement.className = 'text-danger';
+                        }
+                        if (studentIdElement) {
+                            studentIdElement.textContent = 'خطأ في التحميل';
+                            studentIdElement.className = 'text-danger';
+                        }
+                        if (studentDepartmentElement) {
+                            studentDepartmentElement.textContent = 'خطأ في التحميل';
+                            studentDepartmentElement.className = 'text-danger';
+                        }
+                    });
+            }
+
+            // Then load available courses
+            if (typeof loadAvailableCourses === 'function') {
+                loadAvailableCourses();
+            } else {
+                console.error('loadAvailableCourses function not found');
+            }
+        });
+    </script>
+
+    <!-- Group Status Info Modal -->
+    <div class="modal fade" id="groupStatusModal" tabindex="-1" aria-labelledby="groupStatusModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title" id="groupStatusModalLabel">
+                        <i class="fas fa-info-circle me-2"></i>
+                        معلومات حالة المجموعات
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="card border-0 shadow-sm mb-3">
+                                <div class="card-header bg-light">
+                                    <h6 class="card-title mb-0" id="course-status-title">
+                                        <i class="fas fa-book me-2"></i>
+                                        اسم المادة
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div id="course-status-content">
+                                        <!-- Content will be loaded here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="alert alert-info">
+                                <h6 class="alert-heading">
+                                    <i class="fas fa-lightbulb me-2"></i>
+                                    نصائح مفيدة
+                                </h6>
+                                <ul class="mb-0">
+                                    <li>تابع الإعلانات الرسمية للجامعة لمعرفة آخر التحديثات</li>
+                                    <li>يمكنك التسجيل في مواد أخرى متاحة في الوقت الحالي</li>
+                                    <li>تواصل مع الإدارة الأكاديمية للاستفسارات العاجلة</li>
+                                    <li>راجع الموقع الرسمي للجامعة بانتظام للتحديثات</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>
+                        إغلاق
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="refreshCourses()">
+                        <i class="fas fa-sync-alt me-1"></i>
+                        تحديث المواد
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>

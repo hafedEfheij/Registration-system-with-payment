@@ -32,20 +32,46 @@ function checkAuth() {
                 userNameElement.textContent = data.user.username;
             }
 
-            // Set role-specific elements
+            // Set role-specific elements visibility without flicker
             if (data.user.role === 'admin') {
-                const adminElements = document.querySelectorAll('.admin-only');
-                adminElements.forEach(el => el.classList.remove('d-none'));
+                // Hide non-admin elements
+                document.querySelectorAll('.student-only, .financial-only:not(.admin-only)').forEach(el => {
+                    el.classList.add('d-none');
+                });
+                // Show admin elements
+                document.querySelectorAll('.admin-only').forEach(el => {
+                    el.classList.remove('d-none');
+                    el.classList.add('show');
+                });
             } else if (data.user.role === 'student') {
-                const studentElements = document.querySelectorAll('.student-only');
-                studentElements.forEach(el => el.classList.remove('d-none'));
+                // Hide non-student elements
+                document.querySelectorAll('.admin-only, .financial-only').forEach(el => {
+                    el.classList.add('d-none');
+                });
+                // Show student elements
+                document.querySelectorAll('.student-only').forEach(el => {
+                    el.classList.remove('d-none');
+                    el.classList.add('show');
+                });
             } else if (data.user.role === 'financial_supervisor') {
-                const financialElements = document.querySelectorAll('.financial-only');
-                financialElements.forEach(el => el.classList.remove('d-none'));
-
-                // Hide admin-only elements for financial supervisor
-                const adminElements = document.querySelectorAll('.admin-only:not(.financial-only)');
-                adminElements.forEach(el => el.classList.add('d-none'));
+                // Hide admin-only elements (not shared with financial)
+                document.querySelectorAll('.admin-only:not(.financial-only)').forEach(el => {
+                    el.classList.add('d-none');
+                });
+                // Hide student elements
+                document.querySelectorAll('.student-only').forEach(el => {
+                    el.classList.add('d-none');
+                });
+                // Show financial supervisor elements
+                document.querySelectorAll('.financial-only').forEach(el => {
+                    el.classList.remove('d-none');
+                    el.classList.add('show');
+                });
+                // Show shared admin-financial elements
+                document.querySelectorAll('.admin-only.financial-only').forEach(el => {
+                    el.classList.remove('d-none');
+                    el.classList.add('show');
+                });
             }
         })
         .catch(error => {
@@ -120,6 +146,22 @@ function setupLoginForm() {
                     } else if (data.user.role === 'financial_supervisor') {
                         window.location.href = '/admin/payment-management.html';
                     }
+                } else if (data.status === 423) {
+                    console.log('Student account is locked');
+                    // حساب الطالب مجمد
+                    loginError.innerHTML = `
+                        <div class="alert alert-danger text-center" role="alert">
+                            <h5 class="alert-heading mb-3">🔒 ${data.error}</h5>
+                            <h6 class="mb-0">${data.message}</h6>
+                        </div>
+                    `;
+                    loginError.classList.remove('d-none');
+
+                    // Disable the form permanently for locked accounts
+                    const formInputs = loginForm.querySelectorAll('input, button');
+                    formInputs.forEach(input => input.disabled = true);
+                    console.log('Form disabled for locked account');
+
                 } else if (data.status === 429) {
                     console.log('Too many failed attempts, user blocked');
                     // Demasiados intentos fallidos - usuario bloqueado
@@ -3744,9 +3786,14 @@ function openStudentCoursesModal(studentId) {
                         <td>${course.semester || 'غير محدد'}</td>
                         <td>${course.created_at ? new Date(course.created_at).toLocaleDateString('ar-LY') : '-'}</td>
                         <td>
-                            <button class="btn btn-sm btn-danger delete-enrollment" data-id="${course.enrollment_id}">
-                                <i class="fas fa-trash"></i> <span class="d-none d-md-inline">حذف</span>
-                            </button>
+                            ${course.payment_status === 'خالص' || course.payment_status === 'paid'
+                                ? `<button class="btn btn-sm btn-secondary" disabled title="لا يمكن إلغاء التسجيل للمواد المدفوعة">
+                                    <i class="fas fa-lock"></i> <span class="d-none d-md-inline">مدفوع</span>
+                                   </button>`
+                                : `<button class="btn btn-sm btn-danger delete-enrollment" data-id="${course.enrollment_id}">
+                                    <i class="fas fa-trash"></i> <span class="d-none d-md-inline">حذف</span>
+                                   </button>`
+                            }
                         </td>
                     `;
                     tbody.appendChild(row);
@@ -3899,7 +3946,7 @@ function deleteEnrollment(enrollmentId, studentId) {
     .then(response => {
         if (!response.ok) {
             return response.json().then(data => {
-                throw new Error(data.error || 'حدث خطأ أثناء إلغاء تسجيل المادة');
+                throw new Error(data.error || 'حدث خطأ أثناء إلغاء تنزيل المادة');
             });
         }
         return response.json();
@@ -4194,34 +4241,165 @@ function loadMaxCoursesLimit() {
 
 // Student: Update enrolled courses count
 function updateEnrolledCoursesCount(count) {
+    // Ensure count is a number
+    count = parseInt(count) || 0;
+
+    console.log(`Updating enrolled courses count to: ${count}`);
+
+    // Update both count elements
     const currentCoursesCount = document.getElementById('current-courses-count');
-    if (currentCoursesCount) {
-        // Ensure count is a number
-        count = parseInt(count) || 0;
+    const currentCoursesCountNotes = document.getElementById('current-courses-count-notes');
 
-        // Update the count display
-        currentCoursesCount.textContent = count;
+    // Get limit for badge color calculation
+    const maxCoursesBadge = document.getElementById('max-courses-badge');
+    const limit = maxCoursesBadge ? parseInt(maxCoursesBadge.textContent) : 6;
 
-        // Update badge color based on count vs limit
-        const maxCoursesBadge = document.getElementById('max-courses-badge');
-        const limit = maxCoursesBadge ? parseInt(maxCoursesBadge.textContent) : 6;
-
-        console.log(`Updating count: ${count} of limit: ${limit}`);
-
-        if (count >= limit) {
-            currentCoursesCount.className = 'badge bg-danger';
-        } else if (count >= limit * 0.75) {
-            currentCoursesCount.className = 'badge bg-warning';
-        } else {
-            currentCoursesCount.className = 'badge bg-primary';
-        }
+    // Determine badge color based on count vs limit
+    let badgeClass = 'badge bg-primary';
+    if (count >= limit) {
+        badgeClass = 'badge bg-danger';
+    } else if (count >= limit * 0.75) {
+        badgeClass = 'badge bg-warning';
     }
+
+    // Update main count element (in statistics section)
+    if (currentCoursesCount) {
+        currentCoursesCount.textContent = count;
+        currentCoursesCount.className = badgeClass;
+        console.log(`Updated main enrolled courses count to: ${count}`);
+    }
+
+    // Update notes count element (in important notes section)
+    if (currentCoursesCountNotes) {
+        currentCoursesCountNotes.textContent = count;
+        currentCoursesCountNotes.className = badgeClass;
+        console.log(`Updated notes enrolled courses count to: ${count}`);
+    }
+
+    // Update progress bar if available
+    const enrollmentProgress = document.getElementById('enrollment-progress');
+    if (enrollmentProgress) {
+        const percentage = Math.min((count / limit) * 100, 100);
+        enrollmentProgress.style.width = percentage + '%';
+        enrollmentProgress.setAttribute('aria-valuenow', percentage);
+
+        // Update progress bar text
+        const progressText = enrollmentProgress.querySelector('span');
+        if (progressText) {
+            progressText.textContent = Math.round(percentage) + '%';
+        }
+
+        console.log(`Updated progress bar to: ${Math.round(percentage)}%`);
+    }
+
+    console.log(`Total enrolled courses count updated to: ${count} (limit: ${limit})`);
+}
+
+// Update financial summary display
+function updateFinancialSummary(totalFees, paidFees, remainingFees) {
+    // Update total fees
+    const totalFeesElement = document.getElementById('total-fees');
+    if (totalFeesElement) {
+        const formattedTotal = totalFees.toLocaleString('ar-LY');
+        totalFeesElement.innerHTML = `
+            <i class="fas fa-coins me-1"></i>
+            ${formattedTotal} دينار
+        `;
+        totalFeesElement.className = totalFees > 0 ? 'text-primary fw-bold fs-6' : 'text-muted fw-bold fs-6';
+    }
+
+    // Update paid fees
+    const paidFeesElement = document.getElementById('paid-fees');
+    if (paidFeesElement) {
+        const formattedPaid = paidFees.toLocaleString('ar-LY');
+        paidFeesElement.innerHTML = `
+            <i class="fas fa-check-circle me-1"></i>
+            ${formattedPaid} دينار
+        `;
+        paidFeesElement.className = paidFees > 0 ? 'text-success fw-bold fs-6' : 'text-muted fw-bold fs-6';
+    }
+
+    // Update remaining fees
+    const remainingFeesElement = document.getElementById('remaining-fees');
+    if (remainingFeesElement) {
+        const formattedRemaining = remainingFees.toLocaleString('ar-LY');
+        remainingFeesElement.innerHTML = `
+            <i class="fas ${remainingFees > 0 ? 'fa-exclamation-circle' : 'fa-check-circle'} me-1"></i>
+            ${formattedRemaining} دينار
+        `;
+        remainingFeesElement.className = remainingFees > 0 ? 'text-danger fw-bold fs-6' : 'text-success fw-bold fs-6';
+    }
+
+    console.log(`Financial Summary - Total: ${totalFees}, Paid: ${paidFees}, Remaining: ${remainingFees} دينار`);
+}
+
+// Legacy function for backward compatibility
+function updateTotalFees(totalFees) {
+    updateFinancialSummary(totalFees, 0, totalFees);
+}
+
+// Student: Load student info for courses page
+function loadStudentInfoForCoursesPage() {
+    console.log('Loading student info for courses page...');
+    fetch('/api/student/info')
+        .then(response => response.json())
+        .then(data => {
+            const student = data.student;
+
+            // Update student name
+            const studentNameElement = document.getElementById('student-name');
+            if (studentNameElement) {
+                studentNameElement.textContent = student.name || 'غير محدد';
+                studentNameElement.className = 'text-primary';
+            }
+
+            // Update student ID
+            const studentIdElement = document.getElementById('student-id');
+            if (studentIdElement) {
+                studentIdElement.textContent = student.student_id || 'غير محدد';
+                studentIdElement.className = 'text-primary';
+            }
+
+            // Update department
+            const studentDepartmentElement = document.getElementById('student-department');
+            if (studentDepartmentElement) {
+                studentDepartmentElement.textContent = student.department_name || 'غير محدد';
+                studentDepartmentElement.className = 'text-primary';
+            }
+
+            console.log('Student info loaded successfully:', student);
+        })
+        .catch(error => {
+            console.error('Error loading student info:', error);
+
+            // Update with error message
+            const studentNameElement = document.getElementById('student-name');
+            const studentIdElement = document.getElementById('student-id');
+            const studentDepartmentElement = document.getElementById('student-department');
+
+            if (studentNameElement) {
+                studentNameElement.textContent = 'خطأ في التحميل';
+                studentNameElement.className = 'text-danger';
+            }
+            if (studentIdElement) {
+                studentIdElement.textContent = 'خطأ في التحميل';
+                studentIdElement.className = 'text-danger';
+            }
+            if (studentDepartmentElement) {
+                studentDepartmentElement.textContent = 'خطأ في التحميل';
+                studentDepartmentElement.className = 'text-danger';
+            }
+        });
 }
 
 // Student: Load available courses
 function loadAvailableCourses() {
+    console.log('🔄 Starting loadAvailableCourses function...');
     const availableCoursesContainer = document.getElementById('available-courses');
     if (availableCoursesContainer) {
+        // Load student info first
+        loadStudentInfoForCoursesPage();
+
         // Load max courses limit
         loadMaxCoursesLimit();
 
@@ -4245,6 +4423,8 @@ function loadAvailableCourses() {
             .then(data => {
                 if (!data) return; // Registration is closed
 
+                console.log('📊 Received course data:', data);
+
                 if (data.courses.length === 0) {
                     availableCoursesContainer.innerHTML = '<div class="alert alert-info">لا توجد مواد متاحة</div>';
                     return;
@@ -4253,13 +4433,44 @@ function loadAvailableCourses() {
                 // Count enrolled courses and update counter
                 const enrolledCourses = data.courses.filter(course => course.is_enrolled);
                 console.log(`Found ${enrolledCourses.length} enrolled courses`);
+                console.log('All courses data:', data.courses);
+                console.log('Enrolled courses data:', enrolledCourses);
+
+                // Check if we have price data
+                enrolledCourses.forEach((course, index) => {
+                    console.log(`Course ${index + 1}: ID=${course.id}, Code=${course.course_code}, Price=${course.price}, Payment Status=${course.payment_status}`);
+                });
 
                 // Get the enrolled course IDs for debugging
                 const enrolledCourseIds = enrolledCourses.map(course => course.id);
                 console.log(`Enrolled course IDs: ${JSON.stringify(enrolledCourseIds)}`);
 
+                // Calculate financial summary for enrolled courses
+                let totalFees = 0;
+                let paidFees = 0;
+                let remainingFees = 0;
+
+                enrolledCourses.forEach(course => {
+                    const price = parseFloat(course.price) || 0;
+                    totalFees += price;
+
+                    // Check if course is paid
+                    if (course.payment_status === 'خالص' || course.payment_status === 'paid') {
+                        paidFees += price;
+                    } else {
+                        remainingFees += price;
+                    }
+
+                    console.log(`Course ${course.course_code}: ${price} دينار - Status: ${course.payment_status || 'غير محدد'}`);
+                });
+
+                console.log(`Financial Summary - Total: ${totalFees}, Paid: ${paidFees}, Remaining: ${remainingFees} دينار`);
+
                 // Update the counter with the actual number of enrolled courses
                 updateEnrolledCoursesCount(enrolledCourses.length);
+
+                // Update financial summary display
+                updateFinancialSummary(totalFees, paidFees, remainingFees);
 
                 // Sort courses by status: منجزة -> متاحة -> مكتملة -> غير متاحة
                 const sortedCourses = [...data.courses].sort((a, b) => {
@@ -4318,7 +4529,29 @@ function loadAvailableCourses() {
                             `;
                         }
 
-                        enrollButton = `${groupInfo}<button class="btn btn-danger unenroll-button" data-id="${course.id}">إلغاء التسجيل</button>`;
+                        // Add receipt button for unpaid courses
+                        const receiptButton = course.payment_status !== 'خالص' ?
+                            `<button class="btn btn-primary me-2 submit-receipt-button" style="min-width: 130px; height: 38px; font-size: 13px; padding: 6px 12px; line-height: 1.2; display: inline-flex; align-items: center; justify-content: center; vertical-align: top;"
+                                    data-enrollment-id="${course.enrollment_id}"
+                                    data-course-name="${course.name}"
+                                    data-course-code="${course.course_code}"
+                                    data-price="${course.price || 0}"
+                                    data-group-name="${course.group_info ? course.group_info.group_name : ''}">
+                                <i class="fas fa-money-check-alt me-1"></i>
+                                إدخال رقم الإيصال
+                            </button>` : '';
+
+                        // Check if payment is completed to disable unenroll button
+                        const isPaid = course.payment_status === 'خالص' || course.payment_status === 'paid';
+                        const unenrollButton = isPaid
+                            ? `<button class="btn btn-secondary" disabled title="لا يمكن إلغاء التسجيل للمواد المدفوعة" style="min-width: 130px; height: 38px; font-size: 13px; padding: 6px 12px; line-height: 1.2; display: inline-flex; align-items: center; justify-content: center; vertical-align: top;">
+                                <i class="fas fa-lock me-1"></i>مدفوع
+                               </button>`
+                            : `<button class="btn btn-danger unenroll-button" data-id="${course.id}" style="min-width: 130px; height: 38px; font-size: 13px; padding: 6px 12px; line-height: 1.2; display: inline-flex; align-items: center; justify-content: center; vertical-align: top;">
+                                <i class="fas fa-times me-1"></i>إلغاء التسجيل
+                               </button>`;
+
+                        enrollButton = `${groupInfo}${receiptButton}${unenrollButton}`;
                         section = 'enrolled';
                     } else if (course.max_students === 0) {
                         // New section for courses without groups
@@ -4328,7 +4561,9 @@ function loadAvailableCourses() {
                             <div class="alert alert-warning py-1 px-2 mb-2 small">
                                 <i class="fas fa-exclamation-triangle me-1"></i> لم يتم إنشاء مجموعات بعد
                             </div>
-                            <button class="btn btn-secondary" disabled>غير متاح</button>
+                            <button class="btn btn-outline-warning btn-sm" onclick="showGroupStatusInfo('${course.id}', '${course.name}')">
+                                <i class="fas fa-info-circle me-1"></i> عرض الأسباب
+                            </button>
                         `;
                         section = 'no-groups';
                     } else if (course.all_prerequisites_met && !course.is_full) {
@@ -4401,11 +4636,21 @@ function loadAvailableCourses() {
                         `;
                     }
 
+                    // Format price for display
+                    const coursePrice = parseFloat(course.price) || 0;
+                    const formattedPrice = coursePrice.toLocaleString('ar-LY');
+
                     html += `
                         <div class="col-md-4 mb-4">
                             <div class="card course-card border-${statusClass.replace('bg-', '')}">
                                 <div class="card-header ${statusClass}">
-                                    <h5 class="card-title mb-0">${course.course_code}</h5>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 class="card-title mb-0">${course.course_code}</h5>
+                                        <span class="badge bg-light text-dark fw-bold">
+                                            <i class="fas fa-coins me-1"></i>
+                                            ${formattedPrice} دينار
+                                        </span>
+                                    </div>
                                 </div>
                                 <div class="card-body">
                                     <h6 class="card-subtitle mb-2">${course.name}</h6>
@@ -4419,6 +4664,12 @@ function loadAvailableCourses() {
                                             `<span class="badge ${course.payment_status === 'خالص' ? 'bg-success' : 'bg-danger'} mt-1">
                                                 <i class="fas ${course.payment_status === 'خالص' ? 'fa-check-circle' : 'fa-times-circle'} me-1"></i>
                                                 ${course.payment_status}
+                                            </span>` : ''
+                                        }
+                                        ${course.is_enrolled && course.receipt_number ?
+                                            `<span class="badge bg-info mt-1">
+                                                <i class="fas fa-receipt me-1"></i>
+                                                إيصال: ${course.receipt_number}
                                             </span>` : ''
                                         }
                                     </p>
@@ -4449,6 +4700,27 @@ function loadAvailableCourses() {
                         if (confirm('هل أنت متأكد من إلغاء التسجيل في هذه المادة؟')) {
                             unenrollFromCourse(courseId);
                         }
+                    });
+                });
+
+                // Setup submit receipt buttons
+                document.querySelectorAll('.submit-receipt-button').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const enrollmentId = this.getAttribute('data-enrollment-id');
+                        const courseName = this.getAttribute('data-course-name');
+                        const courseCode = this.getAttribute('data-course-code');
+                        const price = this.getAttribute('data-price');
+                        const groupName = this.getAttribute('data-group-name');
+
+                        const courseInfo = {
+                            course_name: courseName,
+                            course_code: courseCode,
+                            price: price,
+                            group_name: groupName
+                        };
+
+                        // Call the receipt modal function
+                        showStudentReceiptModal(enrollmentId, courseInfo);
                     });
                 });
             })
@@ -4694,6 +4966,848 @@ function enrollWithGroup(courseId, groupId) {
     });
 }
 
+// Student: Show receipt modal
+function showStudentReceiptModal(enrollmentId, courseInfo) {
+    // Create modal if it doesn't exist
+    let receiptModal = document.getElementById('studentReceiptNumberModal');
+
+    if (!receiptModal) {
+        // Create the modal HTML
+        const modalHTML = `
+            <div class="modal fade" id="studentReceiptNumberModal" tabindex="-1" aria-labelledby="studentReceiptNumberModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header bg-success text-white">
+                            <h5 class="modal-title" id="studentReceiptNumberModalLabel">
+                                <i class="fas fa-money-check-alt me-2"></i>
+                                إدخال رقم الإيصال
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="alert alert-info mb-3">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>تأكيد عملية الدفع</strong><br>
+                                <small>يرجى إدخال رقم الإيصال لتأكيد دفع رسوم المادة</small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="studentReceiptNumberInput" class="form-label fw-bold">
+                                    <i class="fas fa-receipt me-2"></i>
+                                    رقم الإيصال <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group input-group-lg">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-hashtag"></i>
+                                    </span>
+                                    <input type="text" class="form-control" id="studentReceiptNumberInput"
+                                           placeholder="أدخل رقم الإيصال أو امسح QR"
+                                           required autocomplete="off">
+                                    <button class="btn btn-outline-primary" type="button" id="scanQRButton">
+                                        <i class="fas fa-qrcode"></i>
+                                        <span class="d-none d-md-inline ms-1">مسح QR</span>
+                                    </button>
+                                </div>
+                                <div class="form-text mt-2">
+                                    <i class="fas fa-lightbulb me-1"></i>
+                                    أدخل رقم الإيصال يدوياً أو امسح رمز QR من الكرت
+                                </div>
+
+                                <!-- QR Scanner Section -->
+                                <div id="qrScannerSection" class="mt-3 d-none">
+                                    <div class="card border-primary">
+                                        <div class="card-header bg-primary text-white">
+                                            <h6 class="mb-0">
+                                                <i class="fas fa-camera me-2"></i>
+                                                مسح رمز QR
+                                            </h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div id="qrReader" style="width: 100%; max-width: 400px; margin: 0 auto;"></div>
+                                            <div class="text-center mt-3">
+                                                <button type="button" class="btn btn-secondary" id="stopQRScanButton">
+                                                    <i class="fas fa-stop me-2"></i>إيقاف المسح
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="studentReceiptError" class="alert alert-danger d-none">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <span id="studentReceiptErrorText"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <strong>تفاصيل المادة:</strong>
+                                <div id="studentCourseDetails" class="mt-2 p-3 bg-light rounded">
+                                    <!-- Course details will be filled here -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                <i class="fas fa-times me-2"></i>إلغاء
+                            </button>
+                            <button type="button" class="btn btn-success btn-lg" id="confirmStudentReceiptButton">
+                                <i class="fas fa-check-circle me-2"></i>تأكيد الدفع
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Append the modal to the body
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        receiptModal = document.getElementById('studentReceiptNumberModal');
+
+        // Setup event listeners for the modal
+        setupStudentReceiptModalEvents();
+    }
+
+    // Store current enrollment and course info
+    window.currentStudentEnrollmentId = enrollmentId;
+    window.currentStudentCourseInfo = courseInfo;
+
+    // Fill course details
+    const courseDetails = document.getElementById('studentCourseDetails');
+    courseDetails.innerHTML = `
+        <div class="row">
+            <div class="col-md-6">
+                <strong>اسم المادة:</strong> ${courseInfo.course_name}
+            </div>
+            <div class="col-md-6">
+                <strong>رمز المادة:</strong> ${courseInfo.course_code}
+            </div>
+            <div class="col-md-6">
+                <strong>الرسوم:</strong> ${courseInfo.price} دينار
+            </div>
+            <div class="col-md-6">
+                <strong>المجموعة:</strong> ${courseInfo.group_name || 'غير محدد'}
+            </div>
+        </div>
+    `;
+
+    // Clear previous input and errors
+    document.getElementById('studentReceiptNumberInput').value = '';
+    document.getElementById('studentReceiptError').classList.add('d-none');
+
+    // Show modal
+    const modal = new bootstrap.Modal(receiptModal);
+    modal.show();
+
+    // Focus on input
+    setTimeout(() => {
+        document.getElementById('studentReceiptNumberInput').focus();
+    }, 500);
+}
+
+// Setup event listeners for student receipt modal
+function setupStudentReceiptModalEvents() {
+    const confirmButton = document.getElementById('confirmStudentReceiptButton');
+    const receiptInput = document.getElementById('studentReceiptNumberInput');
+    const receiptError = document.getElementById('studentReceiptError');
+    const receiptErrorText = document.getElementById('studentReceiptErrorText');
+    const scanQRButton = document.getElementById('scanQRButton');
+    const stopQRScanButton = document.getElementById('stopQRScanButton');
+    const qrScannerSection = document.getElementById('qrScannerSection');
+
+    // Handle confirm button click
+    if (confirmButton) {
+        confirmButton.addEventListener('click', function() {
+            const receiptNumber = receiptInput.value.trim();
+
+            // Validate receipt number
+            if (!receiptNumber) {
+                showStudentReceiptError('رقم الإيصال مطلوب');
+                return;
+            }
+
+            if (receiptNumber.length < 3) {
+                showStudentReceiptError('رقم الإيصال يجب أن يكون 3 أرقام على الأقل');
+                return;
+            }
+
+            // Submit receipt
+            submitStudentReceipt(window.currentStudentEnrollmentId, receiptNumber);
+        });
+    }
+
+    // Handle Enter key in receipt input
+    if (receiptInput) {
+        receiptInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                confirmButton.click();
+            }
+        });
+
+        // Clear error when user starts typing
+        receiptInput.addEventListener('input', function() {
+            receiptError.classList.add('d-none');
+        });
+    }
+
+    // Handle QR scan button click
+    if (scanQRButton) {
+        // Check if QR library is available and update button accordingly
+        checkQRLibraryAvailability();
+
+        scanQRButton.addEventListener('click', function() {
+            startQRScanner();
+        });
+    }
+
+    // Handle stop QR scan button click
+    if (stopQRScanButton) {
+        stopQRScanButton.addEventListener('click', function() {
+            stopQRScanner();
+        });
+    }
+}
+
+// QR Scanner variables
+let qrStream = null;
+let qrCanvas = null;
+let qrContext = null;
+let qrVideo = null;
+let qrScanInterval = null;
+
+// Show group status information modal
+function showGroupStatusInfo(courseId, courseName) {
+    console.log('Showing group status info for course:', courseId, courseName);
+
+    // Set course title
+    document.getElementById('course-status-title').innerHTML = `
+        <i class="fas fa-book me-2"></i>
+        ${courseName}
+    `;
+
+    // Fetch detailed course information
+    fetch(`/api/admin/courses/${courseId}/groups`)
+        .then(response => response.json())
+        .then(data => {
+            console.log('Course groups data:', data);
+
+            let statusContent = '';
+            let reasons = [];
+
+            // Check for various reasons why groups are not available
+            if (!data.groups || data.groups.length === 0) {
+                reasons.push({
+                    icon: 'fas fa-users-slash',
+                    title: 'لا توجد مجموعات منشأة',
+                    description: 'لم يتم إنشاء أي مجموعات لهذه المادة بعد',
+                    color: 'danger'
+                });
+
+                // Additional specific reasons for no groups
+                reasons.push({
+                    icon: 'fas fa-users-slash',
+                    title: 'عدد الطلاب غير كافي لفتح المادة',
+                    description: 'لا يوجد عدد كافٍ من الطلاب المسجلين لفتح هذه المادة (الحد الأدنى: 15 طالب)',
+                    color: 'danger'
+                });
+
+                reasons.push({
+                    icon: 'fas fa-user-tie',
+                    title: 'لا يوجد أستاذ متاح للمادة',
+                    description: 'لا يوجد أستاذ متخصص متاح لتدريس هذه المادة في الوقت الحالي',
+                    color: 'danger'
+                });
+
+                reasons.push({
+                    icon: 'fas fa-calendar-times',
+                    title: 'لم يتم جدولة المادة',
+                    description: 'المادة لم تُدرج في الجدول الدراسي للفصل الحالي بسبب تضارب الأوقات',
+                    color: 'warning'
+                });
+
+                reasons.push({
+                    icon: 'fas fa-building',
+                    title: 'نقص في القاعات الدراسية',
+                    description: 'لا توجد قاعات دراسية متاحة لاستيعاب المجموعات المطلوبة',
+                    color: 'warning'
+                });
+
+            } else {
+                // Check each group for issues
+                let hasInstructor = false;
+                let hasCapacity = false;
+                let hasSchedule = false;
+                let hasClassroom = false;
+
+                data.groups.forEach(group => {
+                    if (group.instructor_name && group.instructor_name.trim() !== '') {
+                        hasInstructor = true;
+                    }
+                    if (group.capacity && group.capacity > 0) {
+                        hasCapacity = true;
+                    }
+                    if (group.schedule && group.schedule.trim() !== '') {
+                        hasSchedule = true;
+                    }
+                    if (group.classroom && group.classroom.trim() !== '') {
+                        hasClassroom = true;
+                    }
+                });
+
+                if (!hasInstructor) {
+                    reasons.push({
+                        icon: 'fas fa-chalkboard-teacher',
+                        title: 'لا يوجد أستاذ مُعيَّن للمادة',
+                        description: 'لم يتم تعيين أستاذ متخصص ومؤهل لتدريس هذه المادة',
+                        color: 'danger'
+                    });
+
+                    // Additional instructor-related reasons
+                    reasons.push({
+                        icon: 'fas fa-user-clock',
+                        title: 'الأستاذ المُعيَّن غير متاح',
+                        description: 'الأستاذ المخصص للمادة غير متاح بسبب ظروف خاصة أو إجازة',
+                        color: 'warning'
+                    });
+                }
+
+                if (!hasCapacity) {
+                    reasons.push({
+                        icon: 'fas fa-users',
+                        title: 'لا توجد سعة محددة للطلاب',
+                        description: 'لم يتم تحديد العدد الأقصى للطلاب المسموح في كل مجموعة',
+                        color: 'warning'
+                    });
+                }
+
+                if (!hasSchedule) {
+                    reasons.push({
+                        icon: 'fas fa-clock',
+                        title: 'لا يوجد جدول زمني محدد',
+                        description: 'لم يتم تحديد أوقات المحاضرات والدروس العملية بسبب تضارب الجداول',
+                        color: 'info'
+                    });
+                }
+
+                if (!hasClassroom) {
+                    reasons.push({
+                        icon: 'fas fa-door-closed',
+                        title: 'لا توجد قاعات دراسية متاحة',
+                        description: 'جميع القاعات الدراسية محجوزة أو قيد الصيانة',
+                        color: 'secondary'
+                    });
+                }
+
+                // Additional specific reasons
+                reasons.push({
+                    icon: 'fas fa-tools',
+                    title: 'نقص في المعدات والأدوات',
+                    description: 'المادة تتطلب معدات خاصة أو مختبرات غير متوفرة حالياً',
+                    color: 'info'
+                });
+
+                reasons.push({
+                    icon: 'fas fa-money-bill-wave',
+                    title: 'قيود الميزانية',
+                    description: 'لا توجد ميزانية كافية لتغطية تكاليف فتح المجموعات',
+                    color: 'secondary'
+                });
+
+                reasons.push({
+                    icon: 'fas fa-graduation-cap',
+                    title: 'متطلبات أكاديمية غير مكتملة',
+                    description: 'بعض المتطلبات الأكاديمية أو الإدارية للمادة لم تكتمل بعد',
+                    color: 'warning'
+                });
+
+                // Check for enrollment issues
+                const totalEnrolled = data.groups.reduce((sum, group) => sum + (group.enrolled_count || 0), 0);
+                const totalCapacity = data.groups.reduce((sum, group) => sum + (group.capacity || 0), 0);
+
+                if (totalEnrolled < 5) {
+                    reasons.push({
+                        icon: 'fas fa-user-friends',
+                        title: 'عدد الطلاب المسجلين غير كافي',
+                        description: `عدد الطلاب المسجلين حالياً: ${totalEnrolled} طالب (الحد الأدنى المطلوب: 15 طالب)`,
+                        color: 'danger'
+                    });
+                } else if (totalEnrolled < 15) {
+                    reasons.push({
+                        icon: 'fas fa-users',
+                        title: 'عدد الطلاب أقل من المطلوب لفتح المادة',
+                        description: `عدد الطلاب المسجلين: ${totalEnrolled} طالب (الحد الأدنى لفتح المادة: 15 طالب)`,
+                        color: 'warning'
+                    });
+                }
+
+                // Additional enrollment-related reasons
+                if (totalEnrolled === 0) {
+                    reasons.push({
+                        icon: 'fas fa-user-slash',
+                        title: 'لا يوجد طلاب مسجلين في المادة',
+                        description: 'لم يقم أي طالب بالتسجيل في هذه المادة حتى الآن',
+                        color: 'danger'
+                    });
+                }
+
+                // Check for administrative issues
+                if (data.groups.length > 0 && hasInstructor && hasCapacity) {
+                    reasons.push({
+                        icon: 'fas fa-file-signature',
+                        title: 'قيد المراجعة الإدارية',
+                        description: 'المادة قيد المراجعة النهائية من قبل الإدارة الأكاديمية',
+                        color: 'info'
+                    });
+                }
+            }
+
+            // If no specific reasons found, show general message
+            if (reasons.length === 0) {
+                reasons.push({
+                    icon: 'fas fa-clock',
+                    title: 'قيد المراجعة',
+                    description: 'المادة قيد المراجعة من قبل الإدارة الأكاديمية',
+                    color: 'primary'
+                });
+            }
+
+            // Build status content
+            statusContent = `
+                <div class="row g-3">
+                    ${reasons.map(reason => `
+                        <div class="col-md-6">
+                            <div class="card border-${reason.color} h-100">
+                                <div class="card-body text-center">
+                                    <div class="mb-3">
+                                        <i class="${reason.icon} fa-2x text-${reason.color}"></i>
+                                    </div>
+                                    <h6 class="card-title text-${reason.color}">${reason.title}</h6>
+                                    <p class="card-text small text-muted">${reason.description}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div class="mt-4">
+                    <div class="alert alert-light border">
+                        <h6 class="alert-heading">
+                            <i class="fas fa-calendar-alt me-2"></i>
+                            الخطوات التالية
+                        </h6>
+                        <ul class="mb-0 small">
+                            <li>ستقوم الإدارة الأكاديمية بمراجعة هذه المادة</li>
+                            <li>يمكنك التسجيل في مواد أخرى متاحة في الوقت الحالي</li>
+                            <li>تابع الإعلانات الرسمية للحصول على آخر التحديثات</li>
+                            <li>تواصل مع الإدارة الأكاديمية للاستفسارات العاجلة</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('course-status-content').innerHTML = statusContent;
+
+            // Show the modal
+            const modal = new bootstrap.Modal(document.getElementById('groupStatusModal'));
+            modal.show();
+
+        })
+        .catch(error => {
+            console.error('Error fetching course groups:', error);
+
+            // Show generic error message
+            document.getElementById('course-status-content').innerHTML = `
+                <div class="alert alert-warning">
+                    <h6 class="alert-heading">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        لا توجد معلومات مفصلة متاحة
+                    </h6>
+                    <p class="mb-0">هذه المادة بانتظار إنشاء المجموعات من قبل الإدارة الأكاديمية.</p>
+                </div>
+
+                <div class="row g-3 mt-2">
+                    <div class="col-md-6">
+                        <div class="card border-danger">
+                            <div class="card-body text-center">
+                                <i class="fas fa-users-slash fa-2x text-danger mb-3"></i>
+                                <h6 class="card-title text-danger">عدد الطلاب غير كافي</h6>
+                                <p class="card-text small text-muted">لا يوجد عدد كافٍ من الطلاب لفتح المادة</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card border-danger">
+                            <div class="card-body text-center">
+                                <i class="fas fa-chalkboard-teacher fa-2x text-danger mb-3"></i>
+                                <h6 class="card-title text-danger">لا يوجد أستاذ متاح</h6>
+                                <p class="card-text small text-muted">لا يوجد أستاذ متخصص لتدريس المادة</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card border-warning">
+                            <div class="card-body text-center">
+                                <i class="fas fa-building fa-2x text-warning mb-3"></i>
+                                <h6 class="card-title text-warning">نقص في القاعات</h6>
+                                <p class="card-text small text-muted">لا توجد قاعات دراسية متاحة</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card border-info">
+                            <div class="card-body text-center">
+                                <i class="fas fa-calendar-check fa-2x text-info mb-3"></i>
+                                <h6 class="card-title text-info">تابع التحديثات</h6>
+                                <p class="card-text small text-muted">راجع الإعلانات الرسمية للجامعة</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Show the modal
+            const modal = new bootstrap.Modal(document.getElementById('groupStatusModal'));
+            modal.show();
+        });
+}
+
+// Refresh courses function
+function refreshCourses() {
+    if (typeof loadAvailableCourses === 'function') {
+        loadAvailableCourses();
+
+        // Close the modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('groupStatusModal'));
+        if (modal) {
+            modal.hide();
+        }
+
+        // Show success message
+        showAlert('تم تحديث قائمة المواد بنجاح', 'success');
+    }
+}
+
+// Check if QR library is available
+function checkQRLibraryAvailability() {
+    const scanQRButton = document.getElementById('scanQRButton');
+
+    if (!scanQRButton) return;
+
+    // Wait a bit for library to load
+    setTimeout(() => {
+        if (typeof jsQR === 'undefined') {
+            console.warn('jsQR library not loaded');
+            scanQRButton.disabled = true;
+            scanQRButton.innerHTML = '<i class="fas fa-exclamation-triangle"></i> <span class="d-none d-md-inline ms-1">QR غير متوفر</span>';
+            scanQRButton.title = 'مكتبة مسح QR غير متوفرة';
+        } else {
+            console.log('jsQR library loaded successfully');
+            scanQRButton.disabled = false;
+            scanQRButton.innerHTML = '<i class="fas fa-qrcode"></i> <span class="d-none d-md-inline ms-1">مسح QR</span>';
+            scanQRButton.title = 'مسح رمز QR من الكرت';
+        }
+    }, 1000);
+}
+
+// Start QR scanner
+function startQRScanner() {
+    const qrScannerSection = document.getElementById('qrScannerSection');
+    const scanQRButton = document.getElementById('scanQRButton');
+
+    // Check if QR library is loaded
+    if (typeof jsQR === 'undefined') {
+        console.error('jsQR library not loaded');
+        showQRScanError('مكتبة مسح QR غير متوفرة. يرجى إعادة تحميل الصفحة.');
+        return;
+    }
+
+    // Show scanner section
+    qrScannerSection.classList.remove('d-none');
+
+    // Disable scan button
+    scanQRButton.disabled = true;
+    scanQRButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span class="d-none d-md-inline ms-1">جاري التحضير...</span>';
+
+    // Initialize QR scanner
+    try {
+        // Create video and canvas elements
+        qrVideo = document.createElement('video');
+        qrVideo.style.width = '100%';
+        qrVideo.style.maxWidth = '400px';
+        qrVideo.style.height = 'auto';
+        qrVideo.autoplay = true;
+        qrVideo.playsInline = true;
+
+        qrCanvas = document.createElement('canvas');
+        qrCanvas.style.display = 'none';
+        qrContext = qrCanvas.getContext('2d');
+
+        // Clear and add elements to container
+        const qrReaderContainer = document.getElementById('qrReader');
+        qrReaderContainer.innerHTML = '';
+        qrReaderContainer.appendChild(qrVideo);
+        qrReaderContainer.appendChild(qrCanvas);
+
+        // Get camera stream
+        navigator.mediaDevices.getUserMedia({
+            video: {
+                facingMode: 'environment',
+                width: { ideal: 640 },
+                height: { ideal: 480 }
+            }
+        }).then(stream => {
+            qrStream = stream;
+            qrVideo.srcObject = stream;
+
+            // Start scanning when video is ready
+            qrVideo.addEventListener('loadedmetadata', () => {
+                qrCanvas.width = qrVideo.videoWidth;
+                qrCanvas.height = qrVideo.videoHeight;
+
+                console.log('QR Scanner started successfully');
+                scanQRButton.innerHTML = '<i class="fas fa-camera"></i> <span class="d-none d-md-inline ms-1">جاري المسح...</span>';
+
+                // Start scanning loop
+                startQRScanLoop();
+            });
+
+        }).catch(err => {
+            console.error('Error accessing camera:', err);
+            let errorMsg = 'فشل في تشغيل الكاميرا.';
+
+            if (err.name === 'NotAllowedError') {
+                errorMsg = 'تم رفض الوصول للكاميرا. يرجى السماح بالوصول للكاميرا وإعادة المحاولة.';
+            } else if (err.name === 'NotFoundError') {
+                errorMsg = 'لم يتم العثور على كاميرا. تأكد من وجود كاميرا متاحة.';
+            } else if (err.name === 'NotSupportedError') {
+                errorMsg = 'المتصفح لا يدعم مسح QR. جرب متصفح آخر.';
+            }
+
+            showQRScanError(errorMsg);
+            stopQRScanner();
+        });
+
+    } catch (error) {
+        console.error('Error initializing QR scanner:', error);
+        showQRScanError('حدث خطأ في تشغيل ماسح QR. يرجى إعادة المحاولة.');
+        stopQRScanner();
+    }
+}
+
+// QR scanning loop
+function startQRScanLoop() {
+    if (!qrVideo || !qrCanvas || !qrContext) return;
+
+    qrScanInterval = setInterval(() => {
+        if (qrVideo.readyState === qrVideo.HAVE_ENOUGH_DATA) {
+            // Draw video frame to canvas
+            qrContext.drawImage(qrVideo, 0, 0, qrCanvas.width, qrCanvas.height);
+
+            // Get image data
+            const imageData = qrContext.getImageData(0, 0, qrCanvas.width, qrCanvas.height);
+
+            // Scan for QR code
+            const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+            if (code) {
+                console.log('QR Code scanned:', code.data);
+
+                // Fill the input with scanned text
+                document.getElementById('studentReceiptNumberInput').value = code.data;
+
+                // Stop scanner
+                stopQRScanner();
+
+                // Show success message
+                showQRScanSuccess('تم مسح رمز QR بنجاح!');
+            }
+        }
+    }, 100); // Scan every 100ms
+}
+
+// Stop QR scanner
+function stopQRScanner() {
+    const qrScannerSection = document.getElementById('qrScannerSection');
+    const scanQRButton = document.getElementById('scanQRButton');
+
+    // Stop scanning interval
+    if (qrScanInterval) {
+        clearInterval(qrScanInterval);
+        qrScanInterval = null;
+    }
+
+    // Stop camera stream
+    if (qrStream) {
+        qrStream.getTracks().forEach(track => track.stop());
+        qrStream = null;
+    }
+
+    // Clear video and canvas
+    if (qrVideo) {
+        qrVideo.srcObject = null;
+        qrVideo = null;
+    }
+
+    qrCanvas = null;
+    qrContext = null;
+
+    // Clear video container
+    const qrReaderContainer = document.getElementById('qrReader');
+    if (qrReaderContainer) {
+        qrReaderContainer.innerHTML = '';
+    }
+
+    // Hide scanner section
+    qrScannerSection.classList.add('d-none');
+
+    // Re-enable scan button
+    scanQRButton.disabled = false;
+    scanQRButton.innerHTML = '<i class="fas fa-qrcode"></i> <span class="d-none d-md-inline ms-1">مسح QR</span>';
+}
+
+// Show QR scan success message
+function showQRScanSuccess(message) {
+    const receiptError = document.getElementById('studentReceiptError');
+    const receiptErrorText = document.getElementById('studentReceiptErrorText');
+
+    receiptError.className = 'alert alert-success';
+    receiptErrorText.innerHTML = '<i class="fas fa-check-circle me-2"></i>' + message;
+    receiptError.classList.remove('d-none');
+
+    // Hide success message after 3 seconds
+    setTimeout(() => {
+        receiptError.classList.add('d-none');
+        receiptError.className = 'alert alert-danger d-none';
+    }, 3000);
+}
+
+// Show QR scan error message
+function showQRScanError(message) {
+    const receiptError = document.getElementById('studentReceiptError');
+    const receiptErrorText = document.getElementById('studentReceiptErrorText');
+
+    receiptErrorText.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>' + message;
+    receiptError.classList.remove('d-none');
+}
+
+// Function to show student receipt error
+function showStudentReceiptError(message) {
+    const receiptError = document.getElementById('studentReceiptError');
+    const receiptErrorText = document.getElementById('studentReceiptErrorText');
+
+    receiptErrorText.textContent = message;
+    receiptError.classList.remove('d-none');
+}
+
+// Function to submit student receipt
+function submitStudentReceipt(enrollmentId, receiptNumber) {
+    const confirmButton = document.getElementById('confirmStudentReceiptButton');
+
+    // Disable button and show loading
+    confirmButton.disabled = true;
+    confirmButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>جاري الإرسال...';
+
+    fetch('/api/student/submit-receipt', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            enrollment_id: enrollmentId,
+            receipt_number: receiptNumber
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('studentReceiptNumberModal'));
+            modal.hide();
+
+            // Show success message
+            alert('تم إرسال رقم الإيصال بنجاح! سيتم تحديث حالة الدفع قريباً.');
+
+            // Reload page to show updated status
+            window.location.reload();
+        } else {
+            let errorMessage = data.error || 'حدث خطأ أثناء إرسال رقم الإيصال';
+
+            // Check if account is locked
+            if (data.locked) {
+                // Close modal first
+                const modal = bootstrap.Modal.getInstance(document.getElementById('studentReceiptNumberModal'));
+                modal.hide();
+
+                // Show simple account locked message
+                const lockMessage = `🔒 تم تجميد حسابك
+
+يرجى مراجعة إدارة الجامعة
+
+سيتم تسجيل خروجك الآن...`;
+
+                alert(lockMessage);
+
+                // Force logout and redirect to login page
+                fetch('/api/logout', { method: 'GET' })
+                    .then(() => {
+                        window.location.href = '/login.html';
+                    })
+                    .catch(() => {
+                        // Even if logout fails, redirect to login
+                        window.location.href = '/login.html';
+                    });
+                return;
+            }
+
+            if (data.details) {
+                errorMessage += '\n' + data.details;
+            }
+
+            if (data.warning) {
+                errorMessage += '\n\n⚠️ ' + data.warning;
+            }
+
+            showStudentReceiptError(errorMessage);
+        }
+    })
+    .catch(error => {
+        console.error('Error submitting receipt:', error);
+
+        // Check if it's a 423 (Locked) status
+        if (error.message && error.message.includes('423')) {
+            // Close modal first
+            const modal = bootstrap.Modal.getInstance(document.getElementById('studentReceiptNumberModal'));
+            modal.hide();
+
+            const lockMessage = `🔒 تم تجميد حسابك
+
+يرجى مراجعة إدارة الجامعة
+
+سيتم تسجيل خروجك الآن...`;
+
+            alert(lockMessage);
+
+            // Force logout and redirect to login page
+            fetch('/api/logout', { method: 'GET' })
+                .then(() => {
+                    window.location.href = '/login.html';
+                })
+                .catch(() => {
+                    // Even if logout fails, redirect to login
+                    window.location.href = '/login.html';
+                });
+            return;
+        }
+
+        showStudentReceiptError('حدث خطأ أثناء إرسال رقم الإيصال');
+    })
+    .finally(() => {
+        // Re-enable button
+        confirmButton.disabled = false;
+        confirmButton.innerHTML = '<i class="fas fa-check-circle me-2"></i>تأكيد الدفع';
+    });
+}
+
 // Student: Unenroll from course
 function unenrollFromCourse(courseId) {
     fetch('/api/student/unenroll', {
@@ -4744,11 +5858,11 @@ function loadStudentReport() {
             </div>
         `;
 
-        // Get student courses with receipt numbers
+        // First, get student courses with receipt numbers
         fetch('/api/student/courses')
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('فشل في الحصول على بيانات الطالب');
+                    throw new Error('فشل في الحصول على معلومات الطالب');
                 }
                 return response.json();
             })
@@ -4762,9 +5876,8 @@ function loadStudentReport() {
                 const completedCourses = studentData.completedCourses || [];
 
                 try {
-
-                            // Generate report HTML
-                            let reportHtml = `
+                    // Generate report HTML
+                    let reportHtml = `
                                 <div class="student-report-container">
                                     <div class="card mb-4">
                                         <div class="card-header bg-primary text-white">
@@ -4786,7 +5899,129 @@ function loadStudentReport() {
                                                 <div class="col-md-4">
                                                     <p class="mb-1"><strong>المجموعة:</strong> ${student.group_name || '-'}</p>
                                                     <p class="mb-1"><strong>رقم المنظومة:</strong> ${student.registration_number}</p>
-                                                    <p class="mb-1"><strong>المواد المسجلة:</strong> ${enrolledCourses.length}</p>
+                                                    <p class="mb-1"><strong>المواد المنزلة:</strong> ${enrolledCourses.length}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                            `;
+
+                            // Calculate financial summary for enrolled courses
+                            let totalFees = 0;
+                            let paidFees = 0;
+                            let remainingFees = 0;
+
+                            if (enrolledCourses.length > 0) {
+                                enrolledCourses.forEach(course => {
+                                    const price = parseFloat(course.price) || 0;
+                                    totalFees += price;
+
+                                    if (course.payment_status === 'خالص') {
+                                        paidFees += price;
+                                    } else {
+                                        remainingFees += price;
+                                    }
+                                });
+                            }
+
+                            // Add financial summary section
+                            reportHtml += `
+                                    <div class="card mb-4">
+                                        <div class="card-header bg-warning text-dark">
+                                            <h5 class="card-title mb-0">الملخص المالي</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <!-- Financial Summary Table -->
+                                            <div class="financial-summary-table">
+                                                <table class="table table-bordered table-hover mb-0">
+                                                    <thead class="table-primary">
+                                                        <tr>
+                                                            <th class="text-center" style="width: 25%;">
+                                                                <i class="fas fa-chart-line me-2"></i>البيان المالي
+                                                            </th>
+                                                            <th class="text-center" style="width: 25%;">
+                                                                <i class="fas fa-coins me-2"></i>إجمالي الرسوم
+                                                            </th>
+                                                            <th class="text-center" style="width: 25%;">
+                                                                <i class="fas fa-check-circle me-2"></i>المدفوع
+                                                            </th>
+                                                            <th class="text-center" style="width: 25%;">
+                                                                <i class="fas fa-exclamation-circle me-2"></i>المتبقي
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr class="financial-row">
+                                                            <td class="text-center fw-bold text-primary">
+                                                                <i class="fas fa-money-bill-wave me-2"></i>المبلغ (دينار)
+                                                            </td>
+                                                            <td class="text-center">
+                                                                <span class="financial-amount total-amount">
+                                                                    ${totalFees.toLocaleString('ar-LY')}
+                                                                </span>
+                                                            </td>
+                                                            <td class="text-center">
+                                                                <span class="financial-amount paid-amount">
+                                                                    ${paidFees.toLocaleString('ar-LY')}
+                                                                </span>
+                                                            </td>
+                                                            <td class="text-center">
+                                                                <span class="financial-amount remaining-amount">
+                                                                    ${remainingFees.toLocaleString('ar-LY')}
+                                                                </span>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="percentage-row">
+                                                            <td class="text-center fw-bold text-info">
+                                                                <i class="fas fa-percentage me-2"></i>النسبة المئوية
+                                                            </td>
+                                                            <td class="text-center">
+                                                                <span class="badge bg-primary fs-6">100%</span>
+                                                            </td>
+                                                            <td class="text-center">
+                                                                <span class="badge bg-success fs-6">
+                                                                    ${totalFees > 0 ? (paidFees / totalFees * 100).toFixed(1) : 0}%
+                                                                </span>
+                                                            </td>
+                                                            <td class="text-center">
+                                                                <span class="badge bg-danger fs-6">
+                                                                    ${totalFees > 0 ? (remainingFees / totalFees * 100).toFixed(1) : 0}%
+                                                                </span>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+
+                                            <!-- Progress Bar -->
+                                            <div class="mt-4">
+                                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                                    <span class="fw-bold text-muted">
+                                                        <i class="fas fa-chart-bar me-2"></i>مؤشر التقدم في الدفع
+                                                    </span>
+                                                    <span class="badge bg-info">
+                                                        ${totalFees > 0 ? (paidFees / totalFees * 100).toFixed(1) : 0}% مكتمل
+                                                    </span>
+                                                </div>
+                                                <div class="progress progress-enhanced" style="height: 40px;">
+                                                    <div class="progress-bar bg-gradient progress-bar-striped progress-bar-animated"
+                                                         role="progressbar"
+                                                         style="width: ${totalFees > 0 ? (paidFees / totalFees * 100) : 0}%"
+                                                         aria-valuenow="${totalFees > 0 ? (paidFees / totalFees * 100) : 0}"
+                                                         aria-valuemin="0"
+                                                         aria-valuemax="100">
+                                                        <span class="fw-bold progress-text">
+                                                            ${paidFees.toLocaleString('ar-LY')} من ${totalFees.toLocaleString('ar-LY')} دينار
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div class="d-flex justify-content-between mt-2 text-sm">
+                                                    <span class="text-success">
+                                                        <i class="fas fa-check-circle me-1"></i>مدفوع: ${paidFees.toLocaleString('ar-LY')} دينار
+                                                    </span>
+                                                    <span class="text-danger">
+                                                        <i class="fas fa-clock me-1"></i>متبقي: ${remainingFees.toLocaleString('ar-LY')} دينار
+                                                    </span>
                                                 </div>
                                             </div>
                                         </div>
@@ -4794,13 +6029,13 @@ function loadStudentReport() {
 
                                     <div class="card">
                                         <div class="card-header bg-info text-white">
-                                            <h5 class="card-title mb-0">المواد المسجل بها</h5>
+                                            <h5 class="card-title mb-0">المواد المنزلة</h5>
                                         </div>
                                         <div class="card-body">
                             `;
 
                             if (enrolledCourses.length === 0) {
-                                reportHtml += `<div class="alert alert-info">لا توجد مواد مسجل بها حالياً</div>`;
+                                reportHtml += `<div class="alert alert-info">لا توجد مواد منزلة حالياً</div>`;
                             } else {
                                 reportHtml += `
                                     <div class="table-responsive">
@@ -4880,19 +6115,18 @@ function loadStudentReport() {
                             reportHtml += `
                                         </div>
                                         <div class="card-footer text-muted text-center">
-                                            إجمالي المواد المسجل بها: ${enrolledCourses.length}
+                                            إجمالي المواد المنزلة: ${enrolledCourses.length}
                                         </div>
                                     </div>
                                 </div>
                             `;
 
-                            // Update container with report
-                            studentReportContainer.innerHTML = reportHtml;
-                        } catch (err) {
-                            console.error('Error generating report:', err);
-                            throw new Error('حدث خطأ أثناء إنشاء التقرير');
-                        }
-                    });
+                    // Update container with report
+                    studentReportContainer.innerHTML = reportHtml;
+                } catch (err) {
+                    console.error('Error generating report:', err);
+                    throw new Error('حدث خطأ أثناء إنشاء التقرير');
+                }
             })
             .catch(error => {
                 console.error('Error loading student report:', error);
@@ -4964,7 +6198,129 @@ function openStudentReportModal(studentId) {
                                         <div class="col-md-4">
                                             <p class="mb-1"><strong>المجموعة:</strong> ${student.group_name || '-'}</p>
                                             <p class="mb-1"><strong>رقم المنظومة:</strong> ${student.registration_number}</p>
-                                            <p class="mb-1"><strong>المواد المسجلة:</strong> ${coursesData.enrolledCourses ? coursesData.enrolledCourses.length : 0}</p>
+                                            <p class="mb-1"><strong>المواد المنزلة:</strong> ${coursesData.enrolledCourses ? coursesData.enrolledCourses.length : 0}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                    `;
+
+                    // Calculate financial summary for enrolled courses
+                    let totalFees = 0;
+                    let paidFees = 0;
+                    let remainingFees = 0;
+
+                    if (coursesData.enrolledCourses && coursesData.enrolledCourses.length > 0) {
+                        coursesData.enrolledCourses.forEach(course => {
+                            const price = parseFloat(course.price) || 0;
+                            totalFees += price;
+
+                            if (course.payment_status === 'خالص') {
+                                paidFees += price;
+                            } else {
+                                remainingFees += price;
+                            }
+                        });
+                    }
+
+                    // Add financial summary section
+                    reportHtml += `
+                            <div class="card mb-4">
+                                <div class="card-header bg-info text-white">
+                                    <h5 class="card-title mb-0">الملخص المالي</h5>
+                                </div>
+                                <div class="card-body">
+                                    <!-- Financial Summary Table -->
+                                    <div class="financial-summary-table">
+                                        <table class="table table-bordered table-hover mb-0">
+                                            <thead class="table-primary">
+                                                <tr>
+                                                    <th class="text-center" style="width: 25%;">
+                                                        <i class="fas fa-chart-line me-2"></i>البيان المالي
+                                                    </th>
+                                                    <th class="text-center" style="width: 25%;">
+                                                        <i class="fas fa-coins me-2"></i>إجمالي الرسوم
+                                                    </th>
+                                                    <th class="text-center" style="width: 25%;">
+                                                        <i class="fas fa-check-circle me-2"></i>المدفوع
+                                                    </th>
+                                                    <th class="text-center" style="width: 25%;">
+                                                        <i class="fas fa-exclamation-circle me-2"></i>المتبقي
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr class="financial-row">
+                                                    <td class="text-center fw-bold text-primary">
+                                                        <i class="fas fa-money-bill-wave me-2"></i>المبلغ (دينار)
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <span class="financial-amount total-amount">
+                                                            ${totalFees.toLocaleString('ar-LY')}
+                                                        </span>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <span class="financial-amount paid-amount">
+                                                            ${paidFees.toLocaleString('ar-LY')}
+                                                        </span>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <span class="financial-amount remaining-amount">
+                                                            ${remainingFees.toLocaleString('ar-LY')}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                                <tr class="percentage-row">
+                                                    <td class="text-center fw-bold text-info">
+                                                        <i class="fas fa-percentage me-2"></i>النسبة المئوية
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <span class="badge bg-primary fs-6">100%</span>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <span class="badge bg-success fs-6">
+                                                            ${totalFees > 0 ? (paidFees / totalFees * 100).toFixed(1) : 0}%
+                                                        </span>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <span class="badge bg-danger fs-6">
+                                                            ${totalFees > 0 ? (remainingFees / totalFees * 100).toFixed(1) : 0}%
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <!-- Progress Bar -->
+                                    <div class="mt-4">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="fw-bold text-muted">
+                                                <i class="fas fa-chart-bar me-2"></i>مؤشر التقدم في الدفع
+                                            </span>
+                                            <span class="badge bg-info">
+                                                ${totalFees > 0 ? (paidFees / totalFees * 100).toFixed(1) : 0}% مكتمل
+                                            </span>
+                                        </div>
+                                        <div class="progress progress-enhanced" style="height: 40px;">
+                                            <div class="progress-bar bg-gradient progress-bar-striped progress-bar-animated"
+                                                 role="progressbar"
+                                                 style="width: ${totalFees > 0 ? (paidFees / totalFees * 100) : 0}%"
+                                                 aria-valuenow="${totalFees > 0 ? (paidFees / totalFees * 100) : 0}"
+                                                 aria-valuemin="0"
+                                                 aria-valuemax="100">
+                                                <span class="fw-bold progress-text">
+                                                    ${paidFees.toLocaleString('ar-LY')} من ${totalFees.toLocaleString('ar-LY')} دينار
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex justify-content-between mt-2 text-sm">
+                                            <span class="text-success">
+                                                <i class="fas fa-check-circle me-1"></i>مدفوع: ${paidFees.toLocaleString('ar-LY')} دينار
+                                            </span>
+                                            <span class="text-danger">
+                                                <i class="fas fa-clock me-1"></i>متبقي: ${remainingFees.toLocaleString('ar-LY')} دينار
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
@@ -5030,13 +6386,13 @@ function openStudentReportModal(studentId) {
 
                             <div class="card">
                                 <div class="card-header bg-info text-white">
-                                    <h5 class="card-title mb-0">المواد المسجل بها حالياً</h5>
+                                    <h5 class="card-title mb-0">المواد المنزلة حالياً</h5>
                                 </div>
                                 <div class="card-body">
                     `;
 
                     if (!coursesData.enrolledCourses || coursesData.enrolledCourses.length === 0) {
-                        reportHtml += `<div class="alert alert-info">لا توجد مواد مسجل بها حالياً</div>`;
+                        reportHtml += `<div class="alert alert-info">لا توجد مواد منزلة حالياً</div>`;
                     } else {
                         reportHtml += `
                             <div class="table-responsive">
@@ -5048,7 +6404,7 @@ function openStudentReportModal(studentId) {
                                             <th>اسم المادة</th>
                                             <th>الفصل الدراسي</th>
                                             <th>الرسوم</th>
-                                            <th>تاريخ التسجيل</th>
+                                            <th>تاريخ التنزيل</th>
                                             <th>حالة الدفع</th>
                                             <th>رقم الإيصال</th>
                                         </tr>
@@ -5114,7 +6470,7 @@ function openStudentReportModal(studentId) {
                     reportHtml += `
                                 </div>
                                 <div class="card-footer text-muted text-center">
-                                    إجمالي المواد المسجل بها: ${coursesData.enrolledCourses ? coursesData.enrolledCourses.length : 0}
+                                    إجمالي المواد المنزلة: ${coursesData.enrolledCourses ? coursesData.enrolledCourses.length : 0}
                                 </div>
                             </div>
                         </div>
@@ -5762,10 +7118,180 @@ function setupPrintAdminReport() {
                             p {
                                 margin-bottom: 0.3rem !important;
                             }
+
+                            /* Student Info Layout for Print */
+                            .row.g-0 {
+                                display: flex !important;
+                                flex-wrap: wrap !important;
+                                margin: 0 !important;
+                            }
+
+                            .col-md-4 {
+                                flex: 0 0 auto !important;
+                                width: 33.33333333% !important;
+                                padding: 0 8px !important;
+                                box-sizing: border-box !important;
+                            }
+
+                            .col-md-4 p {
+                                margin-bottom: 4px !important;
+                                font-size: 9pt !important;
+                                line-height: 1.3 !important;
+                            }
+
+                            .col-md-4 strong {
+                                font-weight: bold !important;
+                                color: #000 !important;
+                            }
+
+                            /* Ensure proper spacing between columns */
+                            .col-md-4:not(:last-child) {
+                                border-left: 1px solid #ddd !important;
+                            }
+
+                            /* Card body padding adjustment for print */
+                            .card-body.py-2 {
+                                padding: 8px 12px !important;
+                            }
+
                             .badge {
                                 border: 1px solid #ddd !important;
                                 padding: 2px 5px !important;
                                 font-size: 9pt !important;
+                            }
+                            /* Financial Summary Table Styles for Print */
+                            .financial-summary-table {
+                                border-radius: 0 !important;
+                                box-shadow: none !important;
+                                margin-bottom: 8px !important;
+                            }
+
+                            .financial-summary-table table {
+                                border: 2px solid #000 !important;
+                                margin-bottom: 0 !important;
+                            }
+
+                            .financial-summary-table th {
+                                background: #667eea !important;
+                                color: white !important;
+                                font-weight: bold !important;
+                                font-size: 9pt !important;
+                                padding: 6px 4px !important;
+                                border: 1px solid #000 !important;
+                                text-align: center !important;
+                            }
+
+                            .financial-summary-table td {
+                                padding: 8px 6px !important;
+                                border: 1px solid #000 !important;
+                                font-size: 9pt !important;
+                                text-align: center !important;
+                            }
+
+                            .financial-row {
+                                background: #f8f9fa !important;
+                            }
+
+                            .percentage-row {
+                                background: #ffffff !important;
+                            }
+
+                            .financial-amount {
+                                font-size: 10pt !important;
+                                font-weight: bold !important;
+                                padding: 3px 8px !important;
+                                border-radius: 4px !important;
+                                display: inline-block !important;
+                                min-width: auto !important;
+                                text-align: center !important;
+                                box-shadow: none !important;
+                                border: 1px solid #000 !important;
+                            }
+
+                            .total-amount {
+                                background: #667eea !important;
+                                color: white !important;
+                            }
+
+                            .paid-amount {
+                                background: #28a745 !important;
+                                color: white !important;
+                            }
+
+                            .remaining-amount {
+                                background: #dc3545 !important;
+                                color: white !important;
+                            }
+
+                            .progress-enhanced {
+                                border-radius: 8px !important;
+                                background: linear-gradient(135deg, #6c757d 0%, #adb5bd 100%) !important;
+                                box-shadow: inset 0 1px 2px rgba(0,0,0,0.15) !important;
+                                border: 2px solid #495057 !important;
+                                height: 25px !important;
+                                margin-top: 8px !important;
+                                overflow: hidden !important;
+                                -webkit-print-color-adjust: exact !important;
+                                print-color-adjust: exact !important;
+                            }
+
+                            .progress-enhanced .progress-bar {
+                                background: linear-gradient(135deg, #198754 0%, #20c997 100%) !important;
+                                border-radius: 6px !important;
+                                font-size: 9pt !important;
+                                line-height: 25px !important;
+                                overflow: visible !important;
+                                height: 25px !important;
+                                position: relative !important;
+                                border: 1px solid #157347 !important;
+                                box-shadow: 0 1px 4px rgba(25, 135, 84, 0.4) !important;
+                                -webkit-print-color-adjust: exact !important;
+                                print-color-adjust: exact !important;
+                            }
+
+                            .progress-enhanced .progress-bar::before {
+                                content: '' !important;
+                                position: absolute !important;
+                                top: 0 !important;
+                                left: 0 !important;
+                                right: 0 !important;
+                                bottom: 0 !important;
+                                background: linear-gradient(45deg, rgba(255,255,255,0.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.15) 75%, transparent 75%, transparent) !important;
+                                background-size: 12px 12px !important;
+                                -webkit-print-color-adjust: exact !important;
+                                print-color-adjust: exact !important;
+                            }
+
+                            .progress-text {
+                                font-size: 10pt !important;
+                                font-weight: 800 !important;
+                                line-height: 25px !important;
+                                display: flex !important;
+                                align-items: center !important;
+                                justify-content: center !important;
+                                text-align: center !important;
+                                white-space: nowrap !important;
+                                overflow: hidden !important;
+                                position: absolute !important;
+                                top: 0 !important;
+                                left: 0 !important;
+                                right: 0 !important;
+                                bottom: 0 !important;
+                                z-index: 20 !important;
+                                text-shadow:
+                                    1px 1px 2px rgba(0,0,0,0.9) !important,
+                                    0 0 2px rgba(0,0,0,0.8) !important,
+                                    -1px -1px 1px rgba(0,0,0,0.7) !important;
+                                color: white !important;
+                                padding: 0 6px !important;
+                                margin: 0 !important;
+                                height: 25px !important;
+                                width: 100% !important;
+                                text-overflow: ellipsis !important;
+                                vertical-align: middle !important;
+                                letter-spacing: 0.5px !important;
+                                -webkit-print-color-adjust: exact !important;
+                                print-color-adjust: exact !important;
                             }
                         }
                     </style>
@@ -5803,21 +7329,32 @@ function setupPrintReport() {
                 <html lang="ar" dir="rtl">
                 <head>
                     <meta charset="UTF-8">
-                    <title>تقرير الطالب</title>
+                    <title>تقرير المواد</title>
                     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
+                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
                     <style>
+                        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap');
+
+                        * {
+                            box-sizing: border-box;
+                            margin: 0;
+                            padding: 0;
+                        }
+
                         body {
-                            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                            font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
                             direction: rtl;
                             text-align: right;
                             padding: 20px;
                             color: #333;
                             line-height: 1.6;
                         }
+
                         .container {
                             max-width: 1000px;
                             margin: 0 auto;
                         }
+
                         .report-header {
                             text-align: center;
                             margin-bottom: 30px;
@@ -5834,87 +7371,406 @@ function setupPrintReport() {
                             font-size: 14px;
                             margin-top: 0;
                         }
+
+                        .report-date {
+                            text-align: left;
+                            color: #6c757d;
+                            font-size: 12px;
+                            margin-bottom: 15px;
+                            padding: 8px 0;
+                            border-bottom: 1px solid #e9ecef;
+                            font-weight: 500;
+                        }
                         .card {
-                            margin-bottom: 25px;
-                            border: 1px solid #ddd;
-                            border-radius: 8px;
-                            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+                            margin-bottom: 30px;
+                            border: none;
+                            border-radius: 15px;
+                            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
                             page-break-inside: avoid;
+                            overflow: hidden;
+                            transition: all 0.3s ease;
                         }
+
+                        .card:hover {
+                            transform: translateY(-2px);
+                            box-shadow: 0 12px 35px rgba(0,0,0,0.15);
+                        }
+
                         .card-header {
-                            padding: 12px 20px;
-                            border-bottom: 1px solid #ddd;
-                            background-color: #f8f9fa;
-                            border-radius: 8px 8px 0 0;
-                            font-weight: bold;
+                            padding: 20px 25px;
+                            border-bottom: none;
+                            font-weight: 600;
+                            font-size: 16px;
+                            position: relative;
+                            overflow: hidden;
                         }
+
+                        .card-header::before {
+                            content: '';
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            right: 0;
+                            bottom: 0;
+                            background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+                            pointer-events: none;
+                        }
+
+                        .card-body {
+                            padding: 25px;
+                        }
+
+                        .card-footer {
+                            padding: 15px 25px;
+                            background-color: rgba(0,0,0,0.02);
+                            border-top: 1px solid rgba(0,0,0,0.05);
+                            font-size: 14px;
+                            font-weight: 500;
+                        }
+
                         .bg-primary {
-                            background-color: #0d6efd !important;
+                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+                            color: white !important;
+                        }
+                        .bg-success {
+                            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%) !important;
+                            color: white !important;
+                        }
+                        .bg-danger {
+                            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%) !important;
                             color: white !important;
                         }
                         .bg-info {
-                            background-color: #0dcaf0 !important;
+                            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%) !important;
                             color: white !important;
                         }
                         .bg-light {
-                            background-color: #f8f9fa !important;
-                            color: #212529 !important;
+                            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+                            color: #495057 !important;
                         }
+                        .table-responsive {
+                            border-radius: 10px;
+                            overflow: hidden;
+                            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+                        }
+
                         table {
                             width: 100%;
                             border-collapse: collapse;
-                            margin-bottom: 20px;
+                            margin-bottom: 0;
+                            background: white;
                         }
+
                         th, td {
-                            padding: 8px;
-                            border: 1px solid #ddd;
+                            padding: 15px 12px;
+                            border: none;
                             text-align: right;
+                            vertical-align: middle;
+                            border-bottom: 1px solid rgba(0,0,0,0.05);
                         }
+
                         th {
-                            background-color: #f2f2f2;
+                            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+                            font-weight: 600;
+                            font-size: 14px;
+                            color: #495057;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                            position: relative;
                         }
+
+                        tbody tr {
+                            transition: all 0.2s ease;
+                        }
+
+                        tbody tr:hover {
+                            background-color: rgba(0,123,255,0.03);
+                            transform: scale(1.01);
+                        }
+
                         .badge {
-                            padding: 5px 10px;
-                            border-radius: 4px;
-                            font-weight: bold;
+                            padding: 8px 12px;
+                            border-radius: 20px;
+                            font-weight: 500;
+                            font-size: 12px;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+                            border: none;
                         }
-                        .bg-danger {
-                            background-color: #dc3545;
-                            color: white;
+
+                        .financial-item {
+                            background: white;
+                            border-radius: 15px;
+                            padding: 25px;
+                            text-align: center;
+                            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+                            transition: all 0.3s ease;
+                            border: 1px solid rgba(0,0,0,0.05);
                         }
-                        .bg-warning {
-                            background-color: #ffc107;
+
+                        .financial-item:hover {
+                            transform: translateY(-3px);
+                            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
                         }
-                        .bg-info {
-                            background-color: #0dcaf0;
-                            color: white;
+
+                        .financial-item h6 {
+                            font-size: 14px;
+                            font-weight: 500;
+                            margin-bottom: 10px;
+                            text-transform: uppercase;
+                            letter-spacing: 1px;
                         }
-                        .bg-success {
-                            background-color: #198754;
-                            color: white;
+
+                        .financial-item h4 {
+                            font-size: 24px;
+                            font-weight: 700;
+                            margin: 0;
+                        }
+
+                        .progress {
+                            height: 25px;
+                            border-radius: 15px;
+                            background: linear-gradient(135deg, #e9ecef 0%, #f8f9fa 100%);
+                            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+                            overflow: hidden;
+                        }
+
+                        .progress-bar {
+                            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+                            border-radius: 15px;
+                            transition: all 0.3s ease;
+                            position: relative;
+                            overflow: hidden;
+                        }
+
+                        .progress-bar::before {
+                            content: '';
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            right: 0;
+                            bottom: 0;
+                            background: linear-gradient(45deg, rgba(255,255,255,0.2) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.2) 75%, transparent 75%, transparent);
+                            background-size: 20px 20px;
+                            animation: progress-animation 1s linear infinite;
+                        }
+
+                        @keyframes progress-animation {
+                            0% { background-position: 0 0; }
+                            100% { background-position: 20px 0; }
                         }
                         .text-muted {
                             color: #6c757d !important;
                         }
+
                         .text-center {
                             text-align: center !important;
                         }
+
                         .alert {
-                            padding: 15px;
-                            margin-bottom: 20px;
-                            border: 1px solid transparent;
-                            border-radius: 4px;
+                            padding: 20px;
+                            margin-bottom: 25px;
+                            border: none;
+                            border-radius: 15px;
+                            font-weight: 500;
+                            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
                         }
                         .alert-info {
-                            color: #0c5460;
-                            background-color: #d1ecf1;
-                            border-color: #bee5eb;
+                            color: #055160;
+                            background: linear-gradient(135deg, #d1ecf1 0%, #b8daff 100%);
+                            border-left: 4px solid #0dcaf0;
                         }
-                        .alert-danger {
-                            color: #721c24;
-                            background-color: #f8d7da;
-                            border-color: #f5c6cb;
+
+                        /* Action Buttons */
+                        .action-buttons {
+                            display: flex;
+                            justify-content: center;
+                            gap: 15px;
+                            margin-top: 20px;
                         }
+
+                        .btn {
+                            padding: 12px 25px;
+                            border: none;
+                            border-radius: 40px;
+                            font-weight: 600;
+                            font-size: 14px;
+                            cursor: pointer;
+                            transition: all 0.3s ease;
+                            text-decoration: none;
+                            display: inline-flex;
+                            align-items: center;
+                            gap: 8px;
+                            min-width: 140px;
+                            justify-content: center;
+                            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+                        }
+
+                        .btn:hover {
+                            transform: translateY(-3px);
+                            box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+                        }
+
+                        .btn-print {
+                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                            color: white;
+                        }
+
+                        .btn-print:hover {
+                            background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+                        }
+
+                        .btn-close-window {
+                            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+                            color: white;
+                        }
+
+                        .btn-close-window:hover {
+                            background: linear-gradient(135deg, #5a6268 0%, #3d4142 100%);
+                        }
+
+                        /* Financial Summary Table Styles */
+                        .financial-summary-table {
+                            border-radius: 12px;
+                            overflow: hidden;
+                            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+                            margin-bottom: 0;
+                        }
+
+                        .financial-summary-table table {
+                            margin-bottom: 0;
+                            border: none;
+                        }
+
+                        .financial-summary-table th {
+                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                            color: white;
+                            font-weight: 600;
+                            font-size: 14px;
+                            padding: 15px 10px;
+                            border: none;
+                            text-align: center;
+                        }
+
+                        .financial-summary-table td {
+                            padding: 20px 15px;
+                            border: none;
+                            border-bottom: 1px solid rgba(0,0,0,0.05);
+                            vertical-align: middle;
+                        }
+
+                        .financial-row {
+                            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+                        }
+
+                        .percentage-row {
+                            background: linear-gradient(135deg, #ffffff 0%, #f1f3f4 100%);
+                        }
+
+                        .financial-amount {
+                            font-size: 20px;
+                            font-weight: 700;
+                            padding: 8px 16px;
+                            border-radius: 25px;
+                            display: inline-block;
+                            min-width: 120px;
+                            text-align: center;
+                            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                            transition: all 0.3s ease;
+                        }
+
+                        .financial-amount:hover {
+                            transform: translateY(-2px);
+                            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+                        }
+
+                        .total-amount {
+                            background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);
+                            color: white;
+                            border: 2px solid #0d6efd;
+                        }
+
+                        .paid-amount {
+                            background: linear-gradient(135deg, #198754 0%, #20c997 100%);
+                            color: white;
+                            border: 2px solid #198754;
+                        }
+
+                        .remaining-amount {
+                            background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+                            color: white;
+                            border: 2px solid #dc3545;
+                        }
+
+                        .progress-enhanced {
+                            border-radius: 15px;
+                            background: linear-gradient(135deg, #6c757d 0%, #adb5bd 100%);
+                            box-shadow: inset 0 2px 4px rgba(0,0,0,0.25);
+                            overflow: hidden;
+                            border: 3px solid #495057;
+                        }
+
+                        .progress-enhanced .progress-bar {
+                            background: linear-gradient(135deg, #198754 0%, #20c997 100%);
+                            border-radius: 15px;
+                            position: relative;
+                            overflow: visible;
+                            box-shadow: 0 2px 8px rgba(25, 135, 84, 0.6);
+                            border: 1px solid #157347;
+                        }
+
+                        .progress-enhanced .progress-bar::before {
+                            content: '';
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            right: 0;
+                            bottom: 0;
+                            background: linear-gradient(45deg, rgba(255,255,255,0.2) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.2) 75%, transparent 75%, transparent);
+                            background-size: 20px 20px;
+                            animation: progress-animation 2s linear infinite;
+                        }
+
+                        @keyframes progress-animation {
+                            0% { background-position: 0 0; }
+                            100% { background-position: 20px 0; }
+                        }
+
+
+
+
+
+                        .progress-text {
+                            font-size: 15px !important;
+                            font-weight: 800 !important;
+                            line-height: 40px !important;
+                            display: flex !important;
+                            align-items: center !important;
+                            justify-content: center !important;
+                            text-align: center !important;
+                            white-space: nowrap !important;
+                            overflow: hidden !important;
+                            position: absolute !important;
+                            top: 0 !important;
+                            left: 0 !important;
+                            right: 0 !important;
+                            bottom: 0 !important;
+                            z-index: 10 !important;
+                            color: #ffffff !important;
+                            text-shadow:
+                                2px 2px 4px rgba(0,0,0,0.8),
+                                1px 1px 2px rgba(0,0,0,0.9),
+                                0 0 3px rgba(0,0,0,0.7) !important;
+                            letter-spacing: 0.8px !important;
+                            text-stroke: 1px rgba(0,0,0,0.5);
+                            -webkit-text-stroke: 1px rgba(0,0,0,0.3);
+                            padding: 0 8px !important;
+                            margin: 0 !important;
+                            height: 40px !important;
+                            width: 100% !important;
+                        }
+
                         @media print {
                             .no-print {
                                 display: none;
@@ -5976,10 +7832,186 @@ function setupPrintReport() {
                             .report-header p {
                                 font-size: 12pt !important;
                             }
+
+                            /* Student Info Layout for Print */
+                            .row.g-0 {
+                                display: flex !important;
+                                flex-wrap: wrap !important;
+                                margin: 0 !important;
+                            }
+
+                            .col-md-4 {
+                                flex: 0 0 auto !important;
+                                width: 33.33333333% !important;
+                                padding: 0 8px !important;
+                                box-sizing: border-box !important;
+                            }
+
+                            .col-md-4 p {
+                                margin-bottom: 4px !important;
+                                font-size: 9pt !important;
+                                line-height: 1.3 !important;
+                            }
+
+                            .col-md-4 strong {
+                                font-weight: bold !important;
+                                color: #000 !important;
+                            }
+
+                            /* Ensure proper spacing between columns */
+                            .col-md-4:not(:last-child) {
+                                border-left: 1px solid #ddd !important;
+                            }
+
+                            /* Card body padding adjustment for print */
+                            .card-body.py-2 {
+                                padding: 8px 12px !important;
+                            }
                             .badge {
                                 border: 1px solid #ddd !important;
                                 padding: 2px 5px !important;
                                 font-size: 9pt !important;
+                            }
+
+                            /* Receipt number column styling */
+                            th:nth-child(9), td:nth-child(9) {
+                                width: 12% !important;
+                                text-align: center !important;
+                                font-size: 8pt !important;
+                            }
+                            /* Financial Summary Table Styles for Print */
+                            .financial-summary-table {
+                                border-radius: 0 !important;
+                                box-shadow: none !important;
+                                margin-bottom: 8px !important;
+                            }
+
+                            .financial-summary-table table {
+                                border: 2px solid #000 !important;
+                                margin-bottom: 0 !important;
+                            }
+
+                            .financial-summary-table th {
+                                background: #667eea !important;
+                                color: white !important;
+                                font-weight: bold !important;
+                                font-size: 9pt !important;
+                                padding: 6px 4px !important;
+                                border: 1px solid #000 !important;
+                                text-align: center !important;
+                            }
+
+                            .financial-summary-table td {
+                                padding: 8px 6px !important;
+                                border: 1px solid #000 !important;
+                                font-size: 9pt !important;
+                                text-align: center !important;
+                            }
+
+                            .financial-row {
+                                background: #f8f9fa !important;
+                            }
+
+                            .percentage-row {
+                                background: #ffffff !important;
+                            }
+
+                            .financial-amount {
+                                font-size: 10pt !important;
+                                font-weight: bold !important;
+                                padding: 3px 8px !important;
+                                border-radius: 4px !important;
+                                display: inline-block !important;
+                                min-width: auto !important;
+                                text-align: center !important;
+                                box-shadow: none !important;
+                                border: 1px solid #000 !important;
+                            }
+
+                            .total-amount {
+                                background: #667eea !important;
+                                color: white !important;
+                            }
+
+                            .paid-amount {
+                                background: #28a745 !important;
+                                color: white !important;
+                            }
+
+                            .remaining-amount {
+                                background: #dc3545 !important;
+                                color: white !important;
+                            }
+
+                            .progress-enhanced {
+                                border-radius: 8px !important;
+                                background: linear-gradient(135deg, #6c757d 0%, #adb5bd 100%) !important;
+                                box-shadow: inset 0 1px 2px rgba(0,0,0,0.15) !important;
+                                border: 2px solid #495057 !important;
+                                height: 25px !important;
+                                margin-top: 8px !important;
+                                overflow: hidden !important;
+                                -webkit-print-color-adjust: exact !important;
+                                print-color-adjust: exact !important;
+                            }
+
+                            .progress-enhanced .progress-bar {
+                                background: linear-gradient(135deg, #198754 0%, #20c997 100%) !important;
+                                border-radius: 6px !important;
+                                font-size: 9pt !important;
+                                line-height: 25px !important;
+                                overflow: visible !important;
+                                height: 25px !important;
+                                position: relative !important;
+                                border: 1px solid #157347 !important;
+                                box-shadow: 0 1px 4px rgba(25, 135, 84, 0.4) !important;
+                                -webkit-print-color-adjust: exact !important;
+                                print-color-adjust: exact !important;
+                            }
+
+                            .progress-enhanced .progress-bar::before {
+                                content: '' !important;
+                                position: absolute !important;
+                                top: 0 !important;
+                                left: 0 !important;
+                                right: 0 !important;
+                                bottom: 0 !important;
+                                background: linear-gradient(45deg, rgba(255,255,255,0.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.15) 75%, transparent 75%, transparent) !important;
+                                background-size: 12px 12px !important;
+                                -webkit-print-color-adjust: exact !important;
+                                print-color-adjust: exact !important;
+                            }
+
+                            .progress-text {
+                                font-size: 10pt !important;
+                                font-weight: 800 !important;
+                                line-height: 25px !important;
+                                display: flex !important;
+                                align-items: center !important;
+                                justify-content: center !important;
+                                text-align: center !important;
+                                white-space: nowrap !important;
+                                overflow: hidden !important;
+                                position: absolute !important;
+                                top: 0 !important;
+                                left: 0 !important;
+                                right: 0 !important;
+                                bottom: 0 !important;
+                                z-index: 20 !important;
+                                text-shadow:
+                                    1px 1px 2px rgba(0,0,0,0.9) !important,
+                                    0 0 2px rgba(0,0,0,0.8) !important,
+                                    -1px -1px 1px rgba(0,0,0,0.7) !important;
+                                color: white !important;
+                                padding: 0 6px !important;
+                                margin: 0 !important;
+                                height: 25px !important;
+                                width: 100% !important;
+                                text-overflow: ellipsis !important;
+                                vertical-align: middle !important;
+                                letter-spacing: 0.5px !important;
+                                -webkit-print-color-adjust: exact !important;
+                                print-color-adjust: exact !important;
                             }
                         }
                     </style>
@@ -5987,13 +8019,21 @@ function setupPrintReport() {
                 <body>
                     <div class="container">
                         <div class="report-header">
-                            <h2>تقرير الطالب</h2>
+                            <h2>تقرير المواد</h2>
                             <p>جامعة الحاضرة - نظام التسجيل الإلكتروني</p>
                         </div>
                         ${reportContent}
-                        <div class="no-print text-center mt-4">
-                            <button class="btn btn-primary" onclick="window.print()">طباعة</button>
-                            <button class="btn btn-secondary" onclick="window.close()">إغلاق</button>
+                        <div class="no-print text-center mt-5">
+                            <div class="action-buttons">
+                                <button class="btn btn-print" onclick="window.print()">
+                                    <i class="fas fa-print"></i>
+                                    طباعة التقرير
+                                </button>
+                                <button class="btn btn-close-window" onclick="window.close()">
+                                    <i class="fas fa-times"></i>
+                                    إغلاق
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </body>
@@ -6600,9 +8640,9 @@ function setupRegistrationControl() {
         .then(data => {
             if (data.success) {
                 updateRegistrationStatusUI(data.registration_open);
-                alert(isOpen ? 'تم فتح التسجيل بنجاح' : 'تم إغلاق التسجيل بنجاح');
+                alert(isOpen ? 'تم فتح التنزيل بنجاح' : 'تم إغلاق التنزيل بنجاح');
             } else {
-                throw new Error('فشل في تحديث حالة التسجيل');
+                throw new Error('فشل في تحديث حالة التنزيل');
             }
         })
         .catch(error => {
@@ -6620,12 +8660,12 @@ function setupRegistrationControl() {
         if (isOpen) {
             registrationStatusBadge.textContent = 'مفتوح';
             registrationStatusBadge.className = 'badge bg-success fs-5';
-            toggleRegistrationBtn.innerHTML = '<i class="fas fa-lock me-2"></i> إغلاق التسجيل';
+            toggleRegistrationBtn.innerHTML = '<i class="fas fa-lock me-2"></i> إغلاق التنزيل';
             toggleRegistrationBtn.className = 'btn btn-danger btn-lg px-4 py-3';
         } else {
             registrationStatusBadge.textContent = 'مغلق';
             registrationStatusBadge.className = 'badge bg-danger fs-5';
-            toggleRegistrationBtn.innerHTML = '<i class="fas fa-lock-open me-2"></i> فتح التسجيل';
+            toggleRegistrationBtn.innerHTML = '<i class="fas fa-lock-open me-2"></i> فتح التنزيل';
             toggleRegistrationBtn.className = 'btn btn-success btn-lg px-4 py-3';
         }
     }
@@ -8483,3 +10523,337 @@ function updateAllDepartmentSelects() {
             console.error('Error updating department selects:', error);
         });
 }
+
+// Locked Accounts Management Functions
+
+// Show locked accounts section
+function showLockedAccountsSection() {
+    console.log('Showing locked accounts section');
+
+    // Hide main payment management section
+    const mainSection = document.querySelector('.col-md-9.ms-sm-auto.col-lg-10.px-md-4');
+    if (mainSection) {
+        mainSection.classList.add('d-none');
+    }
+
+
+
+    // Show locked accounts section
+    const lockedAccountsSection = document.getElementById('locked-accounts-section');
+    if (lockedAccountsSection) {
+        lockedAccountsSection.classList.remove('d-none');
+    }
+
+    // Update navigation active state
+    updateNavigationActiveState('locked-accounts-nav');
+
+    // Load locked accounts
+    loadLockedAccounts();
+}
+
+// Hide locked accounts section
+function hideLockedAccountsSection() {
+    console.log('Hiding locked accounts section');
+
+    // Show main payment management section
+    const mainSection = document.querySelector('.col-md-9.ms-sm-auto.col-lg-10.px-md-4');
+    if (mainSection) {
+        mainSection.classList.remove('d-none');
+    }
+
+    // Hide locked accounts section
+    const lockedAccountsSection = document.getElementById('locked-accounts-section');
+    if (lockedAccountsSection) {
+        lockedAccountsSection.classList.add('d-none');
+    }
+
+    // Update navigation active state
+    updateNavigationActiveState('payment-management-nav');
+}
+
+
+
+// Update navigation active state
+function updateNavigationActiveState(activeNavId) {
+    // Remove active class from all navigation items
+    const navItems = document.querySelectorAll('.nav-link');
+    navItems.forEach(item => {
+        item.classList.remove('active');
+    });
+
+    // Add active class to the specified navigation item
+    const activeNav = document.getElementById(activeNavId);
+    if (activeNav) {
+        const activeLink = activeNav.querySelector('.nav-link');
+        if (activeLink) {
+            activeLink.classList.add('active');
+        }
+    }
+}
+
+// Load locked accounts
+function loadLockedAccounts() {
+    const loadingElement = document.getElementById('locked-accounts-loading');
+    const errorElement = document.getElementById('locked-accounts-error');
+    const containerElement = document.getElementById('locked-accounts-container');
+    const noAccountsElement = document.getElementById('no-locked-accounts');
+    const tableBody = document.getElementById('locked-accounts-table-body');
+
+    // Show loading
+    loadingElement.classList.remove('d-none');
+    errorElement.classList.add('d-none');
+    containerElement.classList.add('d-none');
+    noAccountsElement.classList.add('d-none');
+
+    fetch('/api/admin/locked-students')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('فشل في تحميل بيانات الحسابات المجمدة');
+            }
+            return response.json();
+        })
+        .then(data => {
+            loadingElement.classList.add('d-none');
+
+            if (!data.students || data.students.length === 0) {
+                noAccountsElement.classList.remove('d-none');
+                return;
+            }
+
+            // Populate table
+            tableBody.innerHTML = '';
+            data.students.forEach(student => {
+                const row = document.createElement('tr');
+
+                const lockedDate = student.locked_at ?
+                    new Date(student.locked_at).toLocaleDateString('ar-LY') + ' ' +
+                    new Date(student.locked_at).toLocaleTimeString('ar-LY', { hour: '2-digit', minute: '2-digit' })
+                    : 'غير محدد';
+
+                // تحديد سبب التجميد المختصر
+                let lockReason = student.locked_reason || 'غير محدد';
+                if (lockReason.includes('إدخال رقم إيصال خاطئ')) {
+                    lockReason = 'إدخال رقم إيصال خاطئ 3 مرات';
+                } else if (lockReason.length > 30) {
+                    lockReason = lockReason.substring(0, 30) + '...';
+                }
+
+                row.innerHTML = `
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-user-lock text-warning me-2"></i>
+                            <div>
+                                <strong class="d-block">${student.name}</strong>
+                                <small class="text-muted">${student.registration_number}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge bg-info text-white">${student.department_name || 'غير محدد'}</span>
+                    </td>
+                    <td>
+                        <span class="badge bg-warning text-dark" title="${student.locked_reason || 'غير محدد'}">
+                            ${lockReason}
+                        </span>
+                    </td>
+                    <td>
+                        <small class="text-muted">${lockedDate}</small>
+                    </td>
+                    <td>
+                        <button class="btn btn-success btn-sm unlock-account-btn"
+                                data-student-id="${student.id}"
+                                data-student-name="${student.name}"
+                                data-student-reg="${student.registration_number}"
+                                data-student-dept="${student.department_name || 'غير محدد'}"
+                                data-locked-reason="${student.locked_reason || 'غير محدد'}">
+                            <i class="fas fa-unlock me-1"></i>
+                            <span class="d-none d-md-inline">إلغاء التجميد</span>
+                            <span class="d-md-none">إلغاء</span>
+                        </button>
+                    </td>
+                `;
+
+                tableBody.appendChild(row);
+            });
+
+            // Setup unlock buttons
+            document.querySelectorAll('.unlock-account-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const studentId = this.getAttribute('data-student-id');
+                    const studentName = this.getAttribute('data-student-name');
+                    const studentReg = this.getAttribute('data-student-reg');
+                    const studentDept = this.getAttribute('data-student-dept');
+                    const lockedReason = this.getAttribute('data-locked-reason');
+
+                    showUnlockAccountModal(studentId, studentName, studentReg, studentDept, lockedReason);
+                });
+            });
+
+            containerElement.classList.remove('d-none');
+        })
+        .catch(error => {
+            console.error('Error loading locked accounts:', error);
+            loadingElement.classList.add('d-none');
+            errorElement.classList.remove('d-none');
+            document.getElementById('locked-accounts-error-text').textContent = error.message;
+        });
+}
+
+// Show unlock account modal
+function showUnlockAccountModal(studentId, studentName, studentReg, studentDept, lockedReason) {
+    const modal = document.getElementById('unlockAccountModal');
+    const studentInfo = document.getElementById('unlock-student-info');
+    const confirmBtn = document.getElementById('confirmUnlockBtn');
+
+    // Populate student info
+    studentInfo.innerHTML = `
+        <div class="row">
+            <div class="col-md-6">
+                <strong>اسم الطالب:</strong> ${studentName}
+            </div>
+            <div class="col-md-6">
+                <strong>رقم التسجيل:</strong> ${studentReg}
+            </div>
+            <div class="col-md-6">
+                <strong>التخصص:</strong> ${studentDept}
+            </div>
+            <div class="col-md-6">
+                <strong>سبب التجميد:</strong> ${lockedReason}
+            </div>
+        </div>
+    `;
+
+    // Store student ID for later use
+    confirmBtn.setAttribute('data-student-id', studentId);
+
+    // Show modal
+    const modalInstance = new bootstrap.Modal(modal);
+    modalInstance.show();
+}
+
+// Unlock student account
+function unlockStudentAccount(studentId) {
+    const confirmBtn = document.getElementById('confirmUnlockBtn');
+
+    // Disable button and show loading
+    confirmBtn.disabled = true;
+    confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>جاري إلغاء التجميد...';
+
+    fetch(`/api/admin/students/${studentId}/unlock`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            unlock_reason: 'تم إلغاء التجميد من قبل المشرف المالي',
+            reason: 'تم إلغاء التجميد من قبل المشرف المالي',
+            unlockReason: 'تم إلغاء التجميد من قبل المشرف المالي'
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                throw new Error(data.error || 'فشل في إلغاء تجميد الحساب');
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('unlockAccountModal'));
+            modal.hide();
+
+            // Show success message
+            alert('تم إلغاء تجميد الحساب بنجاح');
+
+            // Reload locked accounts
+            loadLockedAccounts();
+        } else {
+            throw new Error(data.error || 'فشل في إلغاء تجميد الحساب');
+        }
+    })
+    .catch(error => {
+        console.error('Error unlocking account:', error);
+        alert('حدث خطأ: ' + error.message);
+    })
+    .finally(() => {
+        // Re-enable button
+        confirmBtn.disabled = false;
+        confirmBtn.innerHTML = '<i class="fas fa-unlock me-1"></i>إلغاء التجميد';
+    });
+}
+
+// Setup unlock account modal events when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    const confirmBtn = document.getElementById('confirmUnlockBtn');
+
+    if (confirmBtn) {
+        confirmBtn.addEventListener('click', function() {
+            const studentId = this.getAttribute('data-student-id');
+            unlockStudentAccount(studentId);
+        });
+    }
+
+    // Setup refresh button
+    const refreshBtn = document.getElementById('refresh-locked-accounts-btn');
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', loadLockedAccounts);
+    }
+
+    // Setup search functionality
+    const searchInput = document.getElementById('locked-accounts-search-input');
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#locked-accounts-table-body tr');
+
+            rows.forEach(row => {
+                const studentName = row.cells[0].textContent.toLowerCase();
+                const studentReg = row.cells[1].textContent.toLowerCase();
+
+                if (studentName.includes(searchTerm) || studentReg.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    }
+
+    // Check URL hash on page load to show appropriate section
+    checkURLHashAndShowSection();
+});
+
+// Check URL hash and show appropriate section
+function checkURLHashAndShowSection() {
+    const hash = window.location.hash;
+    console.log('Current URL hash:', hash);
+
+    if (hash === '#locked-accounts-section') {
+        console.log('Showing locked accounts section based on URL hash');
+        showLockedAccountsSection();
+    } else {
+        console.log('Showing main payment management section');
+        // Ensure main section is visible
+        const mainSection = document.querySelector('.col-md-9.ms-sm-auto.col-lg-10.px-md-4');
+        if (mainSection) {
+            mainSection.classList.remove('d-none');
+        }
+
+        // Hide other sections
+        const lockedAccountsSection = document.getElementById('locked-accounts-section');
+        if (lockedAccountsSection) {
+            lockedAccountsSection.classList.add('d-none');
+        }
+
+        // Update navigation active state
+        updateNavigationActiveState('payment-management-nav');
+    }
+}
+
+// Listen for hash changes
+window.addEventListener('hashchange', function() {
+    console.log('Hash changed, checking sections');
+    checkURLHashAndShowSection();
+});

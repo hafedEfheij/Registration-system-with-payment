@@ -277,3 +277,51 @@ body {
 .border-no-groups:hover {
     box-shadow: 0 5px 15px rgba(255, 193, 7, 0.3) !important;
 }
+
+/* Disabled button styles for paid courses */
+.btn-secondary[disabled] {
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+    color: #fff !important;
+    opacity: 0.8;
+    cursor: not-allowed;
+}
+
+.btn-secondary[disabled]:hover {
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+    color: #fff !important;
+    opacity: 0.8;
+}
+
+/* Tooltip for disabled buttons */
+.btn[disabled][title] {
+    position: relative;
+}
+
+.btn[disabled][title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 1000;
+    margin-bottom: 5px;
+}
+
+.btn[disabled][title]:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: #333;
+    z-index: 1000;
+}

@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحسينات الجدول</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            direction: rtl;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(255,255,255,0.2);
+        }
+        .header h1 {
+            color: white;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        .improvement-section {
+            margin: 30px 0;
+            padding: 25px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .improvement-section h3 {
+            color: #ffd700;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .comparison-item {
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .before {
+            background: rgba(220,53,69,0.2);
+            border: 2px solid #dc3545;
+        }
+        .after {
+            background: rgba(40,167,69,0.2);
+            border: 2px solid #28a745;
+        }
+        .demo-status {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin: 5px;
+            display: inline-block;
+            font-size: 14px;
+        }
+        .status-sold-old {
+            color: #fd7e14;
+            background: rgba(253, 126, 20, 0.1);
+            border: 1px solid rgba(253, 126, 20, 0.3);
+        }
+        .status-not-sold-old {
+            color: #6c757d;
+            background: rgba(108, 117, 125, 0.1);
+            border: 1px solid rgba(108, 117, 125, 0.3);
+        }
+        .status-sold-new {
+            color: #28a745;
+            background: rgba(40, 167, 69, 0.1);
+            border: 1px solid rgba(40, 167, 69, 0.3);
+        }
+        .status-not-sold-new {
+            color: #6c757d;
+            background: rgba(108, 117, 125, 0.1);
+            border: 1px solid rgba(108, 117, 125, 0.3);
+            text-decoration: line-through;
+            position: relative;
+        }
+        .status-not-sold-new::before {
+            content: "❌";
+            margin-left: 5px;
+            font-size: 12px;
+        }
+        .demo-button {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            margin: 2px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-old {
+            background: #dc3545;
+            color: white;
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+        .btn-new {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .btn-new:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        .feature-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+        }
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+        .check-icon {
+            color: #00ff88;
+            margin-left: 15px;
+            font-size: 1.2rem;
+        }
+        .x-icon {
+            color: #ff4757;
+            margin-left: 15px;
+            font-size: 1.2rem;
+        }
+        .test-button {
+            width: 100%;
+            padding: 15px;
+            margin: 20px 0;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            color: white;
+            transition: all 0.3s;
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            box-shadow: 0 4px 15px rgba(0,123,255,0.3);
+        }
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,123,255,0.4);
+        }
+        .demo-table {
+            width: 100%;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 15px 0;
+            color: #333;
+            font-size: 12px;
+        }
+        .demo-table th {
+            background: #343a40;
+            color: white;
+            padding: 10px 8px;
+            text-align: center;
+            font-size: 11px;
+        }
+        .demo-table td {
+            padding: 8px;
+            text-align: center;
+            border-bottom: 1px solid #f1f3f4;
+        }
+        .demo-table tr:hover {
+            background: rgba(0,123,255,0.05);
+        }
+        @media (max-width: 768px) {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 تحسينات الجدول المحترفة</h1>
+            <p>تحسينات شاملة لجدول كروت الدفع المسبق</p>
+        </div>
+        
+        <div class="improvement-section">
+            <h3>🎯 التحسينات المطبقة</h3>
+            <ul class="feature-list">
+                <li><span class="check-icon">✅</span> تغيير "لم يتم بيعه" إلى "غير مباع" مع خط متقاطع</li>
+                <li><span class="check-icon">✅</span> تغيير "حذف مستخدم" إلى "حذف" (أقصر وأوضح)</li>
+                <li><span class="check-icon">✅</span> تحسين تصميم الجدول بشكل احترافي</li>
+                <li><span class="check-icon">✅</span> إضافة تأثيرات بصرية للصفوف</li>
+                <li><span class="check-icon">✅</span> تحسين شارات الحالة (Status Badges)</li>
+                <li><span class="check-icon">✅</span> تحسين أزرار الإجراءات</li>
+            </ul>
+        </div>
+
+        <div class="improvement-section">
+            <h3>🏷️ تحسين شارات الحالة</h3>
+            <div class="comparison-grid">
+                <div class="comparison-item before">
+                    <h4>❌ قبل التحسين</h4>
+                    <div class="demo-status status-sold-old">تم بيعه</div>
+                    <div class="demo-status status-not-sold-old">لم يتم بيعه</div>
+                    <p style="font-size: 12px; margin-top: 10px; opacity: 0.8;">
+                        نص طويل وغير واضح
+                    </p>
+                </div>
+                
+                <div class="comparison-item after">
+                    <h4>✅ بعد التحسين</h4>
+                    <div class="demo-status status-sold-new">مباع</div>
+                    <div class="demo-status status-not-sold-new">غير مباع</div>
+                    <p style="font-size: 12px; margin-top: 10px; opacity: 0.8;">
+                        نص مختصر مع خط متقاطع وأيقونة
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="improvement-section">
+            <h3>🔘 تحسين أزرار الإجراءات</h3>
+            <div class="comparison-grid">
+                <div class="comparison-item before">
+                    <h4>❌ قبل التحسين</h4>
+                    <button class="demo-button btn-old">حذف مستخدم</button>
+                    <p style="font-size: 12px; margin-top: 10px; opacity: 0.8;">
+                        نص طويل ومربك
+                    </p>
+                </div>
+                
+                <div class="comparison-item after">
+                    <h4>✅ بعد التحسين</h4>
+                    <button class="demo-button btn-new">حذف</button>
+                    <p style="font-size: 12px; margin-top: 10px; opacity: 0.8;">
+                        نص مختصر وواضح
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="improvement-section">
+            <h3>📋 تحسين تصميم الجدول</h3>
+            <div class="comparison-grid">
+                <div class="comparison-item before">
+                    <h4>❌ التصميم القديم</h4>
+                    <table class="demo-table">
+                        <thead>
+                            <tr>
+                                <th>الحالة</th>
+                                <th>الإجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>لم يتم بيعه</td>
+                                <td><button class="demo-button btn-old" style="font-size: 10px;">حذف مستخدم</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="comparison-item after">
+                    <h4>✅ التصميم الجديد</h4>
+                    <table class="demo-table">
+                        <thead>
+                            <tr>
+                                <th>الحالة</th>
+                                <th>الإجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="status-not-sold-new" style="font-size: 10px;">غير مباع</span></td>
+                                <td><button class="demo-button btn-new" style="font-size: 10px;">حذف</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="improvement-section">
+            <h3>🎨 التحسينات البصرية</h3>
+            <ul class="feature-list">
+                <li><span class="check-icon">✅</span> حدود مدورة للجدول والعناصر</li>
+                <li><span class="check-icon">✅</span> ظلال ثلاثية الأبعاد</li>
+                <li><span class="check-icon">✅</span> تأثيرات Hover للصفوف</li>
+                <li><span class="check-icon">✅</span> تدرجات لونية للخلفيات</li>
+                <li><span class="check-icon">✅</span> أيقونات وصفية للحالات</li>
+                <li><span class="check-icon">✅</span> ألوان متناسقة ومعبرة</li>
+                <li><span class="check-icon">✅</span> خطوط واضحة ومقروءة</li>
+            </ul>
+        </div>
+
+        <div class="improvement-section">
+            <h3>📱 التحسينات للموبايل</h3>
+            <ul class="feature-list">
+                <li><span class="check-icon">✅</span> أزرار أصغر مناسبة للشاشات الصغيرة</li>
+                <li><span class="check-icon">✅</span> نصوص مختصرة توفر مساحة</li>
+                <li><span class="check-icon">✅</span> تخطيط متجاوب للجدول</li>
+                <li><span class="check-icon">✅</span> تأثيرات بصرية محسنة للمس</li>
+            </ul>
+        </div>
+
+        <div class="improvement-section">
+            <h3>🔍 تحسينات الفلاتر والبحث</h3>
+            <ul class="feature-list">
+                <li><span class="check-icon">✅</span> تحديث خيارات الفلتر: "مباع" و "غير مباع"</li>
+                <li><span class="check-icon">✅</span> تحديث ملخص النتائج بالنصوص الجديدة</li>
+                <li><span class="check-icon">✅</span> تحديث رسائل التأكيد</li>
+                <li><span class="check-icon">✅</span> تحسين دوال الطباعة والتصدير</li>
+            </ul>
+        </div>
+
+        <button class="test-button" onclick="openPrepaidCardsPage()">
+            🚀 اختبار التحسينات الجديدة
+        </button>
+
+        <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.2);">
+            <p style="opacity: 0.8;">
+                <strong>النتيجة:</strong> جدول احترافي ومتناسق مع تجربة مستخدم محسنة
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function openPrepaidCardsPage() {
+            const testWindow = window.open('/admin/prepaid-cards.html', '_blank');
+            
+            if (!testWindow) {
+                alert('تم حظر النافذة المنبثقة. يرجى السماح بالنوافذ المنبثقة وإعادة المحاولة.');
+                return;
+            }
+            
+            setTimeout(() => {
+                alert('🎉 تم فتح الصفحة المحسنة!\n\n' +
+                      '👀 لاحظ التحسينات:\n' +
+                      '• "غير مباع" مع خط متقاطع ❌\n' +
+                      '• أزرار "حذف" مختصرة\n' +
+                      '• تصميم جدول احترافي\n' +
+                      '• تأثيرات بصرية محسنة\n' +
+                      '• شارات حالة ملونة');
+            }, 1000);
+        }
+
+        // Add animation effects
+        document.addEventListener('DOMContentLoaded', function() {
+            const sections = document.querySelectorAll('.improvement-section');
+            
+            sections.forEach((section, index) => {
+                section.style.opacity = '0';
+                section.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    section.style.transition = 'all 0.6s ease';
+                    section.style.opacity = '1';
+                    section.style.transform = 'translateY(0)';
+                }, index * 200);
+            });
+        });
+    </script>
+</body>
+</html>

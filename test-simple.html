@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار بسيط للكروت المخصصة</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            direction: rtl;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        textarea, input, button {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin: 5px 0;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>اختبار بسيط للكروت المخصصة</h1>
+        
+        <button onclick="login()">تسجيل دخول كمشرف مالي</button>
+        
+        <div class="form-group">
+            <label for="custom-numbers">أرقام الكروت (كل رقم في سطر منفصل):</label>
+            <textarea id="custom-numbers" rows="4" placeholder="SIMPLE001
+SIMPLE002
+SIMPLE003"></textarea>
+        </div>
+        
+        <div class="form-group">
+            <label for="card-value">قيمة الكرت (بالدينار):</label>
+            <input type="number" id="card-value" value="5" min="1">
+        </div>
+        
+        <button onclick="generateCards()">إنشاء الكروت</button>
+        
+        <div id="result" class="result" style="display: none;"></div>
+    </div>
+
+    <script>
+        function showResult(message, isError = false) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = message;
+            resultDiv.className = 'result ' + (isError ? 'error' : 'success');
+            resultDiv.style.display = 'block';
+        }
+
+        function login() {
+            showResult('جاري تسجيل الدخول...');
+            
+            fetch('/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: 'financial',
+                    password: 'financial123'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showResult('تم تسجيل الدخول بنجاح! يمكنك الآن إنشاء الكروت.');
+                } else {
+                    showResult('فشل تسجيل الدخول: ' + (data.error || 'خطأ غير معروف'), true);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showResult('حدث خطأ أثناء تسجيل الدخول: ' + error.message, true);
+            });
+        }
+
+        function generateCards() {
+            const numbersText = document.getElementById('custom-numbers').value.trim();
+            const value = parseInt(document.getElementById('card-value').value);
+            
+            console.log('Generate cards called');
+            console.log('Numbers text:', numbersText);
+            console.log('Value:', value);
+            
+            if (!numbersText) {
+                showResult('يرجى إدخال أرقام الكروت', true);
+                return;
+            }
+            
+            if (!value || value < 1) {
+                showResult('قيمة الكرت يجب أن تكون أكبر من صفر', true);
+                return;
+            }
+            
+            const numbers = numbersText.split('\n')
+                .map(line => line.trim())
+                .filter(line => line.length > 0);
+            
+            console.log('Processed numbers:', numbers);
+            
+            if (numbers.length === 0) {
+                showResult('لا توجد أرقام صحيحة لإنشاء الكروت', true);
+                return;
+            }
+            
+            showResult('جاري إنشاء الكروت...');
+            
+            const requestData = { 
+                numbers: numbers,
+                value: value 
+            };
+            
+            console.log('Request data:', requestData);
+            
+            fetch('/api/admin/prepaid-cards/generate-custom', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                console.log('Response ok:', response.ok);
+                
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        console.log('Error response:', text);
+                        try {
+                            const errorData = JSON.parse(text);
+                            throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+                        } catch (parseError) {
+                            throw new Error(`HTTP ${response.status}: ${response.statusText} - ${text}`);
+                        }
+                    });
+                }
+                
+                return response.json();
+            })
+            .then(data => {
+                console.log('Response data:', data);
+                
+                if (data.success) {
+                    showResult(`نجح! ${data.message}\n\nتم إنشاء الكروت التالية:\n${data.cards.map(card => `- ${card.card_number} (${card.value} دينار)`).join('\n')}`);
+                    document.getElementById('custom-numbers').value = '';
+                } else {
+                    showResult('خطأ: ' + (data.error || 'خطأ غير معروف'), true);
+                }
+            })
+            .catch(error => {
+                console.error('Full error:', error);
+                showResult('حدث خطأ أثناء إنشاء الكروت: ' + error.message, true);
+            });
+        }
+    </script>
+</body>
+</html>

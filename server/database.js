@@ -66,6 +66,33 @@ function createTables() {
           });
         }
       });
+
+      // Create test student user if it doesn't exist
+      db.get("SELECT * FROM users WHERE username = 'student1'", (err, row) => {
+        if (err) {
+          console.error('Error checking student user', err.message);
+        } else if (!row) {
+          // Create student user with password 'student123'
+          db.run("INSERT INTO users (username, password, role) VALUES ('student1', 'student123', 'student')", function(err) {
+            if (err) {
+              console.error('Error creating student user', err.message);
+            } else {
+              console.log('Student user created successfully');
+              const userId = this.lastID;
+
+              // Create student record
+              db.run("INSERT INTO students (user_id, name, student_id, department_id, phone, email) VALUES (?, ?, ?, ?, ?, ?)",
+                [userId, 'طالب تجريبي', 'STU001', 1, '1234567890', 'student1@test.com'], (err) => {
+                if (err) {
+                  console.error('Error creating student record', err.message);
+                } else {
+                  console.log('Student record created successfully');
+                }
+              });
+            }
+          });
+        }
+      });
     }
   });
 
@@ -331,6 +358,25 @@ function createTables() {
     } else {
       console.log('System settings table created or already exists');
 
+      // Add prepaid_card_default_value setting if it doesn't exist
+      db.get('SELECT * FROM system_settings WHERE key = ?', ['prepaid_card_default_value'], (err, row) => {
+        if (err) {
+          console.error('Error checking prepaid_card_default_value setting:', err.message);
+        } else if (!row) {
+          // Default to 5 dinars
+          db.run('INSERT INTO system_settings (key, value) VALUES (?, ?)',
+            ['prepaid_card_default_value', '5'],
+            (err) => {
+              if (err) {
+                console.error('Error inserting default prepaid_card_default_value setting:', err.message);
+              } else {
+                console.log('Default prepaid_card_default_value setting inserted');
+              }
+            }
+          );
+        }
+      });
+
       // Insert default settings if they don't exist
       db.get('SELECT * FROM system_settings WHERE key = ?', ['registration_open'], (err, row) => {
         if (err) {
@@ -407,6 +453,203 @@ function createTables() {
         }
       });
     }
+  });
+
+  // Prepaid cards table
+  db.run(`CREATE TABLE IF NOT EXISTS prepaid_cards (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    card_number TEXT NOT NULL UNIQUE,
+    value INTEGER NOT NULL DEFAULT 5,
+    is_used BOOLEAN DEFAULT FALSE,
+    is_sold BOOLEAN DEFAULT FALSE,
+    sold_at TIMESTAMP DEFAULT NULL,
+    sold_by_admin_id INTEGER DEFAULT NULL,
+    used_by_student_id INTEGER DEFAULT NULL,
+    used_at TIMESTAMP DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (used_by_student_id) REFERENCES students (id),
+    FOREIGN KEY (sold_by_admin_id) REFERENCES users (id)
+  )`, (err) => {
+    if (err) {
+      console.error('Error creating prepaid_cards table', err.message);
+    } else {
+      console.log('Prepaid cards table created or already exists');
+
+      // Add new columns if they don't exist
+      db.run(`ALTER TABLE prepaid_cards ADD COLUMN is_sold BOOLEAN DEFAULT FALSE`, (err) => {
+        if (err && !err.message.includes('duplicate column name')) {
+          console.error('Error adding is_sold column:', err);
+        }
+      });
+
+      db.run(`ALTER TABLE prepaid_cards ADD COLUMN sold_at TIMESTAMP DEFAULT NULL`, (err) => {
+        if (err && !err.message.includes('duplicate column name')) {
+          console.error('Error adding sold_at column:', err);
+        }
+      });
+
+      db.run(`ALTER TABLE prepaid_cards ADD COLUMN sold_by_admin_id INTEGER DEFAULT NULL`, (err) => {
+        if (err && !err.message.includes('duplicate column name')) {
+          console.error('Error adding sold_by_admin_id column:', err);
+        }
+      });
+
+      // Add some test prepaid cards if table is empty
+      db.get('SELECT COUNT(*) as count FROM prepaid_cards', (err, result) => {
+        if (!err && result.count === 0) {
+          console.log('Adding test prepaid cards data...');
+
+          // Insert test prepaid cards with correct data types
+          const testCards = [
+            // Used cards (is_used = 1 for SQLite)
+            ['1235', 500, 1, 5, '2025-05-29 20:11:04', '2025-05-25 10:00:00'],
+            ['5687', 500, 1, 8, '2025-05-28 23:26:14', '2025-05-25 10:05:00'],
+            ['45874', 500, 1, 8, '2025-05-30 15:30:22', '2025-05-25 10:10:00'],
+            // Available cards (is_used = 0 for SQLite)
+            ['CARD001', 500, 0, null, null, '2025-05-25 10:15:00'],
+            ['CARD002', 500, 0, null, null, '2025-05-25 10:20:00'],
+            ['CARD003', 250, 0, null, null, '2025-05-25 10:25:00'],
+            ['CARD004', 100, 0, null, null, '2025-05-25 10:30:00'],
+            ['CARD005', 50, 0, null, null, '2025-05-25 10:35:00']
+          ];
+
+          let insertedCount = 0;
+          testCards.forEach(card => {
+            db.run(`INSERT INTO prepaid_cards
+                    (card_number, value, is_used, used_by_student_id, used_at, created_at)
+                    VALUES (?, ?, ?, ?, ?, ?)`,
+              card,
+              (err) => {
+                if (err) {
+                  console.log('Error inserting test prepaid card:', err.message);
+                } else {
+                  insertedCount++;
+                  console.log(`✅ Inserted test prepaid card: ${card[0]} (is_used: ${card[2]})`);
+
+                  if (insertedCount === testCards.length) {
+                    console.log(`🎉 Successfully inserted ${insertedCount} test prepaid cards!`);
+                  }
+                }
+              }
+            );
+          });
+        }
+      });
+    }
+  });
+
+  // Receipt numbers table - to track used receipt numbers
+  db.run(`CREATE TABLE IF NOT EXISTS receipt_numbers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    receipt_number TEXT NOT NULL UNIQUE,
+    used_by_student_id INTEGER NOT NULL,
+    used_by_enrollment_id INTEGER NOT NULL,
+    used_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    course_name TEXT,
+    student_name TEXT,
+    FOREIGN KEY (used_by_student_id) REFERENCES students (id),
+    FOREIGN KEY (used_by_enrollment_id) REFERENCES enrollments (id)
+  )`, (err) => {
+    if (err) {
+      console.error('Error creating receipt_numbers table', err.message);
+    } else {
+      console.log('Receipt numbers table created or already exists');
+
+      // Add some test data if table is empty
+      db.get('SELECT COUNT(*) as count FROM receipt_numbers', (err, result) => {
+        if (!err && result.count === 0) {
+          console.log('Adding test receipt numbers data...');
+
+          // Insert test receipt numbers
+          const testReceipts = [
+            ['1235', 5, 14, '2025-05-29 20:11:04', 'حاسب 2', 'احمد محمد احمد'],
+            ['5687', 8, 26, '2025-05-28 23:26:14', 'حاسب 3', 'دنيا علي'],
+            ['45874', 8, 27, '2025-05-30 15:30:22', 'قواعد بيانات 1', 'دنيا علي']
+          ];
+
+          testReceipts.forEach(receipt => {
+            db.run(`INSERT INTO receipt_numbers
+                    (receipt_number, used_by_student_id, used_by_enrollment_id, used_at, course_name, student_name)
+                    VALUES (?, ?, ?, ?, ?, ?)`,
+              receipt,
+              (err) => {
+                if (err) {
+                  console.log('Error inserting test receipt:', err.message);
+                } else {
+                  console.log('Inserted test receipt:', receipt[0]);
+                }
+              }
+            );
+          });
+        }
+      });
+    }
+  });
+
+  // Failed receipt attempts table for account lockout
+  db.run(`CREATE TABLE IF NOT EXISTS failed_receipt_attempts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    student_id INTEGER NOT NULL,
+    attempted_receipt_number TEXT NOT NULL,
+    attempt_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ip_address TEXT,
+    FOREIGN KEY (student_id) REFERENCES students (id)
+  )`, (err) => {
+    if (err) {
+      console.error('Error creating failed receipt attempts table', err.message);
+    } else {
+      console.log('Failed receipt attempts table created or already exists');
+    }
+  });
+
+  // Add account lockout columns to students table
+  db.run("PRAGMA table_info(students)", (err, rows) => {
+    if (err) {
+      console.error('Error checking students table structure:', err.message);
+      return;
+    }
+
+    // Check if account_locked column exists
+    db.all("PRAGMA table_info(students)", (err, rows) => {
+      if (err) {
+        console.error('Error checking students table columns:', err.message);
+        return;
+      }
+
+      const hasAccountLocked = rows.some(row => row.name === 'account_locked');
+      const hasLockedAt = rows.some(row => row.name === 'locked_at');
+      const hasLockedReason = rows.some(row => row.name === 'locked_reason');
+
+      if (!hasAccountLocked) {
+        db.run("ALTER TABLE students ADD COLUMN account_locked INTEGER DEFAULT 0", (err) => {
+          if (err) {
+            console.error('Error adding account_locked column:', err.message);
+          } else {
+            console.log('Added account_locked column to students table');
+          }
+        });
+      }
+
+      if (!hasLockedAt) {
+        db.run("ALTER TABLE students ADD COLUMN locked_at TIMESTAMP", (err) => {
+          if (err) {
+            console.error('Error adding locked_at column:', err.message);
+          } else {
+            console.log('Added locked_at column to students table');
+          }
+        });
+      }
+
+      if (!hasLockedReason) {
+        db.run("ALTER TABLE students ADD COLUMN locked_reason TEXT", (err) => {
+          if (err) {
+            console.error('Error adding locked_reason column:', err.message);
+          } else {
+            console.log('Added locked_reason column to students table');
+          }
+        });
+      }
+    });
   });
 }
 

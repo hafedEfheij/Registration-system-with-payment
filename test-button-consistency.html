@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار تناسق الأزرار</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            direction: rtl;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(255,255,255,0.2);
+        }
+        .header h1 {
+            color: white;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        .section {
+            margin: 30px 0;
+            padding: 25px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .section h3 {
+            color: #ffd700;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        .button-showcase {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .button-group {
+            background: rgba(255,255,255,0.05);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .button-group h4 {
+            color: #fff;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+        .demo-button {
+            width: 100%;
+            margin: 5px 0;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .demo-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        .btn-lg-demo {
+            height: 50px;
+            font-size: 15px;
+            min-width: 150px;
+        }
+        .btn-md-demo {
+            height: 42px;
+            font-size: 14px;
+            min-width: 130px;
+        }
+        .btn-sm-demo {
+            height: 36px;
+            font-size: 13px;
+            min-width: 100px;
+        }
+        .btn-xs-demo {
+            height: 32px;
+            font-size: 12px;
+            min-width: 80px;
+        }
+        .btn-success-demo {
+            background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+            color: white;
+        }
+        .btn-danger-demo {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+        }
+        .btn-warning-demo {
+            background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+            color: #212529;
+        }
+        .btn-primary-demo {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+        }
+        .btn-light-demo {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            color: #495057;
+        }
+        .improvement-list {
+            list-style: none;
+            padding: 0;
+        }
+        .improvement-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+        }
+        .improvement-list li:last-child {
+            border-bottom: none;
+        }
+        .check-icon {
+            color: #00ff88;
+            margin-left: 15px;
+            font-size: 1.2rem;
+        }
+        .test-button {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            color: white;
+            transition: all 0.3s;
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            box-shadow: 0 4px 15px rgba(0,123,255,0.3);
+        }
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,123,255,0.4);
+        }
+        @media (max-width: 768px) {
+            .button-showcase {
+                grid-template-columns: 1fr;
+            }
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 تناسق الأزرار المحسن</h1>
+            <p>عرض شامل للتحسينات المطبقة على أزرار صفحة كروت الدفع المسبق</p>
+        </div>
+        
+        <div class="section">
+            <h3>✨ التحسينات المطبقة</h3>
+            <ul class="improvement-list">
+                <li><span class="check-icon">✅</span> توحيد أحجام جميع الأزرار (XS, SM, MD, LG)</li>
+                <li><span class="check-icon">✅</span> تطبيق نظام ألوان موحد حسب الوظيفة</li>
+                <li><span class="check-icon">✅</span> إضافة كلاس .btn-professional لجميع الأزرار</li>
+                <li><span class="check-icon">✅</span> تحسين أزرار الجدول (أصغر حجم للمساحة)</li>
+                <li><span class="check-icon">✅</span> تحسين التجاوب مع الشاشات المختلفة</li>
+                <li><span class="check-icon">✅</span> تقصير نصوص الأزرار للوضوح</li>
+                <li><span class="check-icon">✅</span> تحسين المسافات والتخطيط</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h3>📏 أحجام الأزرار الموحدة</h3>
+            <div class="button-showcase">
+                <div class="button-group">
+                    <h4>كبير (LG) - الإجراءات الرئيسية</h4>
+                    <button class="demo-button btn-lg-demo btn-success-demo">
+                        <i class="fas fa-magic"></i> توليد الكروت
+                    </button>
+                    <button class="demo-button btn-lg-demo btn-danger-demo">
+                        <i class="fas fa-trash"></i> حذف الكل
+                    </button>
+                    <p style="font-size: 12px; opacity: 0.8; margin-top: 10px;">
+                        الارتفاع: 50px | العرض الأدنى: 150px
+                    </p>
+                </div>
+
+                <div class="button-group">
+                    <h4>متوسط (MD) - الإجراءات الثانوية</h4>
+                    <button class="demo-button btn-md-demo btn-warning-demo">
+                        <i class="fas fa-check"></i> التحقق من الأرقام
+                    </button>
+                    <button class="demo-button btn-md-demo btn-light-demo">
+                        <i class="fas fa-times"></i> مسح الفلاتر
+                    </button>
+                    <p style="font-size: 12px; opacity: 0.8; margin-top: 10px;">
+                        الارتفاع: 42px | العرض الأدنى: 130px
+                    </p>
+                </div>
+
+                <div class="button-group">
+                    <h4>صغير (SM) - أزرار الرأس</h4>
+                    <button class="demo-button btn-sm-demo btn-light-demo">
+                        <i class="fas fa-print"></i> طباعة التقرير
+                    </button>
+                    <button class="demo-button btn-sm-demo btn-primary-demo">
+                        <i class="fas fa-file-pdf"></i> تصدير PDF
+                    </button>
+                    <p style="font-size: 12px; opacity: 0.8; margin-top: 10px;">
+                        الارتفاع: 36px | العرض الأدنى: 100px
+                    </p>
+                </div>
+
+                <div class="button-group">
+                    <h4>صغير جداً (XS) - أزرار الجدول</h4>
+                    <button class="demo-button btn-xs-demo btn-primary-demo">
+                        <i class="fas fa-print"></i> طباعة
+                    </button>
+                    <button class="demo-button btn-xs-demo btn-warning-demo">
+                        <i class="fas fa-shopping-cart"></i> بيع
+                    </button>
+                    <button class="demo-button btn-xs-demo btn-danger-demo">
+                        <i class="fas fa-trash"></i> حذف
+                    </button>
+                    <p style="font-size: 12px; opacity: 0.8; margin-top: 10px;">
+                        الارتفاع: 32px | العرض الأدنى: 80px
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>🎨 نظام الألوان الموحد</h3>
+            <ul class="improvement-list">
+                <li><span style="color: #28a745;">🟢</span> أخضر - إنشاء وإضافة (توليد الكروت، إنشاء)</li>
+                <li><span style="color: #dc3545;">🔴</span> أحمر - حذف وخطر (حذف الكل، حذف الكرت)</li>
+                <li><span style="color: #ffc107;">🟡</span> أصفر - تحذير وتحقق (التحقق، بيع الكرت)</li>
+                <li><span style="color: #007bff;">🔵</span> أزرق - إجراءات عادية (طباعة، تصدير)</li>
+                <li><span style="color: #f8f9fa;">⚪</span> أبيض - إجراءات ثانوية (طباعة التقرير)</li>
+                <li><span style="color: #6c757d;">⚫</span> رمادي - إلغاء ومسح (مسح الفلاتر)</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h3>📱 التحسينات للموبايل</h3>
+            <ul class="improvement-list">
+                <li><span class="check-icon">✅</span> ترتيب عمودي للأزرار في الشاشات الصغيرة</li>
+                <li><span class="check-icon">✅</span> أحجام مناسبة للمس في الهواتف</li>
+                <li><span class="check-icon">✅</span> عرض كامل للأزرار في الموبايل</li>
+                <li><span class="check-icon">✅</span> تقليل المسافات في الشاشات الصغيرة</li>
+                <li><span class="check-icon">✅</span> أزرار الجدول تصبح عمودية في الموبايل</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h3>🔧 التحسينات التقنية</h3>
+            <ul class="improvement-list">
+                <li><span class="check-icon">✅</span> كلاس .btn-professional موحد لجميع الأزرار</li>
+                <li><span class="check-icon">✅</span> أحجام ثابتة (height, min-width) لكل فئة</li>
+                <li><span class="check-icon">✅</span> تأثيرات hover و focus محسنة</li>
+                <li><span class="check-icon">✅</span> انتقالات سلسة (transitions)</li>
+                <li><span class="check-icon">✅</span> ظلال وتدرجات احترافية</li>
+                <li><span class="check-icon">✅</span> تحسين إمكانية الوصول</li>
+            </ul>
+        </div>
+
+        <button class="test-button" onclick="openPrepaidCardsPage()">
+            🚀 اختبار التناسق الجديد
+        </button>
+
+        <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.2);">
+            <p style="opacity: 0.8;">
+                <strong>النتيجة:</strong> جميع الأزرار الآن متناسقة في الحجم والشكل والوظيفة
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function openPrepaidCardsPage() {
+            const testWindow = window.open('/admin/prepaid-cards.html', '_blank');
+            
+            if (!testWindow) {
+                alert('تم حظر النافذة المنبثقة. يرجى السماح بالنوافذ المنبثقة وإعادة المحاولة.');
+                return;
+            }
+            
+            setTimeout(() => {
+                alert('🎉 تم فتح الصفحة المحسنة!\n\n' +
+                      '👀 لاحظ التحسينات:\n' +
+                      '• تناسق أحجام جميع الأزرار\n' +
+                      '• ألوان موحدة حسب الوظيفة\n' +
+                      '• أزرار الجدول أصغر ومتناسقة\n' +
+                      '• تخطيط محسن ومنظم\n' +
+                      '• تجاوب ممتاز مع الموبايل');
+            }, 1000);
+        }
+
+        // Add interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            const sections = document.querySelectorAll('.section');
+            
+            sections.forEach((section, index) => {
+                section.style.opacity = '0';
+                section.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    section.style.transition = 'all 0.6s ease';
+                    section.style.opacity = '1';
+                    section.style.transform = 'translateY(0)';
+                }, index * 200);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -11,6 +11,148 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Responsive CSS -->
     <link rel="stylesheet" href="../css/responsive.css">
+
+    <!-- Custom Dashboard Styles -->
+    <style>
+        /* Modern Card Styles */
+        .modern-card {
+            transition: all 0.3s ease;
+            border-radius: 15px !important;
+        }
+
+        .modern-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;
+        }
+
+        .modern-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            font-size: 2rem;
+            color: white;
+        }
+
+        /* Statistics Cards */
+        .stat-card {
+            padding: 1.5rem;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: scale(1.02);
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-right: 1rem;
+            opacity: 0.8;
+        }
+
+        .stat-content h3 {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .stat-content p {
+            margin: 0;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* Quick Action Cards */
+        .quick-action-card {
+            padding: 1.5rem;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+
+        .quick-action-card:hover {
+            border-color: #007bff;
+            box-shadow: 0 5px 15px rgba(0,123,255,0.1);
+        }
+
+        .action-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .action-content {
+            flex: 1;
+        }
+
+        .action-content h6 {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Gradient Backgrounds */
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        }
+
+        .bg-gradient-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+        }
+
+        /* Student Info Enhancement */
+        #student-info .card {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .modern-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+
+            .stat-card {
+                padding: 1rem;
+                margin-bottom: 1rem;
+            }
+
+            .stat-icon {
+                font-size: 2rem;
+            }
+
+            .stat-content h3 {
+                font-size: 1.5rem;
+            }
+
+            .quick-action-card {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .action-icon {
+                margin-right: 0;
+                margin-bottom: 1rem;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container-fluid">
@@ -33,7 +175,7 @@
                         <li class="nav-item">
                             <a class="nav-link" href="courses.html">
                                 <i class="fas fa-book"></i>
-                                تسجيل المواد
+                                تنزيل المواد
                             </a>
                         </li>
                         <li class="nav-item mt-5">
@@ -63,67 +205,270 @@
                     </div>
                 </div>
 
+                <!-- Important Notice Alert -->
                 <div class="row mb-4">
                     <div class="col-md-12">
-                        <div id="student-info">
-                            <!-- Student info will be loaded here -->
-                            <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">جاري التحميل...</span>
+                        <div class="alert alert-warning alert-dismissible fade show border-start border-warning border-4" role="alert">
+                            <div class="d-flex align-items-center">
+                                <div class="me-3">
+                                    <i class="fas fa-exclamation-triangle fa-2x text-warning"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h5 class="alert-heading mb-2">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        تنبيه مهم - التنزيل المبدئي
+                                    </h5>
+                                    <p class="mb-2">
+                                        <strong>هذا التنزيل مبدئي ولا يعتبر نهائياً إلا بعد إتمام عملية الدفع.</strong>
+                                    </p>
+                                    <ul class="mb-2 ps-3">
+                                        <li>يجب دفع رسوم كل مادة منزلة لتأكيد التنزيل</li>
+                                        <li>المواد غير المدفوعة قد يتم إلغاؤها تلقائياً</li>
+                                        <li>تواصل مع الإدارة المالية لإتمام عملية الدفع</li>
+                                    </ul>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-coins text-warning me-2"></i>
+                                        <small class="text-muted">
+                                            <strong>ملاحظة:</strong> الأسعار المعروضة بالدينار الليبي
+                                        </small>
+                                    </div>
+                                </div>
                             </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="إغلاق"></button>
                         </div>
                     </div>
                 </div>
 
+                <!-- Student Info Card -->
                 <div class="row mb-4">
-                    <div class="col-md-4">
-                        <div class="card dashboard-card">
-                            <div class="card-body text-center">
-                                <div class="dashboard-icon text-primary">
-                                    <i class="fas fa-book"></i>
-                                </div>
-                                <h5 class="card-title">تسجيل المواد</h5>
-                                <p class="card-text">تسجيل في المواد المتاحة</p>
-                                <a href="courses.html" class="btn btn-primary">الذهاب</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card dashboard-card">
-                            <div class="card-body text-center">
-                                <div class="dashboard-icon text-success">
-                                    <i class="fas fa-check-circle"></i>
-                                </div>
-                                <h5 class="card-title">المواد المنجزة</h5>
-                                <p class="card-text">عرض المواد التي تم إنجازها</p>
-                                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#completedCoursesModal">عرض</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card dashboard-card">
-                            <div class="card-body text-center">
-                                <div class="dashboard-icon text-info">
-                                    <i class="fas fa-file-alt"></i>
-                                </div>
-                                <h5 class="card-title">تقرير الطالب</h5>
-                                <p class="card-text">عرض تقرير معلومات الطالب</p>
-                                <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#studentReportModal">عرض</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
                     <div class="col-md-12">
-                        <div class="card">
-                            <div class="card-header bg-primary text-white">
-                                <h5 class="card-title mb-0">المواد المتاحة للتسجيل</h5>
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-gradient-primary text-white border-0">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-user-graduate me-2"></i>
+                                    معلومات الطالب والإحصائيات
+                                </h5>
                             </div>
                             <div class="card-body">
-                                <div id="available-courses">
-                                    <!-- Available courses will be loaded here -->
-                                    <div class="spinner-border text-primary" role="status">
-                                        <span class="visually-hidden">جاري التحميل...</span>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6 class="text-muted mb-3">
+                                            <i class="fas fa-id-card me-2"></i>
+                                            البيانات الشخصية
+                                        </h6>
+                                        <div id="student-info">
+                                            <!-- Student info will be loaded here -->
+                                            <p class="mb-2"><strong>الاسم:</strong> <span id="student-name" class="text-primary">جاري التحميل...</span></p>
+                                            <p class="mb-2"><strong>رقم القيد:</strong> <span id="student-id" class="text-primary">جاري التحميل...</span></p>
+                                            <p class="mb-2"><strong>التخصص:</strong> <span id="student-department" class="text-primary">جاري التحميل...</span></p>
+                                            <p class="mb-2"><strong>الفصل الدراسي:</strong> <span id="student-semester" class="text-primary">جاري التحميل...</span></p>
+                                            <p class="mb-0"><strong>المجموعة:</strong> <span id="student-group" class="text-primary">جاري التحميل...</span></p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6 class="text-muted mb-3">
+                                            <i class="fas fa-chart-bar me-2"></i>
+                                            إحصائيات التنزيل
+                                        </h6>
+                                        <p class="mb-2"><strong>المواد المنزلة:</strong>
+                                            <span id="dashboard-current-courses-count" class="badge bg-primary">0</span> من
+                                            <span id="dashboard-max-courses-limit" class="badge bg-secondary">-</span>
+                                        </p>
+                                        <div class="progress mb-3" style="height: 20px;">
+                                            <div class="progress-bar bg-success" role="progressbar" style="width: 0%" id="dashboard-enrollment-progress">
+                                                <span class="fw-bold">0%</span>
+                                            </div>
+                                        </div>
+                                        <div class="financial-summary">
+                                            <div class="row g-2">
+                                                <div class="col-12">
+                                                    <p class="mb-2">
+                                                        <strong>إجمالي الرسوم:</strong>
+                                                        <span id="dashboard-total-fees" class="text-primary fw-bold fs-6">
+                                                            <i class="fas fa-coins me-1"></i>
+                                                            0 دينار
+                                                        </span>
+                                                    </p>
+                                                </div>
+                                                <div class="col-12">
+                                                    <p class="mb-2">
+                                                        <strong>المدفوع:</strong>
+                                                        <span id="dashboard-paid-fees" class="text-success fw-bold fs-6">
+                                                            <i class="fas fa-check-circle me-1"></i>
+                                                            0 دينار
+                                                        </span>
+                                                    </p>
+                                                </div>
+                                                <div class="col-12">
+                                                    <p class="mb-0">
+                                                        <strong>المتبقي:</strong>
+                                                        <span id="dashboard-remaining-fees" class="text-danger fw-bold fs-6">
+                                                            <i class="fas fa-exclamation-circle me-1"></i>
+                                                            0 دينار
+                                                        </span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Action Cards -->
+                <div class="row mb-4">
+                    <div class="col-lg-4 col-md-6 mb-3">
+                        <div class="card modern-card border-0 shadow-sm h-100">
+                            <div class="card-body text-center p-4">
+                                <div class="modern-icon bg-primary mb-3">
+                                    <i class="fas fa-download"></i>
+                                </div>
+                                <h5 class="card-title fw-bold mb-2">تنزيل المواد</h5>
+                                <p class="card-text text-muted mb-3">استكشف وحمّل المواد الدراسية المتاحة لك</p>
+                                <a href="courses.html" class="btn btn-primary btn-lg rounded-pill px-4">
+                                    <i class="fas fa-arrow-right me-2"></i>
+                                    ابدأ التنزيل
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 mb-3">
+                        <div class="card modern-card border-0 shadow-sm h-100">
+                            <div class="card-body text-center p-4">
+                                <div class="modern-icon bg-success mb-3">
+                                    <i class="fas fa-graduation-cap"></i>
+                                </div>
+                                <h5 class="card-title fw-bold mb-2">المواد المنجزة</h5>
+                                <p class="card-text text-muted mb-3">راجع قائمة المواد التي أكملتها بنجاح</p>
+                                <button class="btn btn-success btn-lg rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#completedCoursesModal">
+                                    <i class="fas fa-eye me-2"></i>
+                                    عرض المنجزة
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-12 mb-3">
+                        <div class="card modern-card border-0 shadow-sm h-100">
+                            <div class="card-body text-center p-4">
+                                <div class="modern-icon bg-info mb-3">
+                                    <i class="fas fa-chart-bar"></i>
+                                </div>
+                                <h5 class="card-title fw-bold mb-2">تقرير المواد</h5>
+                                <p class="card-text text-muted mb-3">احصل على تقرير شامل لجميع موادك</p>
+                                <button class="btn btn-info btn-lg rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#studentReportModal">
+                                    <i class="fas fa-file-alt me-2"></i>
+                                    عرض التقرير
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistics Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-gradient-primary text-white border-0">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-chart-line me-2"></i>
+                                    إحصائيات سريعة
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-3 col-sm-6">
+                                        <div class="stat-card bg-primary text-white">
+                                            <div class="stat-icon">
+                                                <i class="fas fa-download"></i>
+                                            </div>
+                                            <div class="stat-content">
+                                                <h3 id="stats-downloaded">0</h3>
+                                                <p>مواد منزلة</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6">
+                                        <div class="stat-card bg-success text-white">
+                                            <div class="stat-icon">
+                                                <i class="fas fa-check-circle"></i>
+                                            </div>
+                                            <div class="stat-content">
+                                                <h3 id="stats-completed">0</h3>
+                                                <p>مواد منجزة</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6">
+                                        <div class="stat-card bg-warning text-white">
+                                            <div class="stat-icon">
+                                                <i class="fas fa-credit-card"></i>
+                                            </div>
+                                            <div class="stat-content">
+                                                <h3 id="stats-paid">0</h3>
+                                                <p>مواد مدفوعة</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6">
+                                        <div class="stat-card bg-info text-white">
+                                            <div class="stat-icon">
+                                                <i class="fas fa-coins"></i>
+                                            </div>
+                                            <div class="stat-content">
+                                                <h3 id="stats-fees">0</h3>
+                                                <p>إجمالي الرسوم</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-gradient-secondary text-white border-0">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-bolt me-2"></i>
+                                    إجراءات سريعة
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="quick-action-card">
+                                            <div class="action-icon bg-primary">
+                                                <i class="fas fa-download"></i>
+                                            </div>
+                                            <div class="action-content">
+                                                <h6>تنزيل مواد جديدة</h6>
+                                                <p class="text-muted mb-3">استكشف المواد المتاحة وقم بتنزيلها</p>
+                                                <a href="courses.html" class="btn btn-primary btn-sm">
+                                                    <i class="fas fa-arrow-right me-1"></i>
+                                                    الذهاب للتنزيل
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="quick-action-card">
+                                            <div class="action-icon bg-success">
+                                                <i class="fas fa-file-alt"></i>
+                                            </div>
+                                            <div class="action-content">
+                                                <h6>عرض تقرير المواد</h6>
+                                                <p class="text-muted mb-3">راجع تقريرك الشامل للمواد المنزلة</p>
+                                                <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#studentReportModal">
+                                                    <i class="fas fa-eye me-1"></i>
+                                                    عرض التقرير
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -157,12 +502,12 @@
         </div>
     </div>
 
-    <!-- Student Report Modal -->
+    <!-- Student Courses Report Modal -->
     <div class="modal fade" id="studentReportModal" tabindex="-1" aria-labelledby="studentReportModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header bg-info text-white">
-                    <h5 class="modal-title" id="studentReportModalLabel">تقرير الطالب</h5>
+                    <h5 class="modal-title" id="studentReportModalLabel">تقرير المواد</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -175,7 +520,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" id="print-report">
-                        <i class="fas fa-print"></i> طباعة التقرير
+                        <i class="fas fa-print"></i> طباعة تقرير المواد
                     </button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
                 </div>
@@ -185,6 +530,9 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- QR Scanner Library - Alternative -->
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
     <!-- Responsive JS -->
     <script src="../js/responsive.js"></script>
     <!-- Modal Fixes JS -->
@@ -192,5 +540,243 @@
     <script src="../js/main.js"></script>
     <!-- Auto Logout JS -->
     <script src="../js/auto-logout.js"></script>
+
+    <!-- Dashboard Statistics Script -->
+    <script>
+        // Load dashboard student info
+        function loadDashboardStudentInfo() {
+            fetch('/api/student/info')
+                .then(response => response.json())
+                .then(data => {
+                    const student = data.student;
+                    if (student) {
+                        document.getElementById('student-name').textContent = student.name || 'غير محدد';
+                        document.getElementById('student-id').textContent = student.student_id || 'غير محدد';
+                        document.getElementById('student-department').textContent = student.department_name || 'غير محدد';
+                        document.getElementById('student-semester').textContent = student.semester || 'غير محدد';
+                        document.getElementById('student-group').textContent = student.group_name || 'غير محدد';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading student info:', error);
+                    document.getElementById('student-name').textContent = 'خطأ في التحميل';
+                    document.getElementById('student-id').textContent = 'خطأ في التحميل';
+                    document.getElementById('student-department').textContent = 'خطأ في التحميل';
+                    document.getElementById('student-semester').textContent = 'خطأ في التحميل';
+                    document.getElementById('student-group').textContent = 'خطأ في التحميل';
+                });
+        }
+
+        // Update dashboard statistics
+        function updateDashboardStats() {
+            // Load available courses to get enrollment data
+            fetch('/api/student/available-courses')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Dashboard: Available courses data:', data);
+
+                    if (!data.courses) {
+                        console.warn('Dashboard: No courses data received');
+                        return;
+                    }
+
+                    // Calculate statistics from available courses data
+                    const enrolledCourses = data.courses.filter(c => c.is_enrolled);
+                    const paidCourses = enrolledCourses.filter(c => c.payment_status === 'خالص');
+                    const totalFees = enrolledCourses.reduce((sum, c) => sum + (parseFloat(c.price) || 0), 0);
+                    const paidFees = paidCourses.reduce((sum, c) => sum + (parseFloat(c.price) || 0), 0);
+                    const remainingFees = totalFees - paidFees;
+
+                    console.log('Dashboard: Enrolled courses:', enrolledCourses.length);
+                    console.log('Dashboard: Enrolled courses details:', enrolledCourses.map(c => ({
+                        name: c.name,
+                        price: c.price,
+                        payment_status: c.payment_status
+                    })));
+                    console.log('Dashboard: Paid courses:', paidCourses.length);
+                    console.log('Dashboard: Paid courses details:', paidCourses.map(c => ({
+                        name: c.name,
+                        price: c.price,
+                        payment_status: c.payment_status
+                    })));
+                    console.log('Dashboard: Total fees:', totalFees);
+                    console.log('Dashboard: Paid fees:', paidFees);
+
+                    // Update statistics cards
+                    const statsDownloaded = document.getElementById('stats-downloaded');
+                    const statsPaid = document.getElementById('stats-paid');
+                    const statsFees = document.getElementById('stats-fees');
+
+                    if (statsDownloaded) statsDownloaded.textContent = enrolledCourses.length;
+                    if (statsPaid) statsPaid.textContent = paidCourses.length;
+                    if (statsFees) statsFees.textContent = totalFees.toLocaleString();
+
+                    // Update detailed info section
+                    const dashboardCurrentCount = document.getElementById('dashboard-current-courses-count');
+                    const dashboardTotalFees = document.getElementById('dashboard-total-fees');
+                    const dashboardPaidFees = document.getElementById('dashboard-paid-fees');
+                    const dashboardRemainingFees = document.getElementById('dashboard-remaining-fees');
+
+                    if (dashboardCurrentCount) dashboardCurrentCount.textContent = enrolledCourses.length;
+                    if (dashboardTotalFees) dashboardTotalFees.innerHTML = `<i class="fas fa-coins me-1"></i>${totalFees.toLocaleString()} دينار`;
+                    if (dashboardPaidFees) dashboardPaidFees.innerHTML = `<i class="fas fa-check-circle me-1"></i>${paidFees.toLocaleString()} دينار`;
+                    if (dashboardRemainingFees) dashboardRemainingFees.innerHTML = `<i class="fas fa-exclamation-circle me-1"></i>${remainingFees.toLocaleString()} دينار`;
+                })
+                .catch(error => {
+                    console.error('Error updating dashboard stats:', error);
+                });
+
+            // Load enrollment count for max limit and progress
+            fetch('/api/student/enrollment-count')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Dashboard: Enrollment count data:', data);
+
+                    // Use the correct property names from the API response
+                    const maxLimit = data.max_courses_limit || 6;
+                    const currentCount = data.enrollment_count || 0;
+                    const progressPercentage = maxLimit > 0 ? Math.round((currentCount / maxLimit) * 100) : 0;
+
+                    console.log(`Dashboard: Max limit: ${maxLimit}, Current count: ${currentCount}, Progress: ${progressPercentage}%`);
+
+                    // Update max limit display
+                    const dashboardMaxLimit = document.getElementById('dashboard-max-courses-limit');
+                    if (dashboardMaxLimit) dashboardMaxLimit.textContent = maxLimit;
+
+                    // Update current count display (ensure consistency)
+                    const dashboardCurrentCount = document.getElementById('dashboard-current-courses-count');
+                    if (dashboardCurrentCount) {
+                        dashboardCurrentCount.textContent = currentCount;
+
+                        // Update badge color based on count vs limit
+                        let badgeClass = 'badge bg-primary';
+                        if (currentCount >= maxLimit) {
+                            badgeClass = 'badge bg-danger';
+                        } else if (currentCount >= maxLimit * 0.75) {
+                            badgeClass = 'badge bg-warning';
+                        }
+                        dashboardCurrentCount.className = badgeClass;
+                    }
+
+                    // Update progress bar
+                    const progressBar = document.getElementById('dashboard-enrollment-progress');
+                    if (progressBar) {
+                        progressBar.style.width = progressPercentage + '%';
+                        progressBar.setAttribute('aria-valuenow', progressPercentage);
+                        const progressSpan = progressBar.querySelector('span');
+                        if (progressSpan) progressSpan.textContent = progressPercentage + '%';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading enrollment count:', error);
+                });
+
+            // Load completed courses
+            fetch('/api/student/completed-courses')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Dashboard: Completed courses data:', data);
+
+                    const completedCourses = data.courses || [];
+                    const statsCompleted = document.getElementById('stats-completed');
+                    if (statsCompleted) statsCompleted.textContent = completedCourses.length;
+                })
+                .catch(error => {
+                    console.error('Error loading completed courses:', error);
+                });
+        }
+
+        // Load dashboard when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Dashboard: Page loaded, initializing...');
+
+            // Load student info
+            loadDashboardStudentInfo();
+
+            // Update statistics
+            updateDashboardStats();
+
+            // Load completed courses
+            if (typeof loadCompletedCourses === 'function') {
+                loadCompletedCourses();
+            }
+
+            // Load student report when modal is opened
+            const studentReportModal = document.getElementById('studentReportModal');
+            if (studentReportModal) {
+                studentReportModal.addEventListener('show.bs.modal', function() {
+                    if (typeof loadStudentReport === 'function') {
+                        loadStudentReport();
+                    }
+                });
+            }
+
+            // Setup print report button
+            if (typeof setupPrintReport === 'function') {
+                setupPrintReport();
+            }
+        });
+    </script>
+
+    <!-- Group Status Info Modal -->
+    <div class="modal fade" id="groupStatusModal" tabindex="-1" aria-labelledby="groupStatusModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title" id="groupStatusModalLabel">
+                        <i class="fas fa-info-circle me-2"></i>
+                        معلومات حالة المجموعات
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="card border-0 shadow-sm mb-3">
+                                <div class="card-header bg-light">
+                                    <h6 class="card-title mb-0" id="course-status-title">
+                                        <i class="fas fa-book me-2"></i>
+                                        اسم المادة
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div id="course-status-content">
+                                        <!-- Content will be loaded here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="alert alert-info">
+                                <h6 class="alert-heading">
+                                    <i class="fas fa-lightbulb me-2"></i>
+                                    نصائح مفيدة
+                                </h6>
+                                <ul class="mb-0">
+                                    <li>تابع الإعلانات الرسمية للجامعة لمعرفة آخر التحديثات</li>
+                                    <li>يمكنك التسجيل في مواد أخرى متاحة في الوقت الحالي</li>
+                                    <li>تواصل مع الإدارة الأكاديمية للاستفسارات العاجلة</li>
+                                    <li>راجع الموقع الرسمي للجامعة بانتظام للتحديثات</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>
+                        إغلاق
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="refreshCourses()">
+                        <i class="fas fa-sync-alt me-1"></i>
+                        تحديث المواد
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

@@ -1,10 +1,10 @@
-# جامعة الحاضرة - نظام تسجيل المواد
+# جامعة الحاضرة - نظام تنزيل المواد
 
-This is a university course registration system built with Node.js, Express, and SQLite.
+This is a university course download system built with Node.js, Express, and SQLite.
 
 ## Features
 
-- Student course registration
+- Student course download/enrollment
 - Admin management of courses, students, and departments
 - Prerequisites management
 - Enrollment tracking

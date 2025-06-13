@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>التصميم الاحترافي</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            direction: rtl;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(255,255,255,0.2);
+        }
+        .header h1 {
+            color: white;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        .improvement-section {
+            margin: 30px 0;
+            padding: 25px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .improvement-section h3 {
+            color: #ffd700;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .comparison-item {
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .before {
+            background: rgba(220,53,69,0.2);
+            border: 2px solid #dc3545;
+        }
+        .after {
+            background: rgba(40,167,69,0.2);
+            border: 2px solid #28a745;
+        }
+        .demo-table {
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 15px 0;
+            color: #333;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .demo-table th {
+            background: linear-gradient(135deg, #343a40 0%, #495057 100%);
+            color: white;
+            text-align: center;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .demo-table.old th {
+            padding: 15px 12px;
+            font-size: 13px;
+        }
+        .demo-table.new th {
+            padding: 8px 6px;
+            font-size: 11px;
+            line-height: 1.2;
+        }
+        .demo-table.old td {
+            padding: 12px;
+            font-size: 14px;
+        }
+        .demo-table.new td {
+            padding: 6px 4px;
+            font-size: 12px;
+            line-height: 1.3;
+        }
+        .demo-table tr:hover {
+            background: rgba(0,123,255,0.05);
+        }
+        .demo-badge {
+            padding: 4px 10px;
+            border-radius: 16px;
+            font-weight: 600;
+            margin: 2px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            min-width: 70px;
+            justify-content: center;
+            line-height: 1.2;
+        }
+        .demo-badge.old {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            min-width: 80px;
+            gap: 5px;
+        }
+        .badge-value {
+            color: #28a745;
+            background: rgba(40, 167, 69, 0.08);
+            border: 1px solid rgba(40, 167, 69, 0.25);
+        }
+        .badge-sold {
+            color: #28a745;
+            background: rgba(40, 167, 69, 0.08);
+            border: 1px solid rgba(40, 167, 69, 0.25);
+        }
+        .badge-not-sold {
+            color: #6c757d;
+            background: rgba(108, 117, 125, 0.08);
+            border: 1px solid rgba(108, 117, 125, 0.25);
+            text-decoration: line-through;
+        }
+        .demo-button {
+            border: none;
+            border-radius: 4px;
+            margin: 1px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .demo-button.old {
+            padding: 4px 8px;
+            font-size: 11px;
+            min-width: 60px;
+            height: 28px;
+        }
+        .demo-button.new {
+            padding: 3px 6px;
+            font-size: 10px;
+            min-width: 50px;
+            height: 24px;
+        }
+        .btn-primary-demo {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+        }
+        .btn-danger-demo {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+        }
+        .demo-card-number {
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 1px solid #dee2e6;
+            color: #495057;
+            letter-spacing: 0.3px;
+            line-height: 1.2;
+        }
+        .demo-card-number.old {
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+        .demo-card-number.new {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        .feature-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+        }
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+        .check-icon {
+            color: #00ff88;
+            margin-left: 15px;
+            font-size: 1.2rem;
+        }
+        .test-button {
+            width: 100%;
+            padding: 15px;
+            margin: 20px 0;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            color: white;
+            transition: all 0.3s;
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            box-shadow: 0 4px 15px rgba(0,123,255,0.3);
+        }
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,123,255,0.4);
+        }
+        .specs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .spec-item {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .spec-item h4 {
+            color: #ffd700;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        .spec-item .old-value {
+            color: #ff6b6b;
+            text-decoration: line-through;
+            font-size: 14px;
+        }
+        .spec-item .new-value {
+            color: #51cf66;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        @media (max-width: 768px) {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💼 التصميم الاحترافي المحسن</h1>
+            <p>تحسينات شاملة لجعل الجدول أكثر كثافة واحترافية</p>
+        </div>
+        
+        <div class="improvement-section">
+            <h3>🎯 التحسينات المطبقة</h3>
+            <ul class="feature-list">
+                <li><span class="check-icon">✅</span> تصغير أحجام الخطوط لزيادة الكثافة</li>
+                <li><span class="check-icon">✅</span> تقليل المسافات (padding) في الجدول</li>
+                <li><span class="check-icon">✅</span> تحسين عرض التواريخ مع tooltips</li>
+                <li><span class="check-icon">✅</span> تصغير أزرار الإجراءات</li>
+                <li><span class="check-icon">✅</span> تحسين عرض أسماء الطلاب</li>
+                <li><span class="check-icon">✅</span> إضافة عروض أعمدة محددة</li>
+                <li><span class="check-icon">✅</span> تحسين تخطيط الأزرار</li>
+            </ul>
+        </div>
+
+        <div class="improvement-section">
+            <h3>📊 مقارنة الكثافة</h3>
+            <div class="comparison-grid">
+                <div class="comparison-item before">
+                    <h4>❌ التصميم السابق</h4>
+                    <table class="demo-table old">
+                        <thead>
+                            <tr>
+                                <th>رقم الكرت</th>
+                                <th>القيمة</th>
+                                <th>الحالة</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="demo-card-number old">CARD123</span></td>
+                                <td><span class="demo-badge badge-value old">5 دينار</span></td>
+                                <td><span class="demo-badge badge-sold old">مباع</span></td>
+                                <td>
+                                    <button class="demo-button btn-primary-demo old">طباعة</button>
+                                    <button class="demo-button btn-danger-demo old">حذف</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p style="font-size: 12px; opacity: 0.8;">مسافات كبيرة، خطوط كبيرة</p>
+                </div>
+                
+                <div class="comparison-item after">
+                    <h4>✅ التصميم الجديد</h4>
+                    <table class="demo-table new">
+                        <thead>
+                            <tr>
+                                <th>رقم الكرت</th>
+                                <th>القيمة</th>
+                                <th>الحالة</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="demo-card-number new">CARD123</span></td>
+                                <td><span class="demo-badge badge-value">5</span></td>
+                                <td><span class="demo-badge badge-sold">مباع</span></td>
+                                <td>
+                                    <button class="demo-button btn-primary-demo new">طباعة</button>
+                                    <button class="demo-button btn-danger-demo new">حذف</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p style="font-size: 12px; opacity: 0.8;">كثافة عالية، مساحة محسنة</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="improvement-section">
+            <h3>📏 مواصفات التحسين</h3>
+            <div class="specs-grid">
+                <div class="spec-item">
+                    <h4>خط الجدول</h4>
+                    <div class="old-value">14px</div>
+                    <div>↓</div>
+                    <div class="new-value">12px</div>
+                </div>
+                <div class="spec-item">
+                    <h4>خط الشارات</h4>
+                    <div class="old-value">13px</div>
+                    <div>↓</div>
+                    <div class="new-value">11px</div>
+                </div>
+                <div class="spec-item">
+                    <h4>خط الأزرار</h4>
+                    <div class="old-value">11px</div>
+                    <div>↓</div>
+                    <div class="new-value">10px</div>
+                </div>
+                <div class="spec-item">
+                    <h4>ارتفاع الأزرار</h4>
+                    <div class="old-value">28px</div>
+                    <div>↓</div>
+                    <div class="new-value">24px</div>
+                </div>
+                <div class="spec-item">
+                    <h4>Padding الجدول</h4>
+                    <div class="old-value">1rem</div>
+                    <div>↓</div>
+                    <div class="new-value">0.6rem</div>
+                </div>
+                <div class="spec-item">
+                    <h4>عرض الشارات</h4>
+                    <div class="old-value">80px</div>
+                    <div>↓</div>
+                    <div class="new-value">70px</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="improvement-section">
+            <h3>🎨 تحسينات إضافية</h3>
+            <ul class="feature-list">
+                <li><span class="check-icon">✅</span> عروض أعمدة محددة بالنسب المئوية</li>
+                <li><span class="check-icon">✅</span> عرض التواريخ مختصرة مع tooltip للتفاصيل</li>
+                <li><span class="check-icon">✅</span> أسماء الطلاب في سطرين مع تقطيع النص</li>
+                <li><span class="check-icon">✅</span> تخطيط أفضل للأزرار مع flexbox</li>
+                <li><span class="check-icon">✅</span> إزالة النصوص الزائدة (دينار → رقم فقط)</li>
+                <li><span class="check-icon">✅</span> تحسين المسافات بين الأيقونات والنصوص</li>
+            </ul>
+        </div>
+
+        <div class="improvement-section">
+            <h3>📱 التحسينات للموبايل</h3>
+            <ul class="feature-list">
+                <li><span class="check-icon">✅</span> أزرار أصغر مناسبة للشاشات الصغيرة</li>
+                <li><span class="check-icon">✅</span> خطوط محسنة للقراءة على الموبايل</li>
+                <li><span class="check-icon">✅</span> تخطيط متجاوب للأزرار</li>
+                <li><span class="check-icon">✅</span> مسافات محسنة للمس</li>
+            </ul>
+        </div>
+
+        <button class="test-button" onclick="openPrepaidCardsPage()">
+            🚀 اختبار التصميم الاحترافي
+        </button>
+
+        <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.2);">
+            <p style="opacity: 0.8;">
+                <strong>النتيجة:</strong> جدول احترافي عالي الكثافة مع استغلال أمثل للمساحة
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function openPrepaidCardsPage() {
+            const testWindow = window.open('/admin/prepaid-cards.html', '_blank');
+            
+            if (!testWindow) {
+                alert('تم حظر النافذة المنبثقة. يرجى السماح بالنوافذ المنبثقة وإعادة المحاولة.');
+                return;
+            }
+            
+            setTimeout(() => {
+                alert('🎉 تم فتح الصفحة المحسنة!\n\n' +
+                      '👀 لاحظ التحسينات الاحترافية:\n' +
+                      '• خطوط أصغر وأكثر كثافة\n' +
+                      '• مسافات محسنة ومتناسقة\n' +
+                      '• عرض محسن للتواريخ والأسماء\n' +
+                      '• أزرار أصغر وأكثر تنظيماً\n' +
+                      '• استغلال أمثل للمساحة\n' +
+                      '• تصميم احترافي ونظيف');
+            }, 1000);
+        }
+
+        // Add animation effects
+        document.addEventListener('DOMContentLoaded', function() {
+            const sections = document.querySelectorAll('.improvement-section');
+            
+            sections.forEach((section, index) => {
+                section.style.opacity = '0';
+                section.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    section.style.transition = 'all 0.6s ease';
+                    section.style.opacity = '1';
+                    section.style.transform = 'translateY(0)';
+                }, index * 200);
+            });
+        });
+    </script>
+</body>
+</html>

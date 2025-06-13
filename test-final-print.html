@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار نهائي - طباعة التقرير</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            direction: rtl;
+            background: #f8f9fa;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #007bff;
+        }
+        .header h1 {
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+        .test-button {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            color: white;
+            transition: all 0.3s;
+        }
+        .login-btn {
+            background-color: #28a745;
+        }
+        .login-btn:hover {
+            background-color: #1e7e34;
+        }
+        .print-btn {
+            background-color: #007bff;
+        }
+        .print-btn:hover {
+            background-color: #0056b3;
+        }
+        .print-btn:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        .status {
+            margin: 15px 0;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .checklist {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .checklist h3 {
+            color: #007bff;
+            margin-bottom: 15px;
+        }
+        .checklist ul {
+            list-style: none;
+            padding: 0;
+        }
+        .checklist li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .checklist li:last-child {
+            border-bottom: none;
+        }
+        .check-icon {
+            color: #28a745;
+            margin-left: 10px;
+        }
+        .x-icon {
+            color: #dc3545;
+            margin-left: 10px;
+        }
+        .result-box {
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #007bff;
+            background: #f8f9fa;
+        }
+        .result-box h3 {
+            color: #007bff;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 اختبار نهائي - طباعة التقرير</h1>
+            <p>اختبار شامل للتأكد من إصلاح مشكلة النوافذ المتعددة</p>
+        </div>
+        
+        <div id="status" class="status info">
+            ابدأ بتسجيل الدخول ثم اختبر طباعة التقرير
+        </div>
+        
+        <div class="test-section">
+            <h3>خطوة 1: تسجيل الدخول</h3>
+            <button class="test-button login-btn" onclick="login()">
+                🔐 تسجيل دخول كمشرف مالي
+            </button>
+        </div>
+        
+        <div class="test-section">
+            <h3>خطوة 2: اختبار طباعة التقرير</h3>
+            <button class="test-button print-btn" id="test-print-btn" onclick="testPrintReport()" disabled>
+                🖨️ اختبار طباعة التقرير
+            </button>
+            <p style="font-size: 14px; color: #666; margin-top: 10px;">
+                <strong>المتوقع:</strong> نافذة واحدة فقط تفتح، بدون طباعة تلقائية
+            </p>
+        </div>
+        
+        <div class="result-box" id="result-box" style="display: none;">
+            <h3>نتيجة الاختبار:</h3>
+            <div id="test-results"></div>
+        </div>
+        
+        <div class="checklist">
+            <h3>قائمة التحقق - ما يجب أن يحدث:</h3>
+            <ul>
+                <li><span class="check-icon">✅</span> نافذة واحدة فقط تفتح</li>
+                <li><span class="check-icon">✅</span> لا تظهر نافذة طباعة تلقائياً</li>
+                <li><span class="check-icon">✅</span> النافذة تحتوي على زر "طباعة التقرير"</li>
+                <li><span class="check-icon">✅</span> النافذة تحتوي على زر "إغلاق"</li>
+                <li><span class="check-icon">✅</span> يمكن استخدام Ctrl+P للطباعة</li>
+                <li><span class="x-icon">❌</span> لا تظهر نوافذ متعددة</li>
+                <li><span class="x-icon">❌</span> لا تحدث طباعة تلقائية</li>
+            </ul>
+        </div>
+        
+        <div class="checklist">
+            <h3>ما يجب أن لا يحدث:</h3>
+            <ul>
+                <li><span class="x-icon">❌</span> فتح نافذة طباعة تلقائياً</li>
+                <li><span class="x-icon">❌</span> فتح نوافذ متعددة</li>
+                <li><span class="x-icon">❌</span> تداخل في العمليات</li>
+                <li><span class="x-icon">❌</span> تجمد المتصفح</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let isLoggedIn = false;
+        let testResults = [];
+
+        function showStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+        }
+
+        function addTestResult(test, passed, details = '') {
+            testResults.push({ test, passed, details });
+            updateResultsDisplay();
+        }
+
+        function updateResultsDisplay() {
+            const resultsDiv = document.getElementById('test-results');
+            const resultBox = document.getElementById('result-box');
+            
+            if (testResults.length === 0) {
+                resultBox.style.display = 'none';
+                return;
+            }
+            
+            resultBox.style.display = 'block';
+            
+            let html = '';
+            testResults.forEach(result => {
+                const icon = result.passed ? '✅' : '❌';
+                const color = result.passed ? '#28a745' : '#dc3545';
+                html += `
+                    <div style="margin: 10px 0; padding: 10px; border-radius: 5px; background: ${result.passed ? '#d4edda' : '#f8d7da'};">
+                        <span style="color: ${color};">${icon}</span>
+                        <strong>${result.test}</strong>
+                        ${result.details ? `<br><small style="color: #666;">${result.details}</small>` : ''}
+                    </div>
+                `;
+            });
+            
+            resultsDiv.innerHTML = html;
+        }
+
+        function login() {
+            showStatus('جاري تسجيل الدخول...', 'info');
+            
+            fetch('/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: 'financial',
+                    password: 'financial123'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    isLoggedIn = true;
+                    showStatus('✅ تم تسجيل الدخول بنجاح! يمكنك الآن اختبار الطباعة.', 'success');
+                    document.getElementById('test-print-btn').disabled = false;
+                    addTestResult('تسجيل الدخول', true, 'تم بنجاح');
+                } else {
+                    showStatus('❌ فشل تسجيل الدخول: ' + (data.error || 'خطأ غير معروف'), 'error');
+                    addTestResult('تسجيل الدخول', false, data.error || 'خطأ غير معروف');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showStatus('❌ حدث خطأ أثناء تسجيل الدخول: ' + error.message, 'error');
+                addTestResult('تسجيل الدخول', false, error.message);
+            });
+        }
+
+        function testPrintReport() {
+            if (!isLoggedIn) {
+                showStatus('❌ يجب تسجيل الدخول أولاً', 'error');
+                return;
+            }
+
+            showStatus('🧪 جاري اختبار طباعة التقرير...', 'info');
+            
+            // Count windows before
+            const windowsBefore = window.length;
+            
+            // Redirect to actual prepaid cards page to test the real function
+            const testWindow = window.open('/admin/prepaid-cards.html', '_blank');
+            
+            if (!testWindow) {
+                showStatus('❌ تم حظر النافذة المنبثقة', 'error');
+                addTestResult('فتح صفحة الكروت', false, 'تم حظر النافذة المنبثقة');
+                return;
+            }
+            
+            showStatus('✅ تم فتح صفحة كروت الدفع المسبق. اختبر زر "طباعة التقرير" هناك.', 'success');
+            addTestResult('فتح صفحة الكروت', true, 'تم فتح الصفحة بنجاح');
+            
+            // Instructions for manual testing
+            setTimeout(() => {
+                showStatus('📋 اذهب للصفحة المفتوحة واضغط على "طباعة التقرير" وتحقق من النتائج', 'warning');
+            }, 2000);
+        }
+
+        // Monitor for popup blockers
+        window.addEventListener('load', function() {
+            if (window.navigator && window.navigator.userAgent.includes('Chrome')) {
+                console.log('🔍 Chrome detected - popup blocker may be active');
+            }
+        });
+    </script>
+</body>
+</html>

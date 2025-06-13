@@ -55,12 +55,6 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="payment-management.html">
-                                <i class="fas fa-money-bill-wave"></i>
-                                إدارة حالة الدفع
-                            </a>
-                        </li>
-                        <li class="nav-item">
                             <a class="nav-link" href="profile.html">
                                 <i class="fas fa-user-cog"></i>
                                 إعدادات الحساب
@@ -100,21 +94,21 @@
                     <div class="col-12">
                         <div class="card border-3 border-danger">
                             <div class="card-header bg-danger text-white">
-                                <h4 class="card-title mb-0"><i class="fas fa-lock-open me-2"></i> التحكم في التسجيل</h4>
+                                <h4 class="card-title mb-0"><i class="fas fa-lock-open me-2"></i> التحكم في التنزيل</h4>
                             </div>
                             <div class="card-body">
                                 <div class="row align-items-center">
                                     <div class="col-md-8">
-                                        <h5 class="mb-3">حالة التسجيل الحالية: <span id="registration-status-badge" class="badge bg-success fs-5">مفتوح</span></h5>
+                                        <h5 class="mb-3">حالة التنزيل الحالية: <span id="registration-status-badge" class="badge bg-success fs-5">مفتوح</span></h5>
                                         <p class="text-muted mb-0">
                                             <i class="fas fa-info-circle me-1"></i>
-                                            يمكنك التحكم في فتح وإغلاق التسجيل للطلبة في المواد على مستوى النظام بالكامل.
-                                            عند إغلاق التسجيل، لن يتمكن الطلبة من التسجيل في أي مادة وسيظهر لهم إشعار بأن التسجيل مغلق.
+                                            يمكنك التحكم في فتح وإغلاق التنزيل للطلبة في المواد على مستوى النظام بالكامل.
+                                            عند إغلاق التنزيل، لن يتمكن الطلبة من تنزيل أي مادة وسيظهر لهم إشعار بأن التنزيل مغلق.
                                         </p>
                                     </div>
                                     <div class="col-md-4 text-center">
                                         <button id="toggle-registration-btn" class="btn btn-danger btn-lg px-4 py-3">
-                                            <i class="fas fa-lock me-2"></i> إغلاق التسجيل
+                                            <i class="fas fa-lock me-2"></i> إغلاق التنزيل
                                         </button>
                                     </div>
                                 </div>
@@ -136,8 +130,8 @@
                                         <h5 class="mb-3">الحد الأقصى الحالي: <span id="max-courses-badge" class="badge bg-primary fs-5"><i class="fas fa-spinner fa-spin"></i></span> مواد</h5>
                                         <p class="text-muted mb-0">
                                             <i class="fas fa-info-circle me-1"></i>
-                                            يمكنك تحديد الحد الأقصى لعدد المواد التي يمكن للطالب تسجيلها في النظام.
-                                            لن يتمكن الطلبة من تجاوز هذا الحد عند التسجيل في المواد.
+                                            يمكنك تحديد الحد الأقصى لعدد المواد التي يمكن للطالب تنزيلها في النظام.
+                                            لن يتمكن الطلبة من تجاوز هذا الحد عند تنزيل المواد.
                                         </p>
                                     </div>
                                     <div class="col-md-4">
@@ -167,16 +161,16 @@
                             <div class="card-body">
                                 <div class="row align-items-center mb-4">
                                     <div class="col-md-8">
-                                        <h5 class="mb-3">إعادة ضبط جميع التسجيلات</h5>
+                                        <h5 class="mb-3">إعادة ضبط جميع التنزيلات</h5>
                                         <p class="text-muted mb-0">
                                             <i class="fas fa-exclamation-triangle me-1"></i>
-                                            <strong>تحذير:</strong> سيؤدي هذا الإجراء إلى حذف جميع تسجيلات الطلبة في المواد.
+                                            <strong>تحذير:</strong> سيؤدي هذا الإجراء إلى حذف جميع تنزيلات الطلبة في المواد.
                                             استخدم هذا الخيار فقط لأغراض التصحيح والتطوير.
                                         </p>
                                     </div>
                                     <div class="col-md-4 text-center">
                                         <button id="reset-enrollments-btn" class="btn btn-danger btn-lg px-4">
-                                            <i class="fas fa-trash-alt me-2"></i> إعادة ضبط جميع التسجيلات
+                                            <i class="fas fa-trash-alt me-2"></i> إعادة ضبط جميع التنزيلات
                                         </button>
                                     </div>
                                 </div>
@@ -185,10 +179,10 @@
 
                                 <div class="row align-items-center">
                                     <div class="col-md-8">
-                                        <h5 class="mb-3">إعادة ضبط تسجيلات طالب محدد</h5>
+                                        <h5 class="mb-3">إعادة ضبط تنزيلات طالب محدد</h5>
                                         <p class="text-muted mb-0">
                                             <i class="fas fa-exclamation-triangle me-1"></i>
-                                            <strong>تحذير:</strong> سيؤدي هذا الإجراء إلى حذف جميع تسجيلات الطالب المحدد في المواد.
+                                            <strong>تحذير:</strong> سيؤدي هذا الإجراء إلى حذف جميع تنزيلات الطالب المحدد في المواد.
                                             استخدم هذا الخيار فقط لأغراض التصحيح والتطوير.
                                         </p>
                                     </div>
@@ -199,7 +193,7 @@
                                                 <input type="text" class="form-control form-control-lg text-center" id="student-registration-input" placeholder="أدخل رقم القيد">
                                             </div>
                                             <button type="submit" class="btn btn-danger btn-lg px-4">
-                                                <i class="fas fa-trash-alt me-2"></i> إعادة ضبط تسجيلات الطالب
+                                                <i class="fas fa-trash-alt me-2"></i> إعادة ضبط تنزيلات الطالب
                                             </button>
                                         </form>
                                     </div>
@@ -253,7 +247,7 @@
                                     <i class="fas fa-chart-bar"></i>
                                 </div>
                                 <h5 class="card-title">إحصائيات المواد</h5>
-                                <p class="card-text">عرض إحصائيات تسجيل الطلبة</p>
+                                <p class="card-text">عرض إحصائيات تنزيل الطلبة</p>
                                 <a href="course-statistics.html" class="btn btn-light">الذهاب</a>
                             </div>
                         </div>
@@ -433,7 +427,7 @@
                                         <div class="col-md-3 mb-3">
                                             <div class="card bg-success text-white">
                                                 <div class="card-body text-center">
-                                                    <h5 class="card-title">إجمالي التسجيلات</h5>
+                                                    <h5 class="card-title">إجمالي التنزيلات</h5>
                                                     <h2 id="dashboard-total-enrollments">-</h2>
                                                 </div>
                                             </div>
@@ -441,7 +435,7 @@
                                         <div class="col-md-3 mb-3">
                                             <div class="card bg-warning text-dark">
                                                 <div class="card-body text-center">
-                                                    <h5 class="card-title">متوسط نسبة التسجيل</h5>
+                                                    <h5 class="card-title">متوسط نسبة التنزيل</h5>
                                                     <h2 id="dashboard-avg-enrollment-rate">-</h2>
                                                 </div>
                                             </div>

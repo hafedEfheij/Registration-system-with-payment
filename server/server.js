@@ -25,8 +25,10 @@ app.use(session({
 // Authentication middleware
 const authMiddleware = (req, res, next) => {
   if (req.session.user) {
+    console.log(`Auth middleware: User ${req.session.user.username} (ID: ${req.session.user.id}) with role: ${req.session.user.role} accessing ${req.path}`);
     next();
   } else {
+    console.log(`Auth middleware: No user in session for ${req.path}`);
     res.status(401).json({ error: 'Unauthorized' });
   }
 };
@@ -59,27 +61,30 @@ const adminMiddleware = (req, res, next) => {
 
 // Financial supervisor middleware
 const financialSupervisorMiddleware = (req, res, next) => {
-  console.log('Financial supervisor middleware called');
-  console.log('Session:', req.session);
+  console.log('=== FINANCIAL SUPERVISOR MIDDLEWARE ===');
+  console.log('URL:', req.originalUrl);
+  console.log('Method:', req.method);
+  console.log('Session exists:', !!req.session);
 
   if (!req.session) {
-    console.log('No session found');
-    return res.status(401).json({ error: 'No session found' });
+    console.log('No session found - unauthorized');
+    return res.status(401).json({ error: 'غير مصرح به - الجلسة غير موجودة' });
   }
+
+  console.log('User in session:', req.session.user ? req.session.user.username : 'none');
+  console.log('User role:', req.session.user ? req.session.user.role : 'none');
 
   if (!req.session.user) {
-    console.log('No user in session');
-    return res.status(401).json({ error: 'Unauthorized' });
+    console.log('No user in session - unauthorized');
+    return res.status(401).json({ error: 'غير مصرح به - المستخدم غير مسجل الدخول' });
   }
-
-  console.log('User in session:', req.session.user);
 
   if (req.session.user.role === 'admin' || req.session.user.role === 'financial_supervisor') {
     console.log('User is admin or financial supervisor, proceeding...');
     next();
   } else {
     console.log('User is not admin or financial supervisor. Role:', req.session.user.role);
-    res.status(403).json({ error: 'Forbidden' });
+    res.status(403).json({ error: 'غير مسموح - الصلاحيات غير كافية' });
   }
 };
 
@@ -172,14 +177,46 @@ app.post('/api/login', (req, res) => {
       blockedTime: null
     };
 
-    // Set user in session
-    req.session.user = {
-      id: user.id,
-      username: user.username,
-      role: user.role
-    };
+    // Check if this is a student and if their account is locked
+    if (user.role === 'student') {
+      db.get('SELECT account_locked, locked_reason, locked_at FROM students WHERE user_id = ?',
+        [user.id], (err, student) => {
+        if (err) {
+          console.error('Error checking student lock status during login:', err.message);
+          return res.status(500).json({ error: 'خطأ في النظام' });
+        }
 
-    res.json({ success: true, user: req.session.user });
+        if (student && student.account_locked) {
+          console.log('🔒 Blocked login attempt for locked student:', user.username);
+          return res.status(423).json({
+            error: 'تم تجميد حسابك',
+            locked: true,
+            reason: student.locked_reason || 'تم تجميد الحساب بسبب محاولات خاطئة متكررة',
+            locked_at: student.locked_at,
+            message: 'يرجى مراجعة إدارة الجامعة',
+            contactMessage: 'للتواصل مع الإدارة، يرجى زيارة مكتب شؤون الطلاب'
+          });
+        }
+
+        // Student account is not locked, proceed with login
+        req.session.user = {
+          id: user.id,
+          username: user.username,
+          role: user.role
+        };
+
+        res.json({ success: true, user: req.session.user });
+      });
+    } else {
+      // Not a student, proceed with normal login
+      req.session.user = {
+        id: user.id,
+        username: user.username,
+        role: user.role
+      };
+
+      res.json({ success: true, user: req.session.user });
+    }
   });
 });
 
@@ -192,6 +229,369 @@ app.get('/api/logout', (req, res) => {
 // Get current user
 app.get('/api/user', authMiddleware, (req, res) => {
   res.json({ user: req.session.user });
+});
+
+// Student middleware - check if user is a student and account is not locked
+const studentMiddleware = (req, res, next) => {
+  console.log('Student middleware called');
+  console.log('Session:', req.session);
+
+  if (!req.session) {
+    console.log('No session found');
+    return res.status(401).json({ error: 'No session found' });
+  }
+
+  if (!req.session.user) {
+    console.log('No user in session');
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  console.log('User in session:', req.session.user);
+
+  if (req.session.user.role !== 'student') {
+    console.log('User is not student. Role:', req.session.user.role);
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+
+  // Check if student account is locked
+  db.get('SELECT account_locked, locked_reason, locked_at FROM students WHERE user_id = ?',
+    [req.session.user.id], (err, student) => {
+    if (err) {
+      console.error('Error checking student lock status:', err.message);
+      return res.status(500).json({ error: 'خطأ في النظام' });
+    }
+
+    if (student && student.account_locked) {
+      console.log('Student account is locked:', student);
+      return res.status(423).json({
+        error: 'تم تجميد حسابك',
+        locked: true,
+        reason: student.locked_reason || 'تم تجميد الحساب بسبب محاولات خاطئة متكررة',
+        locked_at: student.locked_at,
+        message: 'يرجى التواصل مع الإدارة لإلغاء تجميد الحساب'
+      });
+    }
+
+    console.log('User is student and account is not locked, proceeding...');
+    next();
+  });
+};
+
+// Student routes
+
+// Get student info
+app.get('/api/student/info', studentMiddleware, (req, res) => {
+  console.log('Getting student info for user ID:', req.session.user.id);
+
+  db.get(`
+    SELECT s.*, d.name as department_name, u.username, u.password
+    FROM students s
+    LEFT JOIN departments d ON s.department_id = d.id
+    LEFT JOIN users u ON s.user_id = u.id
+    WHERE s.user_id = ?
+  `, [req.session.user.id], (err, student) => {
+    if (err) {
+      console.error('Error getting student info:', err.message);
+      return res.status(500).json({ error: err.message });
+    }
+
+    if (!student) {
+      console.log('Student not found for user ID:', req.session.user.id);
+      return res.status(404).json({ error: 'الطالب غير موجود' });
+    }
+
+    console.log('Found student:', student.name);
+
+    // If semester is not set, default to "الأول"
+    if (!student.semester) {
+      student.semester = 'الأول';
+    }
+
+    // Ensure group_name is at least an empty string if null
+    if (student.group_name === null || student.group_name === undefined) {
+      student.group_name = '';
+    }
+
+    res.json({ student });
+  });
+});
+
+// Submit receipt number for enrollment
+app.post('/api/student/submit-receipt', studentMiddleware, (req, res) => {
+  console.log('Student submitting receipt number...');
+
+  const { enrollment_id, receipt_number } = req.body;
+
+  // Validate input
+  if (!enrollment_id || !receipt_number) {
+    return res.status(400).json({ error: 'معرف التسجيل ورقم الإيصال مطلوبان' });
+  }
+
+  // Validate receipt number format
+  const receiptStr = receipt_number.toString().trim();
+  if (receiptStr.length < 3) {
+    return res.status(400).json({ error: 'رقم الإيصال يجب أن يكون 3 أرقام على الأقل' });
+  }
+
+  // Get student ID from user session
+  db.get('SELECT id FROM students WHERE user_id = ?', [req.session.user.id], (err, student) => {
+    if (err) {
+      console.error('Error getting student:', err.message);
+      return res.status(500).json({ error: err.message });
+    }
+
+    if (!student) {
+      return res.status(404).json({ error: 'الطالب غير موجود' });
+    }
+
+    // Verify that the enrollment belongs to this student
+    db.get('SELECT * FROM enrollments WHERE id = ? AND student_id = ?', [enrollment_id, student.id], (err, enrollment) => {
+      if (err) {
+        console.error('Error verifying enrollment:', err.message);
+        return res.status(500).json({ error: err.message });
+      }
+
+      if (!enrollment) {
+        return res.status(404).json({ error: 'التسجيل غير موجود أو لا ينتمي لهذا الطالب' });
+      }
+
+      // Check if receipt number is already used
+      db.get('SELECT * FROM receipt_numbers WHERE receipt_number = ?', [receiptStr], (err, existingReceipt) => {
+        if (err) {
+          console.error('Error checking receipt number:', err.message);
+          return res.status(500).json({ error: err.message });
+        }
+
+        if (existingReceipt) {
+          return res.status(400).json({
+            error: 'رقم الإيصال مستخدم مسبقاً'
+          });
+        }
+
+        // Get course and student info with price for validation
+        db.get(`
+          SELECT c.name as course_name, s.name as student_name, COALESCE(c.price, 0) as course_price
+          FROM enrollments e
+          JOIN courses c ON e.course_id = c.id
+          JOIN students s ON e.student_id = s.id
+          WHERE e.id = ?
+        `, [enrollment_id], (err, courseInfo) => {
+          if (err) {
+            console.error('Error getting course info:', err.message);
+            return res.status(500).json({ error: err.message });
+          }
+
+          // REQUIREMENT 1: Check if receipt number exists in prepaid cards (must be a valid prepaid card)
+          db.get('SELECT * FROM prepaid_cards WHERE card_number = ?', [receiptStr], (err, prepaidCard) => {
+            if (err) {
+              console.error('Error checking prepaid card:', err.message);
+              return res.status(500).json({ error: err.message });
+            }
+
+            // If no prepaid card found, record failed attempt and check for account lockout
+            if (!prepaidCard) {
+              console.log('Receipt number not found in prepaid cards:', receiptStr);
+
+              // Record failed attempt
+              const clientIP = req.ip || req.connection.remoteAddress || 'unknown';
+              db.run(`
+                INSERT INTO failed_receipt_attempts (student_id, attempted_receipt_number, ip_address)
+                VALUES (?, ?, ?)
+              `, [student.id, receiptStr, clientIP], function(err) {
+                if (err) {
+                  console.error('Error recording failed attempt:', err.message);
+                } else {
+                  console.log('Recorded failed receipt attempt for student:', student.id);
+                }
+              });
+
+              // Check failed attempts count in last 24 hours
+              db.get(`
+                SELECT COUNT(*) as attempt_count
+                FROM failed_receipt_attempts
+                WHERE student_id = ? AND attempt_time > datetime('now', '-24 hours')
+              `, [student.id], (err, result) => {
+                if (err) {
+                  console.error('Error checking failed attempts:', err.message);
+                  return res.status(400).json({
+                    error: 'رقم الإيصال غير صحيح',
+                    details: 'رقم الإيصال المدخل غير موجود في قائمة كروت الدفع المسبق'
+                  });
+                }
+
+                const attemptCount = result.attempt_count;
+                console.log('Failed attempts count for student', student.id, ':', attemptCount);
+
+                if (attemptCount >= 3) {
+                  // Lock the account
+                  const lockReason = `تم تجميد الحساب بسبب إدخال رقم إيصال خاطئ ${attemptCount} مرات`;
+                  db.run(`
+                    UPDATE students
+                    SET account_locked = 1, locked_at = datetime('now'), locked_reason = ?
+                    WHERE id = ?
+                  `, [lockReason, student.id], function(err) {
+                    if (err) {
+                      console.error('Error locking student account:', err.message);
+                    } else {
+                      console.log('🔒 Student account locked due to failed attempts:', student.id);
+
+                      // Force logout the student by destroying their session
+                      console.log('🚪 Forcing logout for locked student...');
+                      req.session.destroy((err) => {
+                        if (err) {
+                          console.error('Error destroying session:', err);
+                        } else {
+                          console.log('✅ Session destroyed for locked student');
+                        }
+                      });
+                    }
+                  });
+
+                  return res.status(423).json({
+                    error: 'تم تجميد حسابك',
+                    locked: true,
+                    reason: lockReason,
+                    message: 'تم تجميد حسابك بسبب إدخال رقم إيصال خاطئ 3 مرات. يرجى التواصل مع الإدارة لإلغاء التجميد.',
+                    forceLogout: true
+                  });
+                }
+
+                const remainingAttempts = 3 - attemptCount;
+                return res.status(400).json({
+                  error: 'رقم الإيصال غير صحيح',
+                  details: 'رقم الإيصال المدخل غير موجود في قائمة كروت الدفع المسبق',
+                  warning: `تحذير: لديك ${remainingAttempts} محاولة متبقية قبل تجميد الحساب`
+                });
+              });
+              return;
+            }
+
+            // Check if prepaid card is already used
+            if (prepaidCard.is_used) {
+              return res.status(400).json({
+                error: 'كرت الدفع المسبق مستخدم مسبقاً',
+                details: 'تم استخدام هذا الكرت من قبل'
+              });
+            }
+
+            // REQUIREMENT 2: Check if card value matches course price
+            if (prepaidCard.value !== courseInfo.course_price) {
+              return res.status(400).json({
+                error: 'قيمة الكرت لا تتطابق مع سعر المادة',
+                details: `قيمة الكرت: ${prepaidCard.value} دينار، سعر المادة: ${courseInfo.course_price} دينار`
+              });
+            }
+
+            console.log('Valid prepaid card found:', prepaidCard.card_number);
+            console.log('Card value matches course price:', prepaidCard.value);
+
+            // Update prepaid card as used
+            db.run('UPDATE prepaid_cards SET is_used = TRUE, used_by_student_id = ?, used_at = CURRENT_TIMESTAMP WHERE id = ?',
+              [student.id, prepaidCard.id],
+              (err) => {
+                if (err) {
+                  console.error('Error updating prepaid card status:', err.message);
+                  return res.status(500).json({ error: err.message });
+                } else {
+                  console.log('Prepaid card marked as used:', prepaidCard.card_number);
+                }
+              }
+            );
+
+            // Update enrollment with receipt number and mark as paid
+            db.run(`UPDATE enrollments
+                    SET receipt_number = ?, payment_status = 'خالص', payment_date = CURRENT_TIMESTAMP
+                    WHERE id = ?`,
+              [receiptStr, enrollment_id],
+              function(err) {
+                if (err) {
+                  console.error('Error updating enrollment with receipt:', err.message);
+                  return res.status(500).json({ error: err.message });
+                }
+
+              // Record the receipt number as used
+              db.run(`INSERT INTO receipt_numbers
+                      (receipt_number, used_by_student_id, used_by_enrollment_id, course_name, student_name)
+                      VALUES (?, ?, ?, ?, ?)`,
+                [receiptStr, student.id, enrollment_id, courseInfo.course_name, courseInfo.student_name],
+                function(err) {
+                  if (err) {
+                    console.error('Error recording receipt number:', err.message);
+                    // Don't fail the main operation, just log the error
+                  }
+
+                  // Clear failed attempts for this student on successful receipt submission
+                  db.run('DELETE FROM failed_receipt_attempts WHERE student_id = ?', [student.id], function(err) {
+                    if (err) {
+                      console.error('Error clearing failed attempts:', err.message);
+                    } else {
+                      console.log('Cleared failed attempts for student:', student.id);
+                    }
+                  });
+
+                  console.log('Receipt number submitted successfully for enrollment:', enrollment_id);
+                  res.json({
+                    success: true,
+                    message: 'تم إرسال رقم الإيصال بنجاح',
+                    receipt_number: receiptStr
+                  });
+                }
+              );
+            });
+          });
+        });
+      });
+    });
+  });
+});
+
+// Get student enrollments with courses
+app.get('/api/student/enrollments', studentMiddleware, (req, res) => {
+  console.log('Getting student enrollments for user ID:', req.session.user.id);
+
+  // Get student ID from user session
+  db.get('SELECT id FROM students WHERE user_id = ?', [req.session.user.id], (err, student) => {
+    if (err) {
+      console.error('Error getting student:', err.message);
+      return res.status(500).json({ error: err.message });
+    }
+
+    if (!student) {
+      return res.status(404).json({ error: 'الطالب غير موجود' });
+    }
+
+    // Get enrolled courses
+    db.all(`
+      SELECT
+        e.id as enrollment_id,
+        e.payment_status,
+        e.receipt_number,
+        e.payment_date,
+        e.created_at,
+        e.group_id,
+        e.course_id,
+        c.course_code,
+        c.name as course_name,
+        c.semester,
+        COALESCE(c.price, 0) as price,
+        d.name as department_name,
+        g.group_name
+      FROM enrollments e
+      JOIN courses c ON e.course_id = c.id
+      LEFT JOIN departments d ON c.department_id = d.id
+      LEFT JOIN course_groups g ON e.group_id = g.id
+      WHERE e.student_id = ?
+      ORDER BY e.created_at DESC
+    `, [student.id], (err, enrollments) => {
+      if (err) {
+        console.error('Error fetching student enrollments:', err.message);
+        return res.status(500).json({ error: err.message });
+      }
+
+      console.log('Found enrollments:', enrollments.length);
+      res.json({ enrollments });
+    });
+  });
 });
 
 // Get admin user details
@@ -584,6 +984,161 @@ app.get('/api/admin/students/:id', financialSupervisorMiddleware, (req, res) => 
   });
 });
 
+// Unlock student account (Financial Supervisor only)
+app.post('/api/admin/students/:id/unlock', financialSupervisorMiddleware, (req, res) => {
+  const studentId = req.params.id;
+  const { unlock_reason } = req.body;
+
+  console.log('Unlocking student account:', studentId);
+  console.log('Unlock reason:', unlock_reason);
+  console.log('User role:', req.session.user.role);
+
+  // Validate input
+  if (!unlock_reason || unlock_reason.trim() === '') {
+    return res.status(400).json({ error: 'سبب إلغاء التجميد مطلوب' });
+  }
+
+  // Check if student exists and is locked
+  db.get('SELECT * FROM students WHERE id = ?', [studentId], (err, student) => {
+    if (err) {
+      console.error('Error getting student:', err.message);
+      return res.status(500).json({ error: err.message });
+    }
+
+    if (!student) {
+      return res.status(404).json({ error: 'الطالب غير موجود' });
+    }
+
+    if (!student.account_locked) {
+      return res.status(400).json({ error: 'الحساب غير مجمد' });
+    }
+
+    // Unlock the account
+    db.run(`
+      UPDATE students
+      SET account_locked = 0, locked_at = NULL, locked_reason = NULL
+      WHERE id = ?
+    `, [studentId], function(err) {
+      if (err) {
+        console.error('Error unlocking student account:', err.message);
+        return res.status(500).json({ error: err.message });
+      }
+
+      // Clear failed attempts for this student
+      db.run('DELETE FROM failed_receipt_attempts WHERE student_id = ?', [studentId], function(err) {
+        if (err) {
+          console.error('Error clearing failed attempts:', err.message);
+        } else {
+          console.log('Cleared failed attempts for student:', studentId);
+        }
+      });
+
+      console.log('Student account unlocked successfully:', studentId);
+      res.json({
+        success: true,
+        message: 'تم إلغاء تجميد الحساب بنجاح',
+        student: {
+          id: studentId,
+          account_locked: false,
+          unlock_reason: unlock_reason,
+          unlocked_by: req.session.user.username,
+          unlocked_at: new Date().toISOString()
+        }
+      });
+    });
+  });
+});
+
+// Get locked students (Financial Supervisor only)
+app.get('/api/admin/locked-students', financialSupervisorMiddleware, (req, res) => {
+  console.log('🔒 Getting locked students...');
+  console.log('User role:', req.session.user.role);
+
+  // First check if the columns exist
+  db.all("PRAGMA table_info(students)", (err, columns) => {
+    if (err) {
+      console.error('Error checking students table structure:', err.message);
+      return res.status(500).json({ error: 'Database error: ' + err.message });
+    }
+
+    console.log('Students table columns:', columns.map(col => col.name));
+
+    const hasAccountLocked = columns.some(col => col.name === 'account_locked');
+    const hasLockedAt = columns.some(col => col.name === 'locked_at');
+    const hasLockedReason = columns.some(col => col.name === 'locked_reason');
+
+    console.log('Column check:', { hasAccountLocked, hasLockedAt, hasLockedReason });
+
+    if (!hasAccountLocked || !hasLockedAt || !hasLockedReason) {
+      console.log('Missing required columns for locked accounts feature');
+      return res.json({ students: [] });
+    }
+
+    // Check if failed_receipt_attempts table exists
+    db.all("SELECT name FROM sqlite_master WHERE type='table' AND name='failed_receipt_attempts'", (err, tables) => {
+      if (err) {
+        console.error('Error checking failed_receipt_attempts table:', err.message);
+        return res.status(500).json({ error: 'Database error: ' + err.message });
+      }
+
+      const hasFailedAttemptsTable = tables.length > 0;
+      console.log('failed_receipt_attempts table exists:', hasFailedAttemptsTable);
+
+      let query;
+      if (hasFailedAttemptsTable) {
+        query = `
+          SELECT
+            s.id,
+            s.name,
+            s.student_id,
+            s.registration_number,
+            s.account_locked,
+            s.locked_at,
+            s.locked_reason,
+            d.name as department_name,
+            COUNT(fra.id) as failed_attempts_count
+          FROM students s
+          LEFT JOIN departments d ON s.department_id = d.id
+          LEFT JOIN failed_receipt_attempts fra ON s.id = fra.student_id
+          WHERE s.account_locked = 1
+          GROUP BY s.id, s.name, s.student_id, s.registration_number, s.account_locked, s.locked_at, s.locked_reason, d.name
+          ORDER BY s.locked_at DESC
+        `;
+      } else {
+        query = `
+          SELECT
+            s.id,
+            s.name,
+            s.student_id,
+            s.registration_number,
+            s.account_locked,
+            s.locked_at,
+            s.locked_reason,
+            d.name as department_name,
+            0 as failed_attempts_count
+          FROM students s
+          LEFT JOIN departments d ON s.department_id = d.id
+          WHERE s.account_locked = 1
+          ORDER BY s.locked_at DESC
+        `;
+      }
+
+      console.log('Executing query:', query);
+
+      db.all(query, (err, lockedStudents) => {
+        if (err) {
+          console.error('Error getting locked students:', err.message);
+          return res.status(500).json({ error: err.message });
+        }
+
+        console.log(`Found ${lockedStudents.length} locked students`);
+        console.log('Locked students data:', lockedStudents);
+        res.json({ students: lockedStudents });
+      });
+    });
+  });
+});
+
 // Add student
 app.post('/api/admin/students', adminMiddleware, (req, res) => {
   const { name, student_id, department_id, registration_number, semester, group_name } = req.body;
@@ -973,6 +1528,7 @@ app.get('/api/admin/students/:id/courses', financialSupervisorMiddleware, (req, 
           c.course_code,
           c.name as course_name,
           c.semester,
+          COALESCE(c.price, 0) as price,
           d.name as department_name,
           g.group_name
         FROM enrollments e
@@ -1031,6 +1587,7 @@ app.get('/api/admin/students-enrollments', financialSupervisorMiddleware, (req, 
             c.name as course_name,
             c.course_code,
             c.semester,
+            COALESCE(c.price, 0) as price,
             d.name as department_name,
             g.group_name
           FROM enrollments e
@@ -1814,8 +2371,14 @@ app.put('/api/admin/enrollments/:id/payment-status', financialSupervisorMiddlewa
     return res.status(400).json({ error: 'رقم الإيصال مطلوب عند تغيير الحالة إلى "خالص"' });
   }
 
-  // Check if enrollment exists
-  db.get('SELECT * FROM enrollments WHERE id = ?', [enrollmentId], (err, enrollment) => {
+  // Get enrollment details with course price and student info
+  db.get(`
+    SELECT e.*, c.name as course_name, s.name as student_name, COALESCE(c.price, 0) as course_price
+    FROM enrollments e
+    JOIN courses c ON e.course_id = c.id
+    JOIN students s ON e.student_id = s.id
+    WHERE e.id = ?
+  `, [enrollmentId], (err, enrollment) => {
     if (err) {
       return res.status(500).json({ error: err.message });
     }
@@ -1824,33 +2387,119 @@ app.put('/api/admin/enrollments/:id/payment-status', financialSupervisorMiddlewa
       return res.status(404).json({ error: 'التسجيل غير موجود' });
     }
 
-    // Prepare update query based on payment status
-    let updateQuery, updateParams;
-
+    // If changing to paid status, apply the same validation as student receipt submission
     if (payment_status === 'خالص') {
-      // When marking as paid, save receipt number and payment date
-      updateQuery = 'UPDATE enrollments SET payment_status = ?, receipt_number = ?, payment_date = CURRENT_TIMESTAMP WHERE id = ?';
-      updateParams = [payment_status, receipt_number.trim(), enrollmentId];
+      const receiptStr = receipt_number.trim();
+
+      // Check if receipt number is already used
+      db.get('SELECT * FROM receipt_numbers WHERE receipt_number = ?', [receiptStr], (err, existingReceipt) => {
+        if (err) {
+          return res.status(500).json({ error: err.message });
+        }
+
+        if (existingReceipt) {
+          return res.status(400).json({
+            error: 'رقم الإيصال مستخدم مسبقاً'
+          });
+        }
+
+        // REQUIREMENT 1: Check if receipt number exists in prepaid cards (must be a valid prepaid card)
+        db.get('SELECT * FROM prepaid_cards WHERE card_number = ?', [receiptStr], (err, prepaidCard) => {
+          if (err) {
+            console.error('Error checking prepaid card:', err.message);
+            return res.status(500).json({ error: err.message });
+          }
+
+          // If no prepaid card found, reject the receipt
+          if (!prepaidCard) {
+            return res.status(400).json({
+              error: 'رقم الإيصال غير صحيح',
+              details: 'رقم الإيصال المدخل غير موجود في قائمة كروت الدفع المسبق'
+            });
+          }
+
+          // Check if prepaid card is already used
+          if (prepaidCard.is_used) {
+            return res.status(400).json({
+              error: 'كرت الدفع المسبق مستخدم مسبقاً',
+              details: 'تم استخدام هذا الكرت من قبل'
+            });
+          }
+
+          // REQUIREMENT 2: Check if card value matches course price
+          if (prepaidCard.value !== enrollment.course_price) {
+            return res.status(400).json({
+              error: 'قيمة الكرت لا تتطابق مع سعر المادة',
+              details: `قيمة الكرت: ${prepaidCard.value} دينار، سعر المادة: ${enrollment.course_price} دينار`
+            });
+          }
+
+          console.log('Valid prepaid card found by supervisor:', prepaidCard.card_number);
+          console.log('Card value matches course price:', prepaidCard.value);
+
+          // Update prepaid card as used
+          db.run('UPDATE prepaid_cards SET is_used = TRUE, used_by_student_id = ?, used_at = CURRENT_TIMESTAMP WHERE id = ?',
+            [enrollment.student_id, prepaidCard.id],
+            (err) => {
+              if (err) {
+                console.error('Error updating prepaid card status:', err.message);
+                return res.status(500).json({ error: err.message });
+              } else {
+                console.log('Prepaid card marked as used by supervisor:', prepaidCard.card_number);
+              }
+            }
+          );
+
+          // Record the receipt number as used
+          db.run(`INSERT INTO receipt_numbers
+                  (receipt_number, used_by_student_id, used_by_enrollment_id, course_name, student_name)
+                  VALUES (?, ?, ?, ?, ?)`,
+            [receiptStr, enrollment.student_id, enrollmentId, enrollment.course_name, enrollment.student_name],
+            function(err) {
+              if (err) {
+                console.error('Error recording receipt number:', err.message);
+                // Don't fail the main operation, just log the error
+              }
+            }
+          );
+
+          // Proceed with payment status update
+          proceedWithUpdate();
+        });
+      });
     } else {
-      // When marking as unpaid, clear receipt number and payment date
-      updateQuery = 'UPDATE enrollments SET payment_status = ?, receipt_number = NULL, payment_date = NULL WHERE id = ?';
-      updateParams = [payment_status, enrollmentId];
+      // If changing to unpaid, proceed directly
+      proceedWithUpdate();
     }
 
-    // Update payment status
-    db.run(updateQuery, updateParams, function(err) {
-      if (err) {
-        return res.status(500).json({ error: err.message });
+    function proceedWithUpdate() {
+      let updateQuery, updateParams;
+
+      if (payment_status === 'خالص') {
+        // When marking as paid, set receipt number and payment date
+        updateQuery = 'UPDATE enrollments SET payment_status = ?, receipt_number = ?, payment_date = CURRENT_TIMESTAMP WHERE id = ?';
+        updateParams = [payment_status, receipt_number.trim(), enrollmentId];
+      } else {
+        // When marking as unpaid, clear receipt number and payment date
+        updateQuery = 'UPDATE enrollments SET payment_status = ?, receipt_number = NULL, payment_date = NULL WHERE id = ?';
+        updateParams = [payment_status, enrollmentId];
       }
 
-      res.json({
-        success: true,
-        message: `تم تحديث حالة الدفع إلى "${payment_status}" بنجاح`,
-        enrollment_id: enrollmentId,
-        payment_status: payment_status,
-        receipt_number: payment_status === 'خالص' ? receipt_number.trim() : null
+      // Update payment status
+      db.run(updateQuery, updateParams, function(err) {
+        if (err) {
+          return res.status(500).json({ error: err.message });
+        }
+
+        res.json({
+          success: true,
+          message: `تم تحديث حالة الدفع إلى "${payment_status}" بنجاح`,
+          enrollment_id: enrollmentId,
+          payment_status: payment_status,
+          receipt_number: payment_status === 'خالص' ? receipt_number.trim() : null
+        });
       });
-    });
+    }
   });
 });
 
@@ -1860,7 +2509,10 @@ app.put('/api/admin/enrollments/:id/payment-status', financialSupervisorMiddlewa
 
 // Get student info
 app.get('/api/student/info', authMiddleware, (req, res) => {
+  console.log(`API /api/student/info called by user: ${req.session.user.username} (ID: ${req.session.user.id}) with role: ${req.session.user.role}`);
+
   if (req.session.user.role !== 'student') {
+    console.log(`Access denied: User role is ${req.session.user.role}, expected 'student'`);
     return res.status(403).json({ error: 'Forbidden' });
   }
 
@@ -1880,36 +2532,6 @@ app.get('/api/student/info', authMiddleware, (req, res) => {
     }
 
     res.json({ student });
-  });
-});
-
-// Get student completed courses
-app.get('/api/student/completed-courses', authMiddleware, (req, res) => {
-  if (req.session.user.role !== 'student') {
-    return res.status(403).json({ error: 'Forbidden' });
-  }
-
-  db.get('SELECT id FROM students WHERE user_id = ?', [req.session.user.id], (err, student) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
-
-    if (!student) {
-      return res.status(404).json({ error: 'Student not found' });
-    }
-
-    db.all(`
-      SELECT cc.*, c.course_code, c.name
-      FROM completed_courses cc
-      JOIN courses c ON cc.course_id = c.id
-      WHERE cc.student_id = ?
-    `, [student.id], (err, courses) => {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
-
-      res.json({ completed_courses: courses });
-    });
   });
 });
 
@@ -2007,6 +2629,36 @@ app.get('/api/student/courses', authMiddleware, (req, res) => {
   });
 });
 
+// Get student completed courses
+app.get('/api/student/completed-courses', authMiddleware, (req, res) => {
+  if (req.session.user.role !== 'student') {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+
+  db.get('SELECT id FROM students WHERE user_id = ?', [req.session.user.id], (err, student) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+
+    if (!student) {
+      return res.status(404).json({ error: 'Student not found' });
+    }
+
+    db.all(`
+      SELECT cc.*, c.course_code, c.name
+      FROM completed_courses cc
+      JOIN courses c ON cc.course_id = c.id
+      WHERE cc.student_id = ?
+    `, [student.id], (err, courses) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+
+      res.json({ completed_courses: courses });
+    });
+  });
+});
+
 // Get available courses for student
 app.get('/api/student/available-courses', authMiddleware, (req, res) => {
   if (req.session.user.role !== 'student') {
@@ -2025,7 +2677,8 @@ app.get('/api/student/available-courses', authMiddleware, (req, res) => {
     // Get all courses in student's department
     db.all(`
       SELECT c.*, d.name as department_name,
-        (SELECT COUNT(*) FROM enrollments WHERE course_id = c.id) as enrolled_students
+        (SELECT COUNT(*) FROM enrollments WHERE course_id = c.id) as enrolled_students,
+        COALESCE(c.price, 0) as price
       FROM courses c
       LEFT JOIN departments d ON c.department_id = d.id
       WHERE c.department_id = ?
@@ -2044,7 +2697,7 @@ app.get('/api/student/available-courses', authMiddleware, (req, res) => {
 
         // Get student's enrolled courses with group information and payment status
         db.all(`
-          SELECT e.course_id, e.group_id, e.payment_status, g.group_name, g.professor_name, g.time_slot
+          SELECT e.id as enrollment_id, e.course_id, e.group_id, e.payment_status, e.receipt_number, g.group_name, g.professor_name, g.time_slot
           FROM enrollments e
           LEFT JOIN course_groups g ON e.group_id = g.id
           WHERE e.student_id = ?
@@ -2059,11 +2712,13 @@ app.get('/api/student/available-courses', authMiddleware, (req, res) => {
           const enrolledCourseGroupMap = {};
           enrolledCourses.forEach(course => {
             enrolledCourseGroupMap[course.course_id] = {
+              enrollment_id: course.enrollment_id,
               group_id: course.group_id,
               group_name: course.group_name,
               professor_name: course.professor_name,
               time_slot: course.time_slot,
-              payment_status: course.payment_status || 'غير خالص'
+              payment_status: course.payment_status || 'غير خالص',
+              receipt_number: course.receipt_number
             };
           });
 
@@ -2104,7 +2759,9 @@ app.get('/api/student/available-courses', authMiddleware, (req, res) => {
                 is_full: isFull,
                 can_register: !isCompleted && !isEnrolled && allPrerequisitesMet && !isFull,
                 group_info: groupInfo,
-                payment_status: isEnrolled ? enrolledCourseGroupMap[course.id].payment_status : null
+                payment_status: isEnrolled ? enrolledCourseGroupMap[course.id].payment_status : null,
+                enrollment_id: isEnrolled ? enrolledCourseGroupMap[course.id].enrollment_id : null,
+                receipt_number: isEnrolled ? enrolledCourseGroupMap[course.id].receipt_number : null
               };
             });
 
@@ -3590,6 +4247,620 @@ app.post('/api/student/enroll-with-group', authMiddleware, (req, res) => {
   });
 });
 
+// Prepaid cards management routes
+
+// Get all prepaid cards
+app.get('/api/admin/prepaid-cards', financialSupervisorMiddleware, (req, res) => {
+  console.log('Getting all prepaid cards...');
+
+  db.all(`
+    SELECT
+      pc.*,
+      s.name as used_by_student_name,
+      s.student_id as used_by_student_registration,
+      u.username as sold_by_admin_username
+    FROM prepaid_cards pc
+    LEFT JOIN students s ON pc.used_by_student_id = s.id
+    LEFT JOIN users u ON pc.sold_by_admin_id = u.id
+    ORDER BY pc.created_at DESC
+  `, (err, cards) => {
+    if (err) {
+      console.error('Error getting prepaid cards:', err.message);
+      return res.status(500).json({ error: err.message });
+    }
+
+    console.log('Found prepaid cards:', cards.length);
+
+    // Log detailed data for debugging
+    console.log('=== PREPAID CARDS DEBUG ===');
+    cards.forEach((card, index) => {
+      console.log(`Card ${index + 1}:`, {
+        id: card.id,
+        card_number: card.card_number,
+        value: card.value,
+        is_used: card.is_used,
+        is_sold: card.is_sold,
+        sold_at: card.sold_at,
+        sold_by_admin_username: card.sold_by_admin_username,
+        used_by_student_id: card.used_by_student_id,
+        used_by_student_name: card.used_by_student_name,
+        used_by_student_registration: card.used_by_student_registration,
+        used_at: card.used_at,
+        created_at: card.created_at
+      });
+    });
+    console.log('=== END DEBUG ===');
+
+    res.json({ cards });
+  });
+});
+
+// Delete all prepaid cards (MUST come before /:id route)
+app.delete('/api/admin/prepaid-cards/delete-all', financialSupervisorMiddleware, (req, res) => {
+  console.log('=== DELETE ALL PREPAID CARDS API CALLED ===');
+  console.log('Admin user:', req.session.user.username);
+  console.log('Request method:', req.method);
+  console.log('Request URL:', req.url);
+  console.log('Request headers:', req.headers);
+
+  // First, get count of cards to be deleted
+  db.get('SELECT COUNT(*) as count FROM prepaid_cards', (err, countResult) => {
+    if (err) {
+      console.error('Error counting prepaid cards:', err.message);
+      return res.status(500).json({ error: err.message });
+    }
+
+    const totalCards = countResult.count;
+    console.log(`Found ${totalCards} cards to delete`);
+
+    if (totalCards === 0) {
+      return res.json({
+        success: true,
+        message: 'لا توجد كروت للحذف',
+        deletedCount: 0
+      });
+    }
+
+    // Delete all prepaid cards
+    db.run('DELETE FROM prepaid_cards', function(err) {
+      if (err) {
+        console.error('Error deleting all prepaid cards:', err.message);
+        return res.status(500).json({ error: err.message });
+      }
+
+      const deletedCount = this.changes;
+      console.log(`Successfully deleted ${deletedCount} prepaid cards`);
+
+      res.json({
+        success: true,
+        message: `تم حذف جميع كروت الدفع المسبق بنجاح (${deletedCount} كرت)`,
+        deletedCount: deletedCount
+      });
+    });
+  });
+});
+
+// Generate prepaid cards
+app.post('/api/admin/prepaid-cards/generate', financialSupervisorMiddleware, (req, res) => {
+  console.log('Generating prepaid cards...');
+
+  const { count, value } = req.body;
+
+  // Validate input
+  if (!count || count < 1 || count > 100) {
+    return res.status(400).json({ error: 'عدد الكروت يجب أن يكون بين 1 و 100' });
+  }
+
+  const cardValue = parseInt(value) || 5;
+  if (cardValue < 1) {
+    return res.status(400).json({ error: 'قيمة الكرت يجب أن تكون أكبر من صفر' });
+  }
+
+  const generatedCards = [];
+  let completed = 0;
+  let hasError = false;
+
+  // Generate cards
+  for (let i = 0; i < count; i++) {
+    // Generate unique card number
+    const cardNumber = 'CARD' + Date.now() + Math.random().toString(36).substr(2, 9).toUpperCase();
+
+    db.run('INSERT INTO prepaid_cards (card_number, value) VALUES (?, ?)',
+      [cardNumber, cardValue],
+      function(err) {
+        if (err && !hasError) {
+          hasError = true;
+          console.error('Error generating prepaid card:', err.message);
+          return res.status(500).json({ error: err.message });
+        }
+
+        if (!hasError) {
+          generatedCards.push({
+            id: this.lastID,
+            card_number: cardNumber,
+            value: cardValue
+          });
+
+          completed++;
+
+          if (completed === count) {
+            console.log(`Generated ${count} prepaid cards successfully`);
+            res.json({
+              success: true,
+              message: `تم توليد ${count} كرت بنجاح`,
+              cards: generatedCards
+            });
+          }
+        }
+      }
+    );
+  }
+});
+
+// Check if card numbers already exist
+app.post('/api/admin/prepaid-cards/check-numbers', financialSupervisorMiddleware, (req, res) => {
+  console.log('Checking card numbers...');
+
+  const { numbers } = req.body;
+
+  if (!numbers || !Array.isArray(numbers) || numbers.length === 0) {
+    return res.status(400).json({ error: 'يجب تقديم قائمة بأرقام الكروت' });
+  }
+
+  if (numbers.length > 100) {
+    return res.status(400).json({ error: 'لا يمكن فحص أكثر من 100 رقم في المرة الواحدة' });
+  }
+
+  // Create placeholders for the SQL query
+  const placeholders = numbers.map(() => '?').join(',');
+  const query = `SELECT card_number FROM prepaid_cards WHERE card_number IN (${placeholders})`;
+
+  db.all(query, numbers, (err, existingCards) => {
+    if (err) {
+      console.error('Error checking card numbers:', err.message);
+      return res.status(500).json({ error: err.message });
+    }
+
+    const existingNumbers = existingCards.map(card => card.card_number);
+
+    console.log(`Checked ${numbers.length} numbers, found ${existingNumbers.length} existing`);
+
+    res.json({
+      success: true,
+      existing: existingNumbers,
+      available: numbers.filter(num => !existingNumbers.includes(num))
+    });
+  });
+});
+
+// Generate prepaid cards with custom numbers
+app.post('/api/admin/prepaid-cards/generate-custom', financialSupervisorMiddleware, (req, res) => {
+  console.log('=== GENERATING CUSTOM PREPAID CARDS ===');
+  console.log('Request body:', req.body);
+  console.log('User:', req.session.user);
+
+  const { numbers, value } = req.body;
+  console.log('Extracted numbers:', numbers);
+  console.log('Extracted value:', value);
+
+  // Validate input
+  console.log('Validating input...');
+
+  if (!numbers || !Array.isArray(numbers) || numbers.length === 0) {
+    console.log('Invalid numbers array:', numbers);
+    return res.status(400).json({ error: 'يجب تقديم قائمة بأرقام الكروت' });
+  }
+
+  if (numbers.length > 100) {
+    console.log('Too many numbers:', numbers.length);
+    return res.status(400).json({ error: 'لا يمكن إنشاء أكثر من 100 كرت في المرة الواحدة' });
+  }
+
+  const cardValue = parseInt(value) || 5;
+  console.log('Card value:', cardValue);
+
+  if (cardValue < 1) {
+    console.log('Invalid card value:', cardValue);
+    return res.status(400).json({ error: 'قيمة الكرت يجب أن تكون أكبر من صفر' });
+  }
+
+  // Validate card numbers format
+  console.log('Validating card numbers format...');
+
+  const invalidNumbers = numbers.filter(number => {
+    const isInvalid = !number ||
+           typeof number !== 'string' ||
+           number.length < 3 ||
+           number.length > 50 ||
+           !/^[a-zA-Z0-9\-_]+$/.test(number);
+
+    if (isInvalid) {
+      console.log('Invalid number:', number, 'Type:', typeof number, 'Length:', number ? number.length : 'N/A');
+    }
+
+    return isInvalid;
+  });
+
+  if (invalidNumbers.length > 0) {
+    console.log('Found invalid numbers:', invalidNumbers);
+    return res.status(400).json({
+      error: 'توجد أرقام غير صحيحة',
+      invalid_numbers: invalidNumbers
+    });
+  }
+
+  // Check for duplicates in the input
+  console.log('Checking for duplicates...');
+
+  const uniqueNumbers = [...new Set(numbers)];
+  console.log('Original numbers count:', numbers.length);
+  console.log('Unique numbers count:', uniqueNumbers.length);
+
+  if (uniqueNumbers.length !== numbers.length) {
+    console.log('Found duplicates in input');
+    return res.status(400).json({ error: 'توجد أرقام مكررة في القائمة' });
+  }
+
+  // Check if any numbers already exist in database
+  console.log('Checking existing numbers in database...');
+
+  const placeholders = uniqueNumbers.map(() => '?').join(',');
+  const checkQuery = `SELECT card_number FROM prepaid_cards WHERE card_number IN (${placeholders})`;
+
+  console.log('Check query:', checkQuery);
+  console.log('Query parameters:', uniqueNumbers);
+
+  db.all(checkQuery, uniqueNumbers, (err, existingCards) => {
+    if (err) {
+      console.error('Database error while checking existing card numbers:', err.message);
+      console.error('Full error:', err);
+      return res.status(500).json({ error: 'خطأ في قاعدة البيانات: ' + err.message });
+    }
+
+    console.log('Existing cards found:', existingCards);
+
+    if (existingCards.length > 0) {
+      const existingNumbers = existingCards.map(card => card.card_number);
+      console.log('Some numbers already exist:', existingNumbers);
+      return res.status(400).json({
+        error: 'بعض أرقام الكروت موجودة مسبقاً في النظام',
+        existing_numbers: existingNumbers
+      });
+    }
+
+    // All numbers are unique and don't exist, proceed with creation
+    console.log('All numbers are unique, proceeding with creation...');
+
+    const generatedCards = [];
+    let completed = 0;
+    let hasError = false;
+
+    uniqueNumbers.forEach((cardNumber, index) => {
+      console.log(`Creating card ${index + 1}/${uniqueNumbers.length}: ${cardNumber}`);
+
+      db.run('INSERT INTO prepaid_cards (card_number, value) VALUES (?, ?)',
+        [cardNumber, cardValue],
+        function(err) {
+          if (err && !hasError) {
+            hasError = true;
+            console.error('Error generating custom prepaid card:', err.message);
+            console.error('Full error:', err);
+            console.error('Card number:', cardNumber);
+            console.error('Card value:', cardValue);
+            return res.status(500).json({ error: 'خطأ في إنشاء الكرت: ' + err.message });
+          }
+
+          if (!hasError) {
+            console.log(`Successfully created card: ${cardNumber} with ID: ${this.lastID}`);
+
+            generatedCards.push({
+              id: this.lastID,
+              card_number: cardNumber,
+              value: cardValue
+            });
+
+            completed++;
+            console.log(`Completed: ${completed}/${uniqueNumbers.length}`);
+
+            if (completed === uniqueNumbers.length) {
+              console.log(`Generated ${uniqueNumbers.length} custom prepaid cards successfully`);
+              console.log('Generated cards:', generatedCards);
+
+              res.json({
+                success: true,
+                message: `تم إنشاء ${uniqueNumbers.length} كرت بأرقام مخصصة بنجاح`,
+                cards: generatedCards
+              });
+            }
+          }
+        }
+      );
+    });
+  });
+});
+
+// Mark prepaid card as sold
+app.put('/api/admin/prepaid-cards/:id/mark-sold', financialSupervisorMiddleware, (req, res) => {
+  const cardId = req.params.id;
+  const adminId = req.session.user.id;
+  const adminUsername = req.session.user.username;
+
+  console.log(`Marking prepaid card ${cardId} as sold by admin ${adminUsername} (ID: ${adminId})`);
+
+  // Check if card exists and is not used
+  db.get('SELECT * FROM prepaid_cards WHERE id = ?', [cardId], (err, card) => {
+    if (err) {
+      console.error('Error checking prepaid card:', err.message);
+      return res.status(500).json({ error: err.message });
+    }
+
+    if (!card) {
+      return res.status(404).json({ error: 'الكرت غير موجود' });
+    }
+
+    if (card.is_used) {
+      return res.status(400).json({ error: 'لا يمكن تغيير حالة كرت مستخدم' });
+    }
+
+    // Check if is_sold column exists, if not add it
+    db.run('ALTER TABLE prepaid_cards ADD COLUMN is_sold BOOLEAN DEFAULT FALSE', (alterErr) => {
+      if (alterErr && !alterErr.message.includes('duplicate column name')) {
+        console.error('Error adding is_sold column:', alterErr);
+      }
+
+      db.run('ALTER TABLE prepaid_cards ADD COLUMN sold_at TIMESTAMP DEFAULT NULL', (alterErr2) => {
+        if (alterErr2 && !alterErr2.message.includes('duplicate column name')) {
+          console.error('Error adding sold_at column:', alterErr2);
+        }
+
+        db.run('ALTER TABLE prepaid_cards ADD COLUMN sold_by_admin_id INTEGER DEFAULT NULL', (alterErr3) => {
+          if (alterErr3 && !alterErr3.message.includes('duplicate column name')) {
+            console.error('Error adding sold_by_admin_id column:', alterErr3);
+          }
+
+          // Now check if already sold
+          if (card.is_sold) {
+            return res.status(400).json({ error: 'الكرت تم بيعه مسبقاً' });
+          }
+
+          // Mark card as sold
+          const soldAt = new Date().toISOString();
+          db.run('UPDATE prepaid_cards SET is_sold = 1, sold_at = ?, sold_by_admin_id = ? WHERE id = ?',
+            [soldAt, adminId, cardId], function(err) {
+            if (err) {
+              console.error('Error marking prepaid card as sold:', err.message);
+              return res.status(500).json({ error: err.message });
+            }
+
+            console.log(`Prepaid card ${cardId} marked as sold successfully by ${adminUsername}`);
+            res.json({
+              success: true,
+              message: 'تم تغيير حالة الكرت إلى "تم بيعه" بنجاح',
+              sold_at: soldAt,
+              sold_by: adminUsername
+            });
+          });
+        });
+      });
+    });
+  });
+});
+
+// Mark prepaid card as not sold
+app.put('/api/admin/prepaid-cards/:id/mark-not-sold', financialSupervisorMiddleware, (req, res) => {
+  const cardId = req.params.id;
+  const adminUsername = req.session.user.username;
+
+  console.log(`Marking prepaid card ${cardId} as not sold by admin ${adminUsername}`);
+
+  // Check if card exists and is not used
+  db.get('SELECT * FROM prepaid_cards WHERE id = ?', [cardId], (err, card) => {
+    if (err) {
+      console.error('Error checking prepaid card:', err.message);
+      return res.status(500).json({ error: err.message });
+    }
+
+    if (!card) {
+      return res.status(404).json({ error: 'الكرت غير موجود' });
+    }
+
+    if (card.is_used) {
+      return res.status(400).json({ error: 'لا يمكن تغيير حالة كرت مستخدم' });
+    }
+
+    if (!card.is_sold) {
+      return res.status(400).json({ error: 'الكرت لم يتم بيعه من الأساس' });
+    }
+
+    // Mark card as not sold
+    db.run('UPDATE prepaid_cards SET is_sold = 0, sold_at = NULL, sold_by_admin_id = NULL WHERE id = ?',
+      [cardId], function(err) {
+      if (err) {
+        console.error('Error marking prepaid card as not sold:', err.message);
+        return res.status(500).json({ error: err.message });
+      }
+
+      console.log(`Prepaid card ${cardId} marked as not sold successfully by ${adminUsername}`);
+      res.json({
+        success: true,
+        message: 'تم تغيير حالة الكرت إلى "لم يتم بيعه" بنجاح'
+      });
+    });
+  });
+});
+
+// Delete prepaid card
+app.delete('/api/admin/prepaid-cards/:id', financialSupervisorMiddleware, (req, res) => {
+  const cardId = req.params.id;
+
+  console.log('=== DELETE SINGLE PREPAID CARD API CALLED ===');
+  console.log('Deleting prepaid card:', cardId);
+  console.log('Request URL:', req.url);
+  console.log('Request method:', req.method);
+
+  // Check if card exists and is not used or sold
+  db.get('SELECT * FROM prepaid_cards WHERE id = ?', [cardId], (err, card) => {
+    if (err) {
+      console.error('Error checking prepaid card:', err.message);
+      return res.status(500).json({ error: err.message });
+    }
+
+    if (!card) {
+      return res.status(404).json({ error: 'الكرت غير موجود' });
+    }
+
+    if (card.is_used) {
+      return res.status(400).json({ error: 'لا يمكن حذف كرت مستخدم' });
+    }
+
+    if (card.is_sold) {
+      return res.status(400).json({ error: 'لا يمكن حذف كرت تم بيعه' });
+    }
+
+    // Delete card
+    db.run('DELETE FROM prepaid_cards WHERE id = ?', [cardId], function(err) {
+      if (err) {
+        console.error('Error deleting prepaid card:', err.message);
+        return res.status(500).json({ error: err.message });
+      }
+
+      console.log('Prepaid card deleted successfully:', cardId);
+      res.json({ success: true, message: 'تم حذف الكرت بنجاح' });
+    });
+  });
+});
+
+// Delete used prepaid card
+app.delete('/api/admin/prepaid-cards/:id/delete-used', financialSupervisorMiddleware, (req, res) => {
+  const cardId = req.params.id;
+  const adminUsername = req.session.user.username;
+
+  console.log(`Attempting to delete used prepaid card ${cardId} by admin ${adminUsername}`);
+
+  // First check if the card exists and is used
+  db.get('SELECT * FROM prepaid_cards WHERE id = ?', [cardId], (err, card) => {
+    if (err) {
+      console.error('Error checking prepaid card:', err.message);
+      return res.status(500).json({ error: err.message });
+    }
+
+    if (!card) {
+      return res.status(404).json({ error: 'الكرت غير موجود' });
+    }
+
+    if (!card.is_used) {
+      return res.status(400).json({ error: 'لا يمكن حذف الكرت - الكرت غير مستخدم' });
+    }
+
+    console.log(`Card ${cardId} details:`, {
+      card_number: card.card_number,
+      value: card.value,
+      used_by: card.used_by_student_name,
+      registration: card.used_by_student_registration,
+      used_at: card.used_at
+    });
+
+    // Delete the card
+    db.run('DELETE FROM prepaid_cards WHERE id = ?', [cardId], function(err) {
+      if (err) {
+        console.error('Error deleting used prepaid card:', err.message);
+        return res.status(500).json({ error: err.message });
+      }
+
+      console.log(`Used prepaid card ${cardId} (${card.card_number}) deleted successfully by ${adminUsername}`);
+      res.json({
+        success: true,
+        message: `تم حذف الكرت المستخدم ${card.card_number} بنجاح`,
+        deletedCard: {
+          id: card.id,
+          card_number: card.card_number,
+          value: card.value,
+          used_by_student_name: card.used_by_student_name,
+          used_by_student_registration: card.used_by_student_registration,
+          used_at: card.used_at
+        }
+      });
+    });
+  });
+});
+
+
+
+// Receipt numbers management routes
+
+// Get all used receipt numbers
+app.get('/api/admin/receipt-numbers', financialSupervisorMiddleware, (req, res) => {
+  console.log('Getting all used receipt numbers...');
+  console.log('User role:', req.session.user.role);
+  console.log('User ID:', req.session.user.id);
+
+  db.all(`
+    SELECT
+      rn.id,
+      rn.receipt_number,
+      rn.used_at,
+      rn.course_name,
+      rn.student_name,
+      s.student_id as student_registration,
+      s.registration_number,
+      d.name as department_name
+    FROM receipt_numbers rn
+    JOIN students s ON rn.used_by_student_id = s.id
+    LEFT JOIN departments d ON s.department_id = d.id
+    ORDER BY rn.used_at DESC
+  `, (err, receipts) => {
+    if (err) {
+      console.error('Error getting receipt numbers:', err.message);
+      return res.status(500).json({ error: err.message });
+    }
+
+    console.log(`Found ${receipts.length} used receipt numbers`);
+    console.log('Receipt numbers data:', receipts);
+
+    res.json({
+      success: true,
+      receipts: receipts
+    });
+  });
+});
+
+// Check if receipt number is used
+app.get('/api/admin/receipt-numbers/:number/status', financialSupervisorMiddleware, (req, res) => {
+  const receiptNumber = req.params.number;
+
+  db.get(`
+    SELECT
+      rn.*,
+      s.name as student_name,
+      s.student_id as student_registration,
+      s.registration_number,
+      d.name as department_name
+    FROM receipt_numbers rn
+    JOIN students s ON rn.used_by_student_id = s.id
+    LEFT JOIN departments d ON s.department_id = d.id
+    WHERE rn.receipt_number = ?
+  `, [receiptNumber], (err, receipt) => {
+    if (err) {
+      console.error('Error checking receipt number:', err.message);
+      return res.status(500).json({ error: err.message });
+    }
+
+    if (receipt) {
+      res.json({
+        success: true,
+        is_used: true,
+        receipt: receipt
+      });
+    } else {
+      res.json({
+        success: true,
+        is_used: false,
+        receipt: null
+      });
+    }
+  });
+});
+
 // Function to update max_students for a course
 function updateCourseMaxStudents(courseId, callback) {
   console.log(`Updating max_students for course ${courseId}...`);
@@ -3693,4 +4964,7 @@ app.listen(PORT, () => {
       console.log(`Updated max_students for ${updatedCourses ? updatedCourses.length : 0} courses on server start`);
     }
   });
+
+  console.log('🚀 Server is running on http://localhost:' + PORT);
+  console.log('📚 University Management System is ready!');
 });
