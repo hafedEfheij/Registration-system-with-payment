@@ -1756,3 +1756,2139 @@
 - إعداد خطة إدارة المخاطر
 
 **مرحلة التحليل مكتملة بنجاح وجاهزة للانتقال لمرحلة التصميم!** 🎊
+
+---
+
+# 🎨 الفصل الثالث: مرحلة التصميم
+
+## 🏗️ 3.1 مقدمة عن الدراسة التصميمية
+
+### تعريف مرحلة التصميم:
+مرحلة التصميم هي المرحلة التي تحول متطلبات النظام المحددة في مرحلة التحليل إلى مخططات وتصاميم تفصيلية قابلة للتنفيذ. تشمل هذه المرحلة تصميم المعمارية العامة للنظام، تصميم قاعدة البيانات، تصميم الواجهات، وتصميم الخوارزميات والعمليات.
+
+### أهداف مرحلة التصميم:
+
+#### 🎯 الأهداف الرئيسية:
+- **ترجمة المتطلبات:** تحويل المتطلبات الوظيفية إلى تصاميم تقنية
+- **تحديد المعمارية:** وضع الهيكل العام للنظام ومكوناته
+- **تصميم قاعدة البيانات:** تصميم هيكل البيانات والعلاقات
+- **تصميم الواجهات:** إنشاء واجهات مستخدم بديهية وجذابة
+- **تحسين الأداء:** ضمان كفاءة النظام وسرعة الاستجابة
+- **ضمان الأمان:** تصميم آليات الحماية والأمان
+
+#### 📋 الأهداف الفرعية:
+- **قابلية الصيانة:** تصميم نظام سهل الصيانة والتطوير
+- **قابلية التوسع:** إمكانية إضافة وظائف جديدة مستقبلاً
+- **إعادة الاستخدام:** تصميم مكونات قابلة لإعادة الاستخدام
+- **التوافق:** ضمان التوافق مع المعايير والتقنيات الحديثة
+
+### منهجية التصميم:
+
+#### 🔄 النهج المتبع:
+تتبع مرحلة التصميم نهج **التصميم من الأعلى للأسفل (Top-Down Design)** مع تطبيق مبادئ **التصميم المعياري (Modular Design)**:
+
+##### 1. التصميم المعماري (Architectural Design):
+- تحديد المكونات الرئيسية للنظام
+- تصميم العلاقات بين المكونات
+- اختيار نمط المعمارية المناسب (MVC)
+
+##### 2. التصميم التفصيلي (Detailed Design):
+- تصميم كل مكون على حدة
+- تحديد الواجهات بين المكونات
+- تصميم الخوارزميات والعمليات
+
+##### 3. التصميم الفيزيائي (Physical Design):
+- تصميم قاعدة البيانات الفيزيائية
+- تحديد متطلبات الأجهزة والشبكة
+- تصميم استراتيجية النشر
+
+### مبادئ التصميم المطبقة:
+
+#### 🏛️ المبادئ الأساسية:
+
+##### 1. مبدأ الفصل بين الاهتمامات (Separation of Concerns):
+- **طبقة العرض (Presentation Layer):** واجهات المستخدم
+- **طبقة المنطق (Business Logic Layer):** قواعد العمل والمعالجة
+- **طبقة البيانات (Data Layer):** إدارة قاعدة البيانات
+
+##### 2. مبدأ التماسك العالي (High Cohesion):
+- كل مكون يؤدي وظيفة محددة وواضحة
+- العناصر داخل المكون مترابطة بقوة
+- تقليل التعقيد داخل كل مكون
+
+##### 3. مبدأ الاقتران المنخفض (Low Coupling):
+- تقليل الاعتماد بين المكونات
+- استخدام واجهات محددة للتواصل
+- سهولة تعديل مكون دون تأثير على الآخرين
+
+##### 4. مبدأ إخفاء المعلومات (Information Hiding):
+- إخفاء تفاصيل التنفيذ الداخلية
+- عرض واجهات بسيطة وواضحة
+- حماية البيانات الحساسة
+
+### أدوات التصميم المستخدمة:
+
+#### 🛠️ أدوات النمذجة:
+- **UML Diagrams:** مخططات الفئات، التسلسل، النشاط
+- **Database Design Tools:** مخططات قاعدة البيانات ERD
+- **Wireframing Tools:** نماذج أولية للواجهات
+- **Prototyping Tools:** نماذج تفاعلية للاختبار
+
+#### 📐 أدوات التصميم البصري:
+- **UI/UX Design Tools:** تصميم واجهات المستخدم
+- **Color Palette Tools:** اختيار الألوان المناسبة
+- **Typography Tools:** اختيار الخطوط والتنسيق
+- **Icon Libraries:** مكتبات الأيقونات والرموز
+
+### معايير التصميم:
+
+#### ✅ معايير الجودة:
+
+##### 1. قابلية الاستخدام (Usability):
+- **البساطة:** واجهات بسيطة وسهلة الفهم
+- **الوضوح:** عناصر واضحة ومفهومة
+- **الاتساق:** تصميم موحد عبر النظام
+- **التغذية الراجعة:** استجابة واضحة لأفعال المستخدم
+
+##### 2. إمكانية الوصول (Accessibility):
+- **دعم قارئات الشاشة:** للمعاقين بصرياً
+- **تباين الألوان:** ألوان واضحة للجميع
+- **حجم النص:** نصوص قابلة للقراءة
+- **التنقل بلوحة المفاتيح:** إمكانية التنقل بدون فأرة
+
+##### 3. الاستجابة (Responsiveness):
+- **التصميم المتجاوب:** يعمل على جميع الأجهزة
+- **الأداء السريع:** تحميل سريع للصفحات
+- **التكيف التلقائي:** تكيف مع أحجام الشاشات المختلفة
+
+### مراحل عملية التصميم:
+
+#### 📅 الجدول الزمني للتصميم:
+
+##### المرحلة الأولى: التصميم المعماري (أسبوع واحد)
+- تحديد معمارية النظام العامة
+- تصميم مخطط المكونات الرئيسية
+- تحديد التقنيات والأدوات المستخدمة
+
+##### المرحلة الثانية: تصميم قاعدة البيانات (أسبوع واحد)
+- تصميم مخطط قاعدة البيانات ERD
+- تحديد الجداول والعلاقات
+- تصميم الفهارس والقيود
+
+##### المرحلة الثالثة: تصميم الواجهات (أسبوعان)
+- تصميم النماذج الأولية (Wireframes)
+- تصميم واجهات المستخدم النهائية
+- تصميم تجربة المستخدم (UX)
+
+##### المرحلة الرابعة: التصميم التفصيلي (أسبوع واحد)
+- تصميم الخوارزميات والعمليات
+- تصميم واجهات البرمجة (APIs)
+- تصميم آليات الأمان والحماية
+
+---
+
+## 🏗️ 3.2 التصميم المعماري للنظام
+
+### نمط المعمارية المختار:
+
+#### 🏛️ معمارية Model-View-Controller (MVC):
+
+##### تعريف MVC:
+نمط معماري يفصل التطبيق إلى ثلاث طبقات رئيسية:
+- **Model (النموذج):** إدارة البيانات والمنطق التجاري
+- **View (العرض):** واجهة المستخدم والعرض
+- **Controller (المتحكم):** التحكم في التدفق والتفاعل
+
+##### مزايا استخدام MVC:
+- **فصل الاهتمامات:** كل طبقة لها مسؤولية محددة
+- **سهولة الصيانة:** تعديل طبقة دون تأثير على الأخريات
+- **إعادة الاستخدام:** إمكانية استخدام المكونات في أماكن متعددة
+- **اختبار أسهل:** اختبار كل طبقة بشكل منفصل
+
+### مكونات النظام الرئيسية:
+
+#### 📊 طبقة النموذج (Model Layer):
+
+##### 1. نماذج البيانات (Data Models):
+- **User Model:** إدارة بيانات المستخدمين
+- **Student Model:** إدارة بيانات الطلاب
+- **Course Model:** إدارة بيانات المواد الدراسية
+- **Department Model:** إدارة بيانات الأقسام
+- **Enrollment Model:** إدارة بيانات التسجيل
+- **PrepaidCard Model:** إدارة كروت الدفع المسبق
+- **Transaction Model:** إدارة المعاملات المالية
+
+##### 2. منطق العمل (Business Logic):
+- **Authentication Service:** خدمة المصادقة والتخويل
+- **Registration Service:** خدمة التسجيل للمواد
+- **Payment Service:** خدمة معالجة المدفوعات
+- **Card Management Service:** خدمة إدارة كروت الدفع
+- **Report Service:** خدمة إنشاء التقارير
+- **Notification Service:** خدمة الإشعارات
+
+#### 🎨 طبقة العرض (View Layer):
+
+##### 1. واجهات الطلاب:
+- **Login Page:** صفحة تسجيل الدخول
+- **Student Dashboard:** لوحة تحكم الطالب
+- **Course Selection:** صفحة اختيار المواد
+- **Payment Page:** صفحة الدفع
+- **QR Scanner:** واجهة مسح رموز QR
+
+##### 2. واجهات الإدارة:
+- **Admin Dashboard:** لوحة تحكم الإدارة
+- **Student Management:** إدارة الطلاب
+- **Course Management:** إدارة المواد
+- **Department Management:** إدارة الأقسام
+- **Reports Interface:** واجهة التقارير
+
+##### 3. واجهات المشرف المالي:
+- **Financial Dashboard:** لوحة تحكم مالية
+- **Card Generation:** إنشاء كروت الدفع
+- **Transaction Monitor:** مراقبة المعاملات
+- **Financial Reports:** التقارير المالية
+
+#### 🎮 طبقة التحكم (Controller Layer):
+
+##### 1. متحكمات المصادقة:
+- **AuthController:** التحكم في تسجيل الدخول والخروج
+- **SessionController:** إدارة جلسات المستخدمين
+- **PermissionController:** التحكم في الصلاحيات
+
+##### 2. متحكمات الطلاب:
+- **StudentController:** إدارة عمليات الطلاب
+- **EnrollmentController:** التحكم في التسجيل
+- **PaymentController:** معالجة عمليات الدفع
+
+##### 3. متحكمات الإدارة:
+- **AdminController:** عمليات الإدارة العامة
+- **CourseController:** إدارة المواد الدراسية
+- **DepartmentController:** إدارة الأقسام
+- **ReportController:** إنشاء التقارير
+
+##### 4. متحكمات المالية:
+- **FinancialController:** العمليات المالية
+- **CardController:** إدارة كروت الدفع المسبق
+- **TransactionController:** معالجة المعاملات
+
+### تصميم قاعدة البيانات:
+
+#### 🗄️ الجداول الرئيسية:
+
+##### 1. جدول المستخدمين (users):
+```sql
+CREATE TABLE users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('student', 'admin', 'financial_supervisor') NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE,
+    phone VARCHAR(20),
+    is_active BOOLEAN DEFAULT 1,
+    is_locked BOOLEAN DEFAULT 0,
+    failed_attempts INTEGER DEFAULT 0,
+    last_login DATETIME,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+##### 2. جدول الطلاب (students):
+```sql
+CREATE TABLE students (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    registration_number VARCHAR(20) UNIQUE NOT NULL,
+    national_id VARCHAR(20) UNIQUE,
+    department_id INTEGER NOT NULL,
+    semester INTEGER DEFAULT 1,
+    address TEXT,
+    date_of_birth DATE,
+    gender ENUM('male', 'female'),
+    enrollment_date DATE DEFAULT CURRENT_DATE,
+    status ENUM('active', 'inactive', 'graduated') DEFAULT 'active',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (department_id) REFERENCES departments(id)
+);
+```
+
+##### 3. جدول الأقسام (departments):
+```sql
+CREATE TABLE departments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name VARCHAR(100) NOT NULL,
+    code VARCHAR(10) UNIQUE NOT NULL,
+    description TEXT,
+    head_of_department VARCHAR(100),
+    building VARCHAR(50),
+    phone VARCHAR(20),
+    email VARCHAR(100),
+    is_active BOOLEAN DEFAULT 1,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+##### 4. جدول المواد الدراسية (courses):
+```sql
+CREATE TABLE courses (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name VARCHAR(100) NOT NULL,
+    code VARCHAR(20) UNIQUE NOT NULL,
+    department_id INTEGER NOT NULL,
+    credits INTEGER NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    instructor VARCHAR(100),
+    description TEXT,
+    prerequisites TEXT,
+    max_students INTEGER DEFAULT 50,
+    semester INTEGER,
+    is_active BOOLEAN DEFAULT 1,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (department_id) REFERENCES departments(id)
+);
+```
+
+##### 5. جدول التسجيل (enrollments):
+```sql
+CREATE TABLE enrollments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    student_id INTEGER NOT NULL,
+    course_id INTEGER NOT NULL,
+    enrollment_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    payment_status ENUM('pending', 'paid', 'cancelled') DEFAULT 'pending',
+    payment_method ENUM('prepaid_card', 'receipt', 'manual') DEFAULT 'prepaid_card',
+    payment_reference VARCHAR(50),
+    payment_date DATETIME,
+    grade VARCHAR(5),
+    status ENUM('enrolled', 'completed', 'dropped') DEFAULT 'enrolled',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (student_id) REFERENCES students(id),
+    FOREIGN KEY (course_id) REFERENCES courses(id),
+    UNIQUE(student_id, course_id)
+);
+```
+
+##### 6. جدول كروت الدفع المسبق (prepaid_cards):
+```sql
+CREATE TABLE prepaid_cards (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    card_number VARCHAR(50) UNIQUE NOT NULL,
+    value DECIMAL(10,2) NOT NULL,
+    qr_code TEXT,
+    status ENUM('unused', 'used', 'expired') DEFAULT 'unused',
+    sale_status ENUM('not_sold', 'sold') DEFAULT 'not_sold',
+    used_by_student_id INTEGER,
+    used_for_enrollment_id INTEGER,
+    created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    used_date DATETIME,
+    created_by_user_id INTEGER,
+    batch_number VARCHAR(20),
+    expiry_date DATE,
+    FOREIGN KEY (used_by_student_id) REFERENCES students(id),
+    FOREIGN KEY (used_for_enrollment_id) REFERENCES enrollments(id),
+    FOREIGN KEY (created_by_user_id) REFERENCES users(id)
+);
+```
+
+### العلاقات بين الجداول:
+
+#### 🔗 أنواع العلاقات:
+
+##### 1. علاقة واحد لكثير (One-to-Many):
+- **users → students:** مستخدم واحد لطالب واحد
+- **departments → students:** قسم واحد لعدة طلاب
+- **departments → courses:** قسم واحد لعدة مواد
+- **students → enrollments:** طالب واحد لعدة تسجيلات
+- **courses → enrollments:** مادة واحدة لعدة تسجيلات
+
+##### 2. علاقة كثير لكثير (Many-to-Many):
+- **students ↔ courses:** عبر جدول enrollments
+- الطالب يمكن أن يسجل في عدة مواد
+- المادة يمكن أن يسجل فيها عدة طلاب
+
+##### 3. علاقة واحد لواحد (One-to-One):
+- **prepaid_cards → enrollments:** كرت واحد لتسجيل واحد
+- **users → students:** مستخدم واحد لطالب واحد (للطلاب فقط)
+
+---
+
+## 🎨 3.2 تصميم الواجهات (Interface Design)
+
+### فلسفة تصميم الواجهات:
+
+#### 🎯 المبادئ الأساسية:
+
+##### 1. التصميم المتمحور حول المستخدم (User-Centered Design):
+- **فهم احتياجات المستخدم:** دراسة سلوك وتوقعات المستخدمين
+- **البساطة والوضوح:** واجهات بسيطة وسهلة الفهم
+- **الاتساق:** تصميم موحد عبر جميع صفحات النظام
+- **التغذية الراجعة:** استجابة فورية وواضحة لأفعال المستخدم
+
+##### 2. التصميم المتجاوب (Responsive Design):
+- **Mobile First:** التصميم يبدأ من الأجهزة المحمولة
+- **Flexible Grid:** شبكة مرنة تتكيف مع أحجام الشاشات
+- **Scalable Images:** صور قابلة للتكيف
+- **Touch-Friendly:** عناصر مناسبة للمس
+
+##### 3. إمكانية الوصول (Accessibility):
+- **WCAG Guidelines:** اتباع إرشادات إمكانية الوصول
+- **Color Contrast:** تباين ألوان مناسب
+- **Keyboard Navigation:** إمكانية التنقل بلوحة المفاتيح
+- **Screen Reader Support:** دعم قارئات الشاشة
+
+### نظام الألوان والهوية البصرية:
+
+#### 🎨 لوحة الألوان الأساسية:
+
+##### الألوان الرئيسية:
+- **اللون الأساسي (Primary):** #007bff (أزرق أكاديمي)
+- **اللون الثانوي (Secondary):** #6c757d (رمادي متوسط)
+- **لون النجاح (Success):** #28a745 (أخضر)
+- **لون التحذير (Warning):** #ffc107 (أصفر/برتقالي)
+- **لون الخطر (Danger):** #dc3545 (أحمر)
+- **لون المعلومات (Info):** #17a2b8 (أزرق فاتح)
+
+##### الألوان المساعدة:
+- **خلفية فاتحة:** #f8f9fa
+- **خلفية داكنة:** #343a40
+- **نص أساسي:** #212529
+- **نص ثانوي:** #6c757d
+- **حدود:** #dee2e6
+
+#### 🔤 نظام الخطوط:
+
+##### الخطوط العربية:
+- **الخط الأساسي:** 'Cairo', 'Segoe UI', Tahoma, sans-serif
+- **خط العناوين:** 'Amiri', 'Times New Roman', serif
+- **خط الكود:** 'Courier New', monospace
+
+##### أحجام الخطوط:
+- **عنوان رئيسي (h1):** 2.5rem (40px)
+- **عنوان فرعي (h2):** 2rem (32px)
+- **عنوان صغير (h3):** 1.75rem (28px)
+- **نص عادي:** 1rem (16px)
+- **نص صغير:** 0.875rem (14px)
+
+### تصميم واجهات المستخدم:
+
+#### 👤 واجهات الطلاب:
+
+##### 1. صفحة تسجيل الدخول:
+```html
+<!-- تصميم صفحة تسجيل الدخول -->
+<div class="login-container">
+    <div class="login-card">
+        <div class="university-logo">
+            <img src="logo.png" alt="شعار الجامعة">
+            <h2>جامعة الحضارة</h2>
+        </div>
+
+        <form class="login-form">
+            <div class="form-group">
+                <label for="username">اسم المستخدم</label>
+                <input type="text" id="username" class="form-control" required>
+                <i class="fas fa-user input-icon"></i>
+            </div>
+
+            <div class="form-group">
+                <label for="password">كلمة المرور</label>
+                <input type="password" id="password" class="form-control" required>
+                <i class="fas fa-lock input-icon"></i>
+                <button type="button" class="password-toggle">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">
+                <i class="fas fa-sign-in-alt"></i>
+                تسجيل الدخول
+            </button>
+        </form>
+
+        <div class="login-footer">
+            <a href="#" class="forgot-password">نسيت كلمة المرور؟</a>
+        </div>
+    </div>
+</div>
+```
+
+##### 2. لوحة تحكم الطالب:
+```html
+<!-- تصميم لوحة تحكم الطالب -->
+<div class="student-dashboard">
+    <header class="dashboard-header">
+        <div class="user-info">
+            <div class="user-avatar">
+                <i class="fas fa-user-graduate"></i>
+            </div>
+            <div class="user-details">
+                <h3>أحمد محمد علي</h3>
+                <p>رقم التسجيل: 12345</p>
+                <span class="department-badge">هندسة الحاسوب</span>
+            </div>
+        </div>
+
+        <div class="quick-actions">
+            <button class="btn btn-outline-primary">
+                <i class="fas fa-book"></i>
+                تسجيل مواد
+            </button>
+            <button class="btn btn-outline-success">
+                <i class="fas fa-credit-card"></i>
+                دفع الرسوم
+            </button>
+        </div>
+    </header>
+
+    <div class="dashboard-content">
+        <div class="stats-cards">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-book-open"></i>
+                </div>
+                <div class="stat-info">
+                    <h4>5</h4>
+                    <p>مواد مسجلة</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-info">
+                    <h4>3</h4>
+                    <p>مواد مدفوعة</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-info">
+                    <h4>2</h4>
+                    <p>في انتظار الدفع</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="enrolled-courses">
+            <h3>المواد المسجلة</h3>
+            <div class="courses-table">
+                <!-- جدول المواد -->
+            </div>
+        </div>
+    </div>
+</div>
+```
+
+##### 3. صفحة اختيار المواد:
+```html
+<!-- تصميم صفحة اختيار المواد -->
+<div class="course-selection">
+    <div class="selection-header">
+        <h2>اختيار المواد الدراسية</h2>
+        <div class="semester-info">
+            <span class="semester-badge">الفصل الأول 2024</span>
+        </div>
+    </div>
+
+    <div class="selection-filters">
+        <div class="filter-group">
+            <label>القسم:</label>
+            <select class="form-control">
+                <option>جميع الأقسام</option>
+                <option>هندسة الحاسوب</option>
+                <option>إدارة الأعمال</option>
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label>عدد الساعات:</label>
+            <select class="form-control">
+                <option>جميع الساعات</option>
+                <option>3 ساعات</option>
+                <option>4 ساعات</option>
+            </select>
+        </div>
+
+        <div class="search-group">
+            <input type="text" class="form-control" placeholder="البحث في المواد...">
+            <i class="fas fa-search"></i>
+        </div>
+    </div>
+
+    <div class="courses-grid">
+        <div class="course-card">
+            <div class="course-header">
+                <h4>برمجة الحاسوب</h4>
+                <span class="course-code">CS101</span>
+            </div>
+
+            <div class="course-details">
+                <div class="detail-item">
+                    <i class="fas fa-clock"></i>
+                    <span>3 ساعات</span>
+                </div>
+                <div class="detail-item">
+                    <i class="fas fa-dollar-sign"></i>
+                    <span>5 دنانير</span>
+                </div>
+                <div class="detail-item">
+                    <i class="fas fa-user"></i>
+                    <span>د. أحمد محمد</span>
+                </div>
+            </div>
+
+            <div class="course-description">
+                <p>مقدمة في البرمجة باستخدام لغة Python...</p>
+            </div>
+
+            <div class="course-actions">
+                <button class="btn btn-primary">
+                    <i class="fas fa-plus"></i>
+                    إضافة للتسجيل
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="selection-summary">
+        <div class="summary-card">
+            <h4>ملخص التسجيل</h4>
+            <div class="summary-details">
+                <div class="summary-item">
+                    <span>عدد المواد:</span>
+                    <strong>3 مواد</strong>
+                </div>
+                <div class="summary-item">
+                    <span>إجمالي الساعات:</span>
+                    <strong>9 ساعات</strong>
+                </div>
+                <div class="summary-item">
+                    <span>إجمالي الرسوم:</span>
+                    <strong>15 دينار</strong>
+                </div>
+            </div>
+
+            <button class="btn btn-success btn-block">
+                <i class="fas fa-arrow-right"></i>
+                متابعة للدفع
+            </button>
+        </div>
+    </div>
+</div>
+```
+
+##### 4. صفحة الدفع:
+```html
+<!-- تصميم صفحة الدفع -->
+<div class="payment-page">
+    <div class="payment-header">
+        <h2>دفع الرسوم الدراسية</h2>
+        <div class="payment-progress">
+            <div class="progress-step completed">
+                <i class="fas fa-check"></i>
+                <span>اختيار المواد</span>
+            </div>
+            <div class="progress-step active">
+                <i class="fas fa-credit-card"></i>
+                <span>الدفع</span>
+            </div>
+            <div class="progress-step">
+                <i class="fas fa-check-circle"></i>
+                <span>التأكيد</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="payment-content">
+        <div class="payment-summary">
+            <h3>ملخص الدفع</h3>
+            <div class="summary-table">
+                <div class="summary-row">
+                    <span>برمجة الحاسوب (CS101)</span>
+                    <span>5 دنانير</span>
+                </div>
+                <div class="summary-row">
+                    <span>قواعد البيانات (CS201)</span>
+                    <span>5 دنانير</span>
+                </div>
+                <div class="summary-row total">
+                    <span>الإجمالي:</span>
+                    <strong>10 دنانير</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="payment-methods">
+            <h3>طريقة الدفع</h3>
+
+            <div class="payment-method active">
+                <div class="method-header">
+                    <input type="radio" name="payment_method" value="prepaid_card" checked>
+                    <label>كرت الدفع المسبق</label>
+                    <i class="fas fa-credit-card"></i>
+                </div>
+
+                <div class="method-content">
+                    <div class="card-input-group">
+                        <label>رقم الكرت:</label>
+                        <div class="input-with-scanner">
+                            <input type="text" class="form-control" placeholder="أدخل رقم كرت الدفع المسبق">
+                            <button type="button" class="btn btn-outline-primary qr-scanner-btn">
+                                <i class="fas fa-qrcode"></i>
+                                مسح QR
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="qr-scanner" id="qr-scanner" style="display: none;">
+                        <div class="scanner-container">
+                            <video id="qr-video"></video>
+                            <div class="scanner-overlay">
+                                <div class="scanner-frame"></div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-secondary close-scanner">
+                            إغلاق الماسح
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="payment-method">
+                <div class="method-header">
+                    <input type="radio" name="payment_method" value="receipt">
+                    <label>رقم إيصال</label>
+                    <i class="fas fa-receipt"></i>
+                </div>
+
+                <div class="method-content">
+                    <div class="receipt-input-group">
+                        <label>رقم الإيصال:</label>
+                        <input type="text" class="form-control" placeholder="أدخل رقم الإيصال">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="payment-actions">
+            <button type="button" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i>
+                العودة
+            </button>
+            <button type="submit" class="btn btn-success">
+                <i class="fas fa-credit-card"></i>
+                تأكيد الدفع
+            </button>
+        </div>
+    </div>
+</div>
+```
+
+#### 🏛️ واجهات الإدارة:
+
+##### 1. لوحة تحكم الإدارة:
+```html
+<!-- تصميم لوحة تحكم الإدارة -->
+<div class="admin-dashboard">
+    <div class="dashboard-sidebar">
+        <div class="sidebar-header">
+            <img src="logo.png" alt="شعار الجامعة" class="sidebar-logo">
+            <h3>لوحة الإدارة</h3>
+        </div>
+
+        <nav class="sidebar-nav">
+            <ul class="nav-list">
+                <li class="nav-item active">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>الرئيسية</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-users"></i>
+                        <span>إدارة الطلاب</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-book"></i>
+                        <span>إدارة المواد</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-building"></i>
+                        <span>إدارة الأقسام</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>التقارير</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="dashboard-main">
+        <header class="main-header">
+            <div class="header-left">
+                <button class="sidebar-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1>لوحة التحكم</h1>
+            </div>
+
+            <div class="header-right">
+                <div class="notifications">
+                    <button class="notification-btn">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">3</span>
+                    </button>
+                </div>
+
+                <div class="user-menu">
+                    <div class="user-info">
+                        <span>مدير النظام</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="stats-overview">
+                <div class="stat-card">
+                    <div class="stat-icon bg-primary">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-details">
+                        <h3>1,234</h3>
+                        <p>إجمالي الطلاب</p>
+                        <span class="stat-change positive">+5.2%</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon bg-success">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <div class="stat-details">
+                        <h3>856</h3>
+                        <p>التسجيلات اليوم</p>
+                        <span class="stat-change positive">+12.1%</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon bg-warning">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <div class="stat-details">
+                        <h3>4,280</h3>
+                        <p>الإيرادات (دينار)</p>
+                        <span class="stat-change positive">+8.7%</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon bg-info">
+                        <i class="fas fa-credit-card"></i>
+                    </div>
+                    <div class="stat-details">
+                        <h3>156</h3>
+                        <p>كروت الدفع المتبقية</p>
+                        <span class="stat-change negative">-2.3%</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-widgets">
+                <div class="widget">
+                    <div class="widget-header">
+                        <h3>التسجيلات الأخيرة</h3>
+                        <a href="#" class="widget-action">عرض الكل</a>
+                    </div>
+                    <div class="widget-content">
+                        <!-- قائمة التسجيلات الأخيرة -->
+                    </div>
+                </div>
+
+                <div class="widget">
+                    <div class="widget-header">
+                        <h3>إحصائيات التسجيل</h3>
+                    </div>
+                    <div class="widget-content">
+                        <canvas id="registrationChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+```
+
+### تصميم تجربة المستخدم (UX Design):
+
+#### 🎯 رحلة المستخدم (User Journey):
+
+##### رحلة الطالب:
+1. **تسجيل الدخول** → التحقق من الهوية
+2. **عرض لوحة التحكم** → معلومات سريعة عن الحالة
+3. **تصفح المواد المتاحة** → فلترة وبحث
+4. **اختيار المواد** → إضافة للسلة
+5. **مراجعة الاختيار** → تأكيد المواد والرسوم
+6. **الدفع** → إدخال بيانات الدفع أو مسح QR
+7. **التأكيد** → عرض نتيجة العملية
+8. **تسجيل الخروج** → إنهاء الجلسة بأمان
+
+##### نقاط التفاعل الرئيسية:
+- **نقاط الدخول:** صفحة تسجيل الدخول
+- **نقاط القرار:** اختيار المواد، تأكيد الدفع
+- **نقاط الخروج:** تأكيد التسجيل، رسائل الخطأ
+- **نقاط الألم:** مشاكل الدفع، أخطاء النظام
+
+#### 📱 التصميم المتجاوب:
+
+##### نقاط التوقف (Breakpoints):
+```css
+/* نقاط التوقف للتصميم المتجاوب */
+/* أجهزة صغيرة جداً */
+@media (max-width: 575.98px) {
+    .container { padding: 10px; }
+    .btn { padding: 8px 12px; font-size: 14px; }
+    .card { margin-bottom: 15px; }
+}
+
+/* أجهزة صغيرة */
+@media (min-width: 576px) and (max-width: 767.98px) {
+    .container { padding: 15px; }
+    .dashboard-sidebar { width: 100%; height: auto; }
+}
+
+/* أجهزة متوسطة */
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .dashboard-sidebar { width: 250px; }
+    .stats-cards { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* أجهزة كبيرة */
+@media (min-width: 992px) {
+    .dashboard-sidebar { width: 280px; }
+    .stats-cards { grid-template-columns: repeat(4, 1fr); }
+}
+```
+
+##### تحسينات الأجهزة المحمولة:
+- **أزرار أكبر:** حد أدنى 44px للمس السهل
+- **نصوص واضحة:** حد أدنى 16px لتجنب التكبير
+- **مساحات كافية:** padding مناسب بين العناصر
+- **تنقل مبسط:** قوائم قابلة للطي والتمرير
+
+---
+
+## 🗄️ 3.3 تصميم قاعدة البيانات التفصيلي
+
+### نموذج الكيان والعلاقة (Entity Relationship Diagram - ERD):
+
+#### 🏗️ الكيانات الرئيسية:
+
+##### 1. كيان المستخدم (User Entity):
+```
+User {
+    - id: INTEGER (Primary Key)
+    - username: VARCHAR(50) (Unique)
+    - password: VARCHAR(255)
+    - role: ENUM('student', 'admin', 'financial_supervisor')
+    - name: VARCHAR(100)
+    - email: VARCHAR(100) (Unique)
+    - phone: VARCHAR(20)
+    - is_active: BOOLEAN
+    - is_locked: BOOLEAN
+    - failed_attempts: INTEGER
+    - last_login: DATETIME
+    - created_at: DATETIME
+    - updated_at: DATETIME
+}
+```
+
+##### 2. كيان الطالب (Student Entity):
+```
+Student {
+    - id: INTEGER (Primary Key)
+    - user_id: INTEGER (Foreign Key → User.id)
+    - registration_number: VARCHAR(20) (Unique)
+    - national_id: VARCHAR(20) (Unique)
+    - department_id: INTEGER (Foreign Key → Department.id)
+    - semester: INTEGER
+    - address: TEXT
+    - date_of_birth: DATE
+    - gender: ENUM('male', 'female')
+    - enrollment_date: DATE
+    - status: ENUM('active', 'inactive', 'graduated')
+    - created_at: DATETIME
+    - updated_at: DATETIME
+}
+```
+
+##### 3. كيان القسم (Department Entity):
+```
+Department {
+    - id: INTEGER (Primary Key)
+    - name: VARCHAR(100)
+    - code: VARCHAR(10) (Unique)
+    - description: TEXT
+    - head_of_department: VARCHAR(100)
+    - building: VARCHAR(50)
+    - phone: VARCHAR(20)
+    - email: VARCHAR(100)
+    - is_active: BOOLEAN
+    - created_at: DATETIME
+    - updated_at: DATETIME
+}
+```
+
+##### 4. كيان المادة الدراسية (Course Entity):
+```
+Course {
+    - id: INTEGER (Primary Key)
+    - name: VARCHAR(100)
+    - code: VARCHAR(20) (Unique)
+    - department_id: INTEGER (Foreign Key → Department.id)
+    - credits: INTEGER
+    - price: DECIMAL(10,2)
+    - instructor: VARCHAR(100)
+    - description: TEXT
+    - prerequisites: TEXT
+    - max_students: INTEGER
+    - semester: INTEGER
+    - is_active: BOOLEAN
+    - created_at: DATETIME
+    - updated_at: DATETIME
+}
+```
+
+##### 5. كيان التسجيل (Enrollment Entity):
+```
+Enrollment {
+    - id: INTEGER (Primary Key)
+    - student_id: INTEGER (Foreign Key → Student.id)
+    - course_id: INTEGER (Foreign Key → Course.id)
+    - enrollment_date: DATETIME
+    - payment_status: ENUM('pending', 'paid', 'cancelled')
+    - payment_method: ENUM('prepaid_card', 'receipt', 'manual')
+    - payment_reference: VARCHAR(50)
+    - payment_date: DATETIME
+    - grade: VARCHAR(5)
+    - status: ENUM('enrolled', 'completed', 'dropped')
+    - created_at: DATETIME
+    - updated_at: DATETIME
+}
+```
+
+##### 6. كيان كرت الدفع المسبق (PrepaidCard Entity):
+```
+PrepaidCard {
+    - id: INTEGER (Primary Key)
+    - card_number: VARCHAR(50) (Unique)
+    - value: DECIMAL(10,2)
+    - qr_code: TEXT
+    - status: ENUM('unused', 'used', 'expired')
+    - sale_status: ENUM('not_sold', 'sold')
+    - used_by_student_id: INTEGER (Foreign Key → Student.id)
+    - used_for_enrollment_id: INTEGER (Foreign Key → Enrollment.id)
+    - created_date: DATETIME
+    - used_date: DATETIME
+    - created_by_user_id: INTEGER (Foreign Key → User.id)
+    - batch_number: VARCHAR(20)
+    - expiry_date: DATE
+}
+```
+
+### العلاقات التفصيلية:
+
+#### 🔗 مصفوفة العلاقات:
+
+| الكيان الأول | العلاقة | الكيان الثاني | نوع العلاقة | الوصف |
+|-------------|---------|-------------|------------|-------|
+| User | has | Student | 1:1 | مستخدم واحد لطالب واحد |
+| Department | contains | Student | 1:N | قسم واحد يحتوي على عدة طلاب |
+| Department | offers | Course | 1:N | قسم واحد يقدم عدة مواد |
+| Student | enrolls_in | Course | M:N | طالب يسجل في عدة مواد |
+| Student | makes | Enrollment | 1:N | طالب واحد له عدة تسجيلات |
+| Course | has | Enrollment | 1:N | مادة واحدة لها عدة تسجيلات |
+| PrepaidCard | used_for | Enrollment | 1:1 | كرت واحد لتسجيل واحد |
+| User | creates | PrepaidCard | 1:N | مستخدم ينشئ عدة كروت |
+
+### تصميم الفهارس (Indexes):
+
+#### 📊 الفهارس الأساسية:
+
+##### فهارس الأداء:
+```sql
+-- فهارس لتحسين الأداء
+CREATE INDEX idx_users_username ON users(username);
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_students_registration_number ON students(registration_number);
+CREATE INDEX idx_students_department_id ON students(department_id);
+CREATE INDEX idx_courses_department_id ON courses(department_id);
+CREATE INDEX idx_courses_code ON courses(code);
+CREATE INDEX idx_enrollments_student_id ON enrollments(student_id);
+CREATE INDEX idx_enrollments_course_id ON enrollments(course_id);
+CREATE INDEX idx_enrollments_payment_status ON enrollments(payment_status);
+CREATE INDEX idx_prepaid_cards_card_number ON prepaid_cards(card_number);
+CREATE INDEX idx_prepaid_cards_status ON prepaid_cards(status);
+CREATE INDEX idx_prepaid_cards_sale_status ON prepaid_cards(sale_status);
+```
+
+##### فهارس مركبة:
+```sql
+-- فهارس مركبة للاستعلامات المعقدة
+CREATE INDEX idx_enrollments_student_payment ON enrollments(student_id, payment_status);
+CREATE INDEX idx_courses_dept_active ON courses(department_id, is_active);
+CREATE INDEX idx_students_dept_status ON students(department_id, status);
+CREATE INDEX idx_prepaid_cards_status_sale ON prepaid_cards(status, sale_status);
+```
+
+### القيود والتحقق (Constraints and Validation):
+
+#### 🔒 قيود التكامل المرجعي:
+
+##### قيود المفاتيح الخارجية:
+```sql
+-- قيود المفاتيح الخارجية
+ALTER TABLE students
+ADD CONSTRAINT fk_students_user_id
+FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
+
+ALTER TABLE students
+ADD CONSTRAINT fk_students_department_id
+FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE RESTRICT;
+
+ALTER TABLE courses
+ADD CONSTRAINT fk_courses_department_id
+FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE RESTRICT;
+
+ALTER TABLE enrollments
+ADD CONSTRAINT fk_enrollments_student_id
+FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE;
+
+ALTER TABLE enrollments
+ADD CONSTRAINT fk_enrollments_course_id
+FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE RESTRICT;
+
+ALTER TABLE prepaid_cards
+ADD CONSTRAINT fk_prepaid_cards_used_by_student_id
+FOREIGN KEY (used_by_student_id) REFERENCES students(id) ON DELETE SET NULL;
+
+ALTER TABLE prepaid_cards
+ADD CONSTRAINT fk_prepaid_cards_used_for_enrollment_id
+FOREIGN KEY (used_for_enrollment_id) REFERENCES enrollments(id) ON DELETE SET NULL;
+```
+
+##### قيود التحقق:
+```sql
+-- قيود التحقق من صحة البيانات
+ALTER TABLE users
+ADD CONSTRAINT chk_users_role
+CHECK (role IN ('student', 'admin', 'financial_supervisor'));
+
+ALTER TABLE students
+ADD CONSTRAINT chk_students_gender
+CHECK (gender IN ('male', 'female'));
+
+ALTER TABLE students
+ADD CONSTRAINT chk_students_semester
+CHECK (semester >= 1 AND semester <= 12);
+
+ALTER TABLE courses
+ADD CONSTRAINT chk_courses_credits
+CHECK (credits >= 1 AND credits <= 6);
+
+ALTER TABLE courses
+ADD CONSTRAINT chk_courses_price
+CHECK (price >= 0);
+
+ALTER TABLE courses
+ADD CONSTRAINT chk_courses_max_students
+CHECK (max_students >= 1);
+
+ALTER TABLE enrollments
+ADD CONSTRAINT chk_enrollments_payment_status
+CHECK (payment_status IN ('pending', 'paid', 'cancelled'));
+
+ALTER TABLE prepaid_cards
+ADD CONSTRAINT chk_prepaid_cards_value
+CHECK (value > 0);
+
+ALTER TABLE prepaid_cards
+ADD CONSTRAINT chk_prepaid_cards_status
+CHECK (status IN ('unused', 'used', 'expired'));
+```
+
+### إجراءات قاعدة البيانات (Stored Procedures):
+
+#### 🔧 الإجراءات المخزنة الأساسية:
+
+##### 1. إجراء التحقق من صحة التسجيل:
+```sql
+DELIMITER //
+CREATE PROCEDURE ValidateEnrollment(
+    IN p_student_id INT,
+    IN p_course_id INT,
+    OUT p_result VARCHAR(100),
+    OUT p_is_valid BOOLEAN
+)
+BEGIN
+    DECLARE v_student_count INT DEFAULT 0;
+    DECLARE v_course_count INT DEFAULT 0;
+    DECLARE v_enrollment_count INT DEFAULT 0;
+    DECLARE v_max_students INT DEFAULT 0;
+    DECLARE v_current_enrollments INT DEFAULT 0;
+    DECLARE v_student_course_count INT DEFAULT 0;
+
+    -- التحقق من وجود الطالب
+    SELECT COUNT(*) INTO v_student_count
+    FROM students
+    WHERE id = p_student_id AND status = 'active';
+
+    IF v_student_count = 0 THEN
+        SET p_result = 'الطالب غير موجود أو غير نشط';
+        SET p_is_valid = FALSE;
+        LEAVE proc;
+    END IF;
+
+    -- التحقق من وجود المادة
+    SELECT COUNT(*), max_students INTO v_course_count, v_max_students
+    FROM courses
+    WHERE id = p_course_id AND is_active = 1;
+
+    IF v_course_count = 0 THEN
+        SET p_result = 'المادة غير موجودة أو غير نشطة';
+        SET p_is_valid = FALSE;
+        LEAVE proc;
+    END IF;
+
+    -- التحقق من عدم التسجيل المسبق
+    SELECT COUNT(*) INTO v_enrollment_count
+    FROM enrollments
+    WHERE student_id = p_student_id
+    AND course_id = p_course_id
+    AND status != 'dropped';
+
+    IF v_enrollment_count > 0 THEN
+        SET p_result = 'الطالب مسجل مسبقاً في هذه المادة';
+        SET p_is_valid = FALSE;
+        LEAVE proc;
+    END IF;
+
+    -- التحقق من الحد الأقصى للطلاب في المادة
+    SELECT COUNT(*) INTO v_current_enrollments
+    FROM enrollments
+    WHERE course_id = p_course_id
+    AND status = 'enrolled';
+
+    IF v_current_enrollments >= v_max_students THEN
+        SET p_result = 'تم الوصول للحد الأقصى من الطلاب في هذه المادة';
+        SET p_is_valid = FALSE;
+        LEAVE proc;
+    END IF;
+
+    -- التحقق من عدد المواد المسجلة للطالب
+    SELECT COUNT(*) INTO v_student_course_count
+    FROM enrollments
+    WHERE student_id = p_student_id
+    AND status = 'enrolled';
+
+    IF v_student_course_count >= 6 THEN
+        SET p_result = 'تم تجاوز الحد الأقصى للمواد المسموح بها';
+        SET p_is_valid = FALSE;
+        LEAVE proc;
+    END IF;
+
+    -- إذا وصلنا هنا، فالتسجيل صحيح
+    SET p_result = 'التسجيل صحيح';
+    SET p_is_valid = TRUE;
+
+END //
+DELIMITER ;
+```
+
+##### 2. إجراء معالجة الدفع:
+```sql
+DELIMITER //
+CREATE PROCEDURE ProcessPayment(
+    IN p_enrollment_id INT,
+    IN p_card_number VARCHAR(50),
+    OUT p_result VARCHAR(100),
+    OUT p_success BOOLEAN
+)
+BEGIN
+    DECLARE v_card_id INT DEFAULT 0;
+    DECLARE v_card_value DECIMAL(10,2) DEFAULT 0;
+    DECLARE v_card_status VARCHAR(20) DEFAULT '';
+    DECLARE v_course_price DECIMAL(10,2) DEFAULT 0;
+    DECLARE v_student_id INT DEFAULT 0;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SET p_result = 'خطأ في قاعدة البيانات';
+        SET p_success = FALSE;
+    END;
+
+    START TRANSACTION;
+
+    -- التحقق من وجود الكرت
+    SELECT id, value, status INTO v_card_id, v_card_value, v_card_status
+    FROM prepaid_cards
+    WHERE card_number = p_card_number;
+
+    IF v_card_id = 0 THEN
+        SET p_result = 'رقم الكرت غير صحيح';
+        SET p_success = FALSE;
+        ROLLBACK;
+        LEAVE proc;
+    END IF;
+
+    -- التحقق من حالة الكرت
+    IF v_card_status != 'unused' THEN
+        SET p_result = 'الكرت مستخدم مسبقاً';
+        SET p_success = FALSE;
+        ROLLBACK;
+        LEAVE proc;
+    END IF;
+
+    -- الحصول على سعر المادة ومعرف الطالب
+    SELECT c.price, e.student_id INTO v_course_price, v_student_id
+    FROM enrollments e
+    JOIN courses c ON e.course_id = c.id
+    WHERE e.id = p_enrollment_id;
+
+    -- التحقق من تطابق القيمة
+    IF v_card_value != v_course_price THEN
+        SET p_result = 'قيمة الكرت لا تتطابق مع سعر المادة';
+        SET p_success = FALSE;
+        ROLLBACK;
+        LEAVE proc;
+    END IF;
+
+    -- تحديث حالة الكرت
+    UPDATE prepaid_cards
+    SET status = 'used',
+        used_by_student_id = v_student_id,
+        used_for_enrollment_id = p_enrollment_id,
+        used_date = NOW()
+    WHERE id = v_card_id;
+
+    -- تحديث حالة التسجيل
+    UPDATE enrollments
+    SET payment_status = 'paid',
+        payment_method = 'prepaid_card',
+        payment_reference = p_card_number,
+        payment_date = NOW()
+    WHERE id = p_enrollment_id;
+
+    COMMIT;
+
+    SET p_result = 'تم الدفع بنجاح';
+    SET p_success = TRUE;
+
+END //
+DELIMITER ;
+```
+
+### استراتيجية النسخ الاحتياطي:
+
+#### 💾 خطة النسخ الاحتياطي:
+
+##### 1. النسخ الاحتياطي التلقائي:
+```sql
+-- إعداد النسخ الاحتياطي التلقائي
+-- نسخة احتياطية كاملة يومياً في الساعة 2:00 صباحاً
+CREATE EVENT daily_backup
+ON SCHEDULE EVERY 1 DAY
+STARTS '2024-01-01 02:00:00'
+DO
+BEGIN
+    -- إنشاء نسخة احتياطية كاملة
+    SET @backup_file = CONCAT('backup_', DATE_FORMAT(NOW(), '%Y%m%d_%H%i%s'), '.sql');
+    SET @backup_command = CONCAT('mysqldump university_db > /backups/', @backup_file);
+    -- تنفيذ أمر النسخ الاحتياطي
+END;
+
+-- نسخة احتياطية تزايدية كل 6 ساعات
+CREATE EVENT incremental_backup
+ON SCHEDULE EVERY 6 HOUR
+DO
+BEGIN
+    -- إنشاء نسخة احتياطية تزايدية
+    -- نسخ البيانات المتغيرة فقط
+END;
+```
+
+##### 2. استراتيجية الاسترداد:
+- **الاسترداد الكامل:** استرداد النسخة الاحتياطية الكاملة الأخيرة
+- **الاسترداد النقطي:** استرداد إلى نقطة زمنية محددة
+- **الاسترداد الجزئي:** استرداد جداول أو بيانات محددة
+
+### تحسين الأداء:
+
+#### ⚡ استراتيجيات التحسين:
+
+##### 1. تحسين الاستعلامات:
+```sql
+-- استعلام محسن لعرض تسجيلات الطالب
+SELECT
+    e.id,
+    c.name AS course_name,
+    c.code AS course_code,
+    c.credits,
+    c.price,
+    e.payment_status,
+    e.enrollment_date
+FROM enrollments e
+INNER JOIN courses c ON e.course_id = c.id
+WHERE e.student_id = ?
+AND e.status = 'enrolled'
+ORDER BY e.enrollment_date DESC;
+
+-- استعلام محسن لإحصائيات القسم
+SELECT
+    d.name AS department_name,
+    COUNT(DISTINCT s.id) AS total_students,
+    COUNT(DISTINCT c.id) AS total_courses,
+    COUNT(e.id) AS total_enrollments,
+    SUM(CASE WHEN e.payment_status = 'paid' THEN c.price ELSE 0 END) AS total_revenue
+FROM departments d
+LEFT JOIN students s ON d.id = s.department_id
+LEFT JOIN courses c ON d.id = c.department_id
+LEFT JOIN enrollments e ON c.id = e.course_id
+WHERE d.is_active = 1
+GROUP BY d.id, d.name
+ORDER BY total_students DESC;
+```
+
+##### 2. تقسيم البيانات (Partitioning):
+```sql
+-- تقسيم جدول التسجيلات حسب التاريخ
+ALTER TABLE enrollments
+PARTITION BY RANGE (YEAR(enrollment_date)) (
+    PARTITION p2023 VALUES LESS THAN (2024),
+    PARTITION p2024 VALUES LESS THAN (2025),
+    PARTITION p2025 VALUES LESS THAN (2026),
+    PARTITION p_future VALUES LESS THAN MAXVALUE
+);
+```
+
+---
+
+## 🔐 3.4 تصميم الأمان والحماية
+
+### استراتيجية الأمان الشاملة:
+
+#### 🛡️ طبقات الحماية:
+
+##### 1. أمان الشبكة (Network Security):
+- **HTTPS:** تشفير جميع الاتصالات
+- **Firewall:** جدار حماية لفلترة الحركة
+- **VPN:** شبكة خاصة افتراضية للوصول الإداري
+- **DDoS Protection:** حماية من هجمات الحرمان من الخدمة
+
+##### 2. أمان التطبيق (Application Security):
+- **Input Validation:** التحقق من جميع المدخلات
+- **SQL Injection Prevention:** منع حقن SQL
+- **XSS Protection:** حماية من البرمجة النصية المتقاطعة
+- **CSRF Protection:** حماية من تزوير الطلبات
+
+##### 3. أمان البيانات (Data Security):
+- **Encryption at Rest:** تشفير البيانات المخزنة
+- **Encryption in Transit:** تشفير البيانات المنقولة
+- **Data Masking:** إخفاء البيانات الحساسة
+- **Access Control:** التحكم في الوصول للبيانات
+
+##### 4. أمان المصادقة (Authentication Security):
+- **Strong Passwords:** كلمات مرور قوية
+- **Account Lockout:** تجميد الحسابات بعد محاولات فاشلة
+- **Session Management:** إدارة آمنة للجلسات
+- **Multi-Factor Authentication:** مصادقة متعددة العوامل (مستقبلياً)
+
+### تصميم نظام المصادقة والتخويل:
+
+#### 🔑 آلية المصادقة:
+
+##### 1. تشفير كلمات المرور:
+```python
+import bcrypt
+import hashlib
+from datetime import datetime, timedelta
+
+class PasswordManager:
+    @staticmethod
+    def hash_password(password: str) -> str:
+        """تشفير كلمة المرور باستخدام bcrypt"""
+        salt = bcrypt.gensalt()
+        hashed = bcrypt.hashpw(password.encode('utf-8'), salt)
+        return hashed.decode('utf-8')
+
+    @staticmethod
+    def verify_password(password: str, hashed: str) -> bool:
+        """التحقق من كلمة المرور"""
+        return bcrypt.checkpw(password.encode('utf-8'), hashed.encode('utf-8'))
+
+    @staticmethod
+    def is_strong_password(password: str) -> tuple[bool, list]:
+        """التحقق من قوة كلمة المرور"""
+        errors = []
+
+        if len(password) < 8:
+            errors.append("كلمة المرور يجب أن تكون 8 أحرف على الأقل")
+
+        if not any(c.isupper() for c in password):
+            errors.append("يجب أن تحتوي على حرف كبير واحد على الأقل")
+
+        if not any(c.islower() for c in password):
+            errors.append("يجب أن تحتوي على حرف صغير واحد على الأقل")
+
+        if not any(c.isdigit() for c in password):
+            errors.append("يجب أن تحتوي على رقم واحد على الأقل")
+
+        if not any(c in "!@#$%^&*()_+-=[]{}|;:,.<>?" for c in password):
+            errors.append("يجب أن تحتوي على رمز خاص واحد على الأقل")
+
+        return len(errors) == 0, errors
+```
+
+##### 2. إدارة الجلسات:
+```python
+import secrets
+import json
+from datetime import datetime, timedelta
+
+class SessionManager:
+    def __init__(self, session_timeout=30):  # 30 دقيقة
+        self.session_timeout = session_timeout
+        self.active_sessions = {}
+
+    def create_session(self, user_id: int, user_role: str) -> str:
+        """إنشاء جلسة جديدة"""
+        session_id = secrets.token_urlsafe(32)
+        session_data = {
+            'user_id': user_id,
+            'user_role': user_role,
+            'created_at': datetime.now(),
+            'last_activity': datetime.now(),
+            'ip_address': self.get_client_ip(),
+            'user_agent': self.get_user_agent()
+        }
+
+        self.active_sessions[session_id] = session_data
+        return session_id
+
+    def validate_session(self, session_id: str) -> tuple[bool, dict]:
+        """التحقق من صحة الجلسة"""
+        if session_id not in self.active_sessions:
+            return False, {}
+
+        session = self.active_sessions[session_id]
+
+        # التحقق من انتهاء صلاحية الجلسة
+        if self.is_session_expired(session):
+            self.destroy_session(session_id)
+            return False, {}
+
+        # تحديث آخر نشاط
+        session['last_activity'] = datetime.now()
+        return True, session
+
+    def is_session_expired(self, session: dict) -> bool:
+        """التحقق من انتهاء صلاحية الجلسة"""
+        expiry_time = session['last_activity'] + timedelta(minutes=self.session_timeout)
+        return datetime.now() > expiry_time
+
+    def destroy_session(self, session_id: str):
+        """إنهاء الجلسة"""
+        if session_id in self.active_sessions:
+            del self.active_sessions[session_id]
+
+    def cleanup_expired_sessions(self):
+        """تنظيف الجلسات المنتهية الصلاحية"""
+        expired_sessions = []
+        for session_id, session in self.active_sessions.items():
+            if self.is_session_expired(session):
+                expired_sessions.append(session_id)
+
+        for session_id in expired_sessions:
+            self.destroy_session(session_id)
+```
+
+##### 3. نظام التخويل (Authorization):
+```python
+from enum import Enum
+from functools import wraps
+
+class UserRole(Enum):
+    STUDENT = "student"
+    ADMIN = "admin"
+    FINANCIAL_SUPERVISOR = "financial_supervisor"
+
+class Permission(Enum):
+    # صلاحيات الطلاب
+    VIEW_OWN_PROFILE = "view_own_profile"
+    EDIT_OWN_PROFILE = "edit_own_profile"
+    VIEW_COURSES = "view_courses"
+    ENROLL_COURSES = "enroll_courses"
+    MAKE_PAYMENT = "make_payment"
+
+    # صلاحيات الإدارة
+    MANAGE_STUDENTS = "manage_students"
+    MANAGE_COURSES = "manage_courses"
+    MANAGE_DEPARTMENTS = "manage_departments"
+    VIEW_REPORTS = "view_reports"
+
+    # صلاحيات المشرف المالي
+    MANAGE_PREPAID_CARDS = "manage_prepaid_cards"
+    VIEW_TRANSACTIONS = "view_transactions"
+    MANAGE_PAYMENTS = "manage_payments"
+    VIEW_FINANCIAL_REPORTS = "view_financial_reports"
+
+class AuthorizationManager:
+    # تعريف الصلاحيات لكل دور
+    ROLE_PERMISSIONS = {
+        UserRole.STUDENT: [
+            Permission.VIEW_OWN_PROFILE,
+            Permission.EDIT_OWN_PROFILE,
+            Permission.VIEW_COURSES,
+            Permission.ENROLL_COURSES,
+            Permission.MAKE_PAYMENT
+        ],
+        UserRole.ADMIN: [
+            Permission.MANAGE_STUDENTS,
+            Permission.MANAGE_COURSES,
+            Permission.MANAGE_DEPARTMENTS,
+            Permission.VIEW_REPORTS
+        ],
+        UserRole.FINANCIAL_SUPERVISOR: [
+            Permission.MANAGE_PREPAID_CARDS,
+            Permission.VIEW_TRANSACTIONS,
+            Permission.MANAGE_PAYMENTS,
+            Permission.VIEW_FINANCIAL_REPORTS
+        ]
+    }
+
+    @classmethod
+    def has_permission(cls, user_role: UserRole, permission: Permission) -> bool:
+        """التحقق من وجود صلاحية للمستخدم"""
+        return permission in cls.ROLE_PERMISSIONS.get(user_role, [])
+
+    @classmethod
+    def require_permission(cls, permission: Permission):
+        """ديكوريتر للتحقق من الصلاحية"""
+        def decorator(func):
+            @wraps(func)
+            def wrapper(*args, **kwargs):
+                # الحصول على دور المستخدم من الجلسة
+                user_role = get_current_user_role()
+
+                if not cls.has_permission(user_role, permission):
+                    raise PermissionError("ليس لديك صلاحية للوصول لهذه الوظيفة")
+
+                return func(*args, **kwargs)
+            return wrapper
+        return decorator
+```
+
+### حماية البيانات الحساسة:
+
+#### 🔒 تشفير البيانات:
+
+##### 1. تشفير البيانات الشخصية:
+```python
+from cryptography.fernet import Fernet
+import base64
+import os
+
+class DataEncryption:
+    def __init__(self):
+        # مفتاح التشفير (يجب حفظه بأمان)
+        self.key = self.load_or_generate_key()
+        self.cipher = Fernet(self.key)
+
+    def load_or_generate_key(self) -> bytes:
+        """تحميل أو إنشاء مفتاح التشفير"""
+        key_file = 'encryption.key'
+
+        if os.path.exists(key_file):
+            with open(key_file, 'rb') as f:
+                return f.read()
+        else:
+            key = Fernet.generate_key()
+            with open(key_file, 'wb') as f:
+                f.write(key)
+            return key
+
+    def encrypt_sensitive_data(self, data: str) -> str:
+        """تشفير البيانات الحساسة"""
+        if not data:
+            return data
+
+        encrypted_data = self.cipher.encrypt(data.encode('utf-8'))
+        return base64.b64encode(encrypted_data).decode('utf-8')
+
+    def decrypt_sensitive_data(self, encrypted_data: str) -> str:
+        """فك تشفير البيانات الحساسة"""
+        if not encrypted_data:
+            return encrypted_data
+
+        try:
+            decoded_data = base64.b64decode(encrypted_data.encode('utf-8'))
+            decrypted_data = self.cipher.decrypt(decoded_data)
+            return decrypted_data.decode('utf-8')
+        except Exception:
+            return ""  # في حالة فشل فك التشفير
+
+# استخدام التشفير للبيانات الحساسة
+encryption = DataEncryption()
+
+# تشفير الرقم الوطني
+national_id_encrypted = encryption.encrypt_sensitive_data("1234567890")
+
+# تشفير رقم الهاتف
+phone_encrypted = encryption.encrypt_sensitive_data("+964-123-456-7890")
+```
+
+##### 2. حماية أرقام كروت الدفع:
+```python
+import hashlib
+import secrets
+
+class CardSecurity:
+    @staticmethod
+    def generate_secure_card_number() -> str:
+        """إنشاء رقم كرت آمن"""
+        # إنشاء رقم عشوائي من 12 رقم
+        random_part = ''.join([str(secrets.randbelow(10)) for _ in range(12)])
+
+        # إضافة رقم تحقق باستخدام خوارزمية Luhn
+        check_digit = CardSecurity.calculate_luhn_check_digit(random_part)
+
+        return random_part + str(check_digit)
+
+    @staticmethod
+    def calculate_luhn_check_digit(card_number: str) -> int:
+        """حساب رقم التحقق باستخدام خوارزمية Luhn"""
+        def luhn_checksum(card_num):
+            def digits_of(n):
+                return [int(d) for d in str(n)]
+
+            digits = digits_of(card_num)
+            odd_digits = digits[-1::-2]
+            even_digits = digits[-2::-2]
+            checksum = sum(odd_digits)
+            for d in even_digits:
+                checksum += sum(digits_of(d*2))
+            return checksum % 10
+
+        return (10 - luhn_checksum(card_number)) % 10
+
+    @staticmethod
+    def validate_card_number(card_number: str) -> bool:
+        """التحقق من صحة رقم الكرت"""
+        if len(card_number) != 13:
+            return False
+
+        if not card_number.isdigit():
+            return False
+
+        # التحقق من رقم التحقق
+        main_part = card_number[:-1]
+        check_digit = int(card_number[-1])
+        calculated_check = CardSecurity.calculate_luhn_check_digit(main_part)
+
+        return check_digit == calculated_check
+
+    @staticmethod
+    def hash_card_number(card_number: str) -> str:
+        """إنشاء hash لرقم الكرت للبحث السريع"""
+        return hashlib.sha256(card_number.encode('utf-8')).hexdigest()
+```
+
+### مراقبة الأمان والتسجيل:
+
+#### 📊 نظام التسجيل الأمني:
+
+##### 1. تسجيل الأحداث الأمنية:
+```python
+import logging
+import json
+from datetime import datetime
+from enum import Enum
+
+class SecurityEventType(Enum):
+    LOGIN_SUCCESS = "login_success"
+    LOGIN_FAILURE = "login_failure"
+    ACCOUNT_LOCKED = "account_locked"
+    PASSWORD_CHANGED = "password_changed"
+    UNAUTHORIZED_ACCESS = "unauthorized_access"
+    DATA_ACCESS = "data_access"
+    PAYMENT_PROCESSED = "payment_processed"
+    CARD_GENERATED = "card_generated"
+
+class SecurityLogger:
+    def __init__(self):
+        # إعداد logger للأحداث الأمنية
+        self.logger = logging.getLogger('security')
+        self.logger.setLevel(logging.INFO)
+
+        # إعداد handler للملف
+        file_handler = logging.FileHandler('security.log')
+        file_handler.setLevel(logging.INFO)
+
+        # إعداد التنسيق
+        formatter = logging.Formatter(
+            '%(asctime)s - %(levelname)s - %(message)s'
+        )
+        file_handler.setFormatter(formatter)
+
+        self.logger.addHandler(file_handler)
+
+    def log_security_event(self, event_type: SecurityEventType,
+                          user_id: int = None,
+                          ip_address: str = None,
+                          details: dict = None):
+        """تسجيل حدث أمني"""
+        event_data = {
+            'event_type': event_type.value,
+            'timestamp': datetime.now().isoformat(),
+            'user_id': user_id,
+            'ip_address': ip_address,
+            'details': details or {}
+        }
+
+        self.logger.info(json.dumps(event_data, ensure_ascii=False))
+
+    def log_login_attempt(self, username: str, success: bool,
+                         ip_address: str, user_agent: str):
+        """تسجيل محاولة تسجيل الدخول"""
+        event_type = SecurityEventType.LOGIN_SUCCESS if success else SecurityEventType.LOGIN_FAILURE
+
+        details = {
+            'username': username,
+            'user_agent': user_agent,
+            'success': success
+        }
+
+        self.log_security_event(event_type, ip_address=ip_address, details=details)
+
+    def log_payment_transaction(self, student_id: int, card_number: str,
+                               amount: float, success: bool):
+        """تسجيل معاملة دفع"""
+        details = {
+            'student_id': student_id,
+            'card_number_hash': hashlib.sha256(card_number.encode()).hexdigest()[:8],
+            'amount': amount,
+            'success': success
+        }
+
+        self.log_security_event(SecurityEventType.PAYMENT_PROCESSED,
+                               user_id=student_id, details=details)
+
+# إنشاء مثيل من logger الأمني
+security_logger = SecurityLogger()
+```
+
+##### 2. مراقبة الأنشطة المشبوهة:
+```python
+from collections import defaultdict
+from datetime import datetime, timedelta
+
+class SecurityMonitor:
+    def __init__(self):
+        self.failed_login_attempts = defaultdict(list)
+        self.suspicious_activities = []
+
+        # حدود التحذير
+        self.max_failed_attempts = 3
+        self.time_window = timedelta(minutes=15)
+        self.max_requests_per_minute = 60
+
+    def record_failed_login(self, username: str, ip_address: str):
+        """تسجيل محاولة تسجيل دخول فاشلة"""
+        current_time = datetime.now()
+        key = f"{username}:{ip_address}"
+
+        # إضافة المحاولة الفاشلة
+        self.failed_login_attempts[key].append(current_time)
+
+        # تنظيف المحاولات القديمة
+        self.cleanup_old_attempts(key)
+
+        # التحقق من تجاوز الحد المسموح
+        if len(self.failed_login_attempts[key]) >= self.max_failed_attempts:
+            self.trigger_account_lockout(username, ip_address)
+
+    def cleanup_old_attempts(self, key: str):
+        """تنظيف المحاولات القديمة"""
+        current_time = datetime.now()
+        cutoff_time = current_time - self.time_window
+
+        self.failed_login_attempts[key] = [
+            attempt for attempt in self.failed_login_attempts[key]
+            if attempt > cutoff_time
+        ]
+
+    def trigger_account_lockout(self, username: str, ip_address: str):
+        """تفعيل تجميد الحساب"""
+        # تسجيل الحدث
+        security_logger.log_security_event(
+            SecurityEventType.ACCOUNT_LOCKED,
+            details={
+                'username': username,
+                'ip_address': ip_address,
+                'reason': 'تجاوز عدد محاولات تسجيل الدخول الفاشلة'
+            }
+        )
+
+        # تجميد الحساب في قاعدة البيانات
+        self.lock_user_account(username)
+
+    def detect_suspicious_activity(self, user_id: int, activity: str,
+                                 ip_address: str):
+        """اكتشاف الأنشطة المشبوهة"""
+        suspicious_patterns = [
+            'multiple_rapid_requests',
+            'unusual_access_pattern',
+            'access_from_new_location',
+            'bulk_data_access'
+        ]
+
+        if activity in suspicious_patterns:
+            self.suspicious_activities.append({
+                'user_id': user_id,
+                'activity': activity,
+                'ip_address': ip_address,
+                'timestamp': datetime.now()
+            })
+
+            # إرسال تنبيه للمدير
+            self.send_security_alert(user_id, activity, ip_address)
+
+# إنشاء مثيل من مراقب الأمان
+security_monitor = SecurityMonitor()
+```
+
+### حماية من الهجمات الشائعة:
+
+#### 🛡️ الحماية من الهجمات:
+
+##### 1. حماية من SQL Injection:
+```python
+import sqlite3
+from typing import Any, List, Tuple
+
+class SecureDatabase:
+    def __init__(self, db_path: str):
+        self.db_path = db_path
+
+    def execute_query(self, query: str, params: Tuple = ()) -> List[Any]:
+        """تنفيذ استعلام آمن باستخدام prepared statements"""
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                cursor = conn.cursor()
+                cursor.execute(query, params)
+
+                if query.strip().upper().startswith('SELECT'):
+                    return cursor.fetchall()
+                else:
+                    conn.commit()
+                    return cursor.rowcount
+        except sqlite3.Error as e:
+            # تسجيل الخطأ دون كشف تفاصيل قاعدة البيانات
+            security_logger.log_security_event(
+                SecurityEventType.UNAUTHORIZED_ACCESS,
+                details={'error': 'Database error occurred'}
+            )
+            raise Exception("حدث خطأ في قاعدة البيانات")
+
+    def get_user_by_username(self, username: str) -> dict:
+        """الحصول على المستخدم بطريقة آمنة"""
+        query = """
+        SELECT id, username, password, role, name, email, is_active, is_locked
+        FROM users
+        WHERE username = ? AND is_active = 1
+        """
+
+        result = self.execute_query(query, (username,))
+
+        if result:
+            row = result[0]
+            return {
+                'id': row[0],
+                'username': row[1],
+                'password': row[2],
+                'role': row[3],
+                'name': row[4],
+                'email': row[5],
+                'is_active': row[6],
+                'is_locked': row[7]
+            }
+        return None
+```
+
+##### 2. حماية من XSS:
+```python
+import html
+import re
+from typing import str
+
+class XSSProtection:
+    # قائمة العلامات المسموحة
+    ALLOWED_TAGS = ['b', 'i', 'u', 'strong', 'em']
+
+    @staticmethod
+    def sanitize_input(user_input: str) -> str:
+        """تنظيف المدخلات من XSS"""
+        if not user_input:
+            return user_input
+
+        # تحويل الأحرف الخاصة إلى HTML entities
+        sanitized = html.escape(user_input)
+
+        # إزالة JavaScript
+        sanitized = re.sub(r'<script.*?</script>', '', sanitized, flags=re.IGNORECASE | re.DOTALL)
+
+        # إزالة event handlers
+        sanitized = re.sub(r'on\w+\s*=\s*["\'][^"\']*["\']', '', sanitized, flags=re.IGNORECASE)
+
+        # إزالة javascript: URLs
+        sanitized = re.sub(r'javascript:', '', sanitized, flags=re.IGNORECASE)
+
+        return sanitized
+
+    @staticmethod
+    def validate_and_sanitize_form_data(form_data: dict) -> dict:
+        """التحقق من وتنظيف بيانات النموذج"""
+        sanitized_data = {}
+
+        for key, value in form_data.items():
+            if isinstance(value, str):
+                sanitized_data[key] = XSSProtection.sanitize_input(value)
+            else:
+                sanitized_data[key] = value
+
+        return sanitized_data
+```
+
+##### 3. حماية من CSRF:
+```python
+import secrets
+import hmac
+import hashlib
+from datetime import datetime, timedelta
+
+class CSRFProtection:
+    def __init__(self, secret_key: str):
+        self.secret_key = secret_key
+        self.token_lifetime = timedelta(hours=1)
+
+    def generate_csrf_token(self, session_id: str) -> str:
+        """إنشاء CSRF token"""
+        timestamp = str(int(datetime.now().timestamp()))
+        random_part = secrets.token_urlsafe(16)
+
+        # إنشاء التوقيع
+        message = f"{session_id}:{timestamp}:{random_part}"
+        signature = hmac.new(
+            self.secret_key.encode(),
+            message.encode(),
+            hashlib.sha256
+        ).hexdigest()
+
+        return f"{timestamp}:{random_part}:{signature}"
+
+    def validate_csrf_token(self, token: str, session_id: str) -> bool:
+        """التحقق من صحة CSRF token"""
+        try:
+            parts = token.split(':')
+            if len(parts) != 3:
+                return False
+
+            timestamp, random_part, signature = parts
+
+            # التحقق من انتهاء الصلاحية
+            token_time = datetime.fromtimestamp(int(timestamp))
+            if datetime.now() - token_time > self.token_lifetime:
+                return False
+
+            # التحقق من التوقيع
+            message = f"{session_id}:{timestamp}:{random_part}"
+            expected_signature = hmac.new(
+                self.secret_key.encode(),
+                message.encode(),
+                hashlib.sha256
+            ).hexdigest()
+
+            return hmac.compare_digest(signature, expected_signature)
+
+        except (ValueError, TypeError):
+            return False
+
+# إنشاء مثيل من حماية CSRF
+csrf_protection = CSRFProtection("your-secret-key-here")
+```
+
+---
+
+## 🚀 3.5 تصميم الأداء والتحسين
+
+### استراتيجية تحسين الأداء:
+
+#### ⚡ مستويات التحسين:
+
+##### 1. تحسين قاعدة البيانات:
+- **الفهرسة الذكية:** إنشاء فهارس مناسبة للاستعلامات الشائعة
+- **تحسين الاستعلامات:** كتابة استعلامات محسنة وفعالة
+- **التخزين المؤقت:** استخدام cache للبيانات المتكررة
+- **تقسيم البيانات:** تقسيم الجداول الكبيرة حسب التاريخ
+
+##### 2. تحسين التطبيق:
+- **التحميل الكسول:** تحميل البيانات عند الحاجة فقط
+- **ضغط البيانات:** ضغط الاستجابات والملفات
+- **تجميع الطلبات:** تجميع عدة طلبات في طلب واحد
+- **التخزين المؤقت للجلسات:** تخزين بيانات الجلسة بكفاءة
+
+##### 3. تحسين الواجهة:
+- **تحسين الصور:** ضغط وتحسين الصور
+- **تجميع الملفات:** دمج ملفات CSS و JavaScript
+- **التحميل التدريجي:** تحميل المحتوى تدريجياً
+- **Service Workers:** تخزين مؤقت للموارد
+
+### مراقبة الأداء:
+
+#### 📊 مؤشرات الأداء الرئيسية (KPIs):
+
+##### مؤشرات الخادم:
+- **وقت الاستجابة:** أقل من 2 ثانية للصفحات العادية
+- **معدل النقل:** عدد الطلبات المعالجة في الثانية
+- **استخدام الذاكرة:** أقل من 80% من الذاكرة المتاحة
+- **استخدام المعالج:** أقل من 70% في الأوقات العادية
+
+##### مؤشرات قاعدة البيانات:
+- **وقت تنفيذ الاستعلام:** أقل من 100ms للاستعلامات البسيطة
+- **عدد الاتصالات المتزامنة:** مراقبة pool الاتصالات
+- **حجم قاعدة البيانات:** مراقبة نمو البيانات
+- **معدل الأخطاء:** أقل من 0.1% من الاستعلامات
+
+**مرحلة التصميم مكتملة بنجاح وجاهزة للتطوير!** 🎨🏗️✨
