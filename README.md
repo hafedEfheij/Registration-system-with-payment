@@ -1,6 +1,5 @@
 # جامعة الحاضرة - نظام تنزيل المواد
 
-This is a university course download system built with Node.js, Express, and SQLite.
 
 ## Features
 
